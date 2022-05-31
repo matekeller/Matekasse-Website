@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/transaction.dart';
 import 'package:http/http.dart' as http;
+import 'package:matemate/user_list.dart';
 
 import 'offering.dart';
 
@@ -72,7 +73,7 @@ class GraphQlHelper {
           ["transactionsPaginated"]["pageInfo"]["endCursor"];
     } else if (response.statusCode == 404) {
       throw SocketException("The Server is not online");
-    }else {
+    } else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -145,7 +146,7 @@ class GraphQlHelper {
     throw Exception(response.reasonPhrase);
   }
 
-  static Future<void> updateAllUsers() async {
+  static Future<List<User>> updateAllUsers() async {
     String authToken = LocalStore.authToken;
     var headers = {
       'Authorization': 'Bearer $authToken',
@@ -161,11 +162,23 @@ class GraphQlHelper {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      LocalStore.allUsersJson = jsonEncode(
-          jsonDecode(await response.stream.bytesToString())["data"]["users"]);
+      dynamic usersJson =
+          jsonDecode(await response.stream.bytesToString())["data"]["users"];
+      LocalStore.allUsersJson = jsonEncode(usersJson);
+      List<User> users = [];
+      for (dynamic userJson in usersJson) {
+        users.add(
+          User(
+            balanceCents: userJson['balance'] ?? 0,
+            fullName: userJson['fullName'],
+            username: userJson['username'],
+          ),
+        );
+      }
+      return users;
     } else if (response.statusCode == 404) {
       throw SocketException("The Server is not online");
-    }else {
+    } else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -191,7 +204,7 @@ class GraphQlHelper {
       return true;
     } else if (response.statusCode == 404) {
       throw SocketException("The Server is not online");
-    }else {
+    } else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -216,7 +229,7 @@ class GraphQlHelper {
       return true;
     } else if (response.statusCode == 404) {
       throw SocketException("The Server is not online");
-    }else {
+    } else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -277,7 +290,7 @@ class GraphQlHelper {
       LocalStore.offerings = newOfferings;
     } else if (response.statusCode == 404) {
       throw SocketException("The Server is not online");
-    }else {
+    } else {
       throw Exception("An error Occured");
     }
   }

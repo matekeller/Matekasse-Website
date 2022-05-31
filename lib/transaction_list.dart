@@ -62,7 +62,7 @@ class _TransactionListState extends State<TransactionList> {
                   ),
                   visible: _loading,
                 ),
-                SizedBox(height: 700,child: Icon(FontAwesomeIcons.dog, color: Colors.grey,size: 50,),)
+                const SizedBox(height: 700,child: Icon(FontAwesomeIcons.dog, color: Colors.grey,size: 50,),)
               ],
             ),
           );

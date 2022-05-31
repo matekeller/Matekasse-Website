@@ -9,6 +9,7 @@ import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:matemate/user_list.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'offering_grid.dart';
 import 'transaction_list.dart';
@@ -94,6 +95,15 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: [
               ListTile(
+                leading: const Icon(FontAwesomeIcons.users),
+                title: const Text("Users"),
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return const UserList();
+                    })),
+              ),
+              Divider(),
+              ListTile(
                 leading: const Icon(FontAwesomeIcons.arrowRightFromBracket),
                 title: const Text("Log out"),
                 onTap: () {
@@ -103,7 +113,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.pop(context);
                   _signIn(context);
                 },
-              )
+              ),
+
             ],
           ),
         ),
@@ -143,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 _showTopUpDialog();
               },
               icon: const Icon(
-                FontAwesomeIcons.dollarSign,
+                FontAwesomeIcons.euroSign,
                 color: Colors.white,
               ),
             ),
@@ -381,7 +392,7 @@ class _MyHomePageState extends State<MyHomePage> {
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("Top-Up"),
         children: [
-          const Text("Ammount €"),
+          const Text("Amount €"),
           MoneyTextField(onChanged: (newPrice) => pricePaidEuros = newPrice),
           const SizedBox(
             height: 16,
@@ -438,7 +449,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return SimpleDialog(
           contentPadding: const EdgeInsets.all(8),
           titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-          title: const Text("Pruchase"),
+          title: const Text("Purchase"),
           children: [
             const Text("Product"),
             const SizedBox(
