@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'graphql_helper.dart';
 import 'transaction.dart';
@@ -60,7 +61,8 @@ class _TransactionListState extends State<TransactionList> {
                     child: CircularProgressIndicator(),
                   ),
                   visible: _loading,
-                )
+                ),
+                SizedBox(height: 700,child: Icon(FontAwesomeIcons.dog, color: Colors.grey,size: 50,),)
               ],
             ),
           );
