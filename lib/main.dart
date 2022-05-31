@@ -169,6 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
     bool authTokenExpired = true;
     try {
       authTokenExpired = JwtDecoder.isExpired(LocalStore.authToken);
+      print(authTokenExpired);
     } catch (e) {
       // There is no auth token, therefore it cant be valid.
     }
@@ -197,6 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 10,
               ),
               TextField(
+                obscureText: true,
                 onChanged: (value) => newPassword = value,
               ),
               TextButton(

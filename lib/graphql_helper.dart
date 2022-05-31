@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/transaction.dart';
 import 'package:http/http.dart' as http;
@@ -38,8 +39,12 @@ class GraphQlHelper {
         LocalStore.authToken = newAuthToken;
         return;
       }
+    } else if (streamedResponse.statusCode == 404) {
+      throw SocketException("The Server is not online");
     } else {
-      throw Exception(streamedResponse.reasonPhrase);
+      throw Exception(streamedResponse.reasonPhrase.toString() +
+          " StatusCode: " +
+          streamedResponse.statusCode.toString());
     }
   }
 
@@ -65,7 +70,9 @@ class GraphQlHelper {
     if (response.statusCode == 200) {
       return jsonDecode(await response.stream.bytesToString())["data"]
           ["transactionsPaginated"]["pageInfo"]["endCursor"];
-    } else {
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
+    }else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -131,6 +138,8 @@ class GraphQlHelper {
       hasNextPage = jsonDecode(responseString)['data']['transactionsPaginated']
           ['pageInfo']['hasNextPage'];
       return transactionsPage;
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
     }
 
     throw Exception(response.reasonPhrase);
@@ -154,7 +163,9 @@ class GraphQlHelper {
     if (response.statusCode == 200) {
       LocalStore.allUsersJson = jsonEncode(
           jsonDecode(await response.stream.bytesToString())["data"]["users"]);
-    } else {
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
+    }else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -178,7 +189,9 @@ class GraphQlHelper {
 
     if (response.statusCode == 200) {
       return true;
-    } else {
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
+    }else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -201,7 +214,9 @@ class GraphQlHelper {
 
     if (response.statusCode == 200) {
       return true;
-    } else {
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
+    }else {
       throw Exception(response.reasonPhrase);
     }
   }
@@ -224,6 +239,8 @@ class GraphQlHelper {
 
     if (response.statusCode == 200) {
       return true;
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
     }
     return false;
   }
@@ -258,7 +275,9 @@ class GraphQlHelper {
           )
       ];
       LocalStore.offerings = newOfferings;
-    } else {
+    } else if (response.statusCode == 404) {
+      throw SocketException("The Server is not online");
+    }else {
       throw Exception("An error Occured");
     }
   }
