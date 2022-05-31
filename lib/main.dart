@@ -291,7 +291,7 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(
             height: 20,
           ),
-          const Text("Bluecard Id"),
+          const Text("Bluecard ID"),
           const SizedBox(
             height: 10,
           ),
