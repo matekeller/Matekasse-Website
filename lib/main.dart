@@ -74,6 +74,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // Flags indicating which dialogs are open
+  bool showingSignInDialog = false;
+  bool showingNewUserDialog = false;
+  bool showingPurchaseDialog = false;
+  bool showingTopUpDialog = false;
+  bool showingNoConnectionDialog = false;
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -188,58 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         await GraphQlHelper.signIn(LocalStore.userName, LocalStore.password);
       } on InvalidSignInCredentialsException {
-        await showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) => ScaffoldedDialog(
-            contentPadding: const EdgeInsets.all(8),
-            titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-            title: const Text("Log-In"),
-            children: [
-              const Text("Username"),
-              const SizedBox(
-                height: 10,
-              ),
-              TextField(onChanged: (value) => newUserName = value),
-              const SizedBox(
-                height: 20,
-              ),
-              const Text("Password"),
-              const SizedBox(
-                height: 10,
-              ),
-              TextField(
-                obscureText: true,
-                onChanged: (value) => newPassword = value,
-              ),
-              TextButton(
-                //color: Colors.blueAccent,
-                child: Text(
-                  "Log-In",
-                  style: Theme.of(context)
-                      .textTheme
-                      .button!
-                      .copyWith(color: Colors.white),
-                ),
-                onPressed: () {
-                  if (newUserName == "") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Enter a Username")));
-                    return;
-                  }
-                  if (newPassword == "") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Enter a Password")));
-                    return;
-                  }
-                  LocalStore.userName = newUserName;
-                  LocalStore.password = newPassword;
-                  Navigator.pop(context);
-                },
-              )
-            ],
-          ),
-        );
+        await _showSignInDialog();
       } on SocketException {
         await _showNoConnectionDialog(context);
       }
@@ -252,7 +208,77 @@ class _MyHomePageState extends State<MyHomePage> {
     return true;
   }
 
+  Future<void> _showSignInDialog() async {
+    String newUserName = "";
+    String newPassword = "";
+    if (showingSignInDialog) {
+      return;
+    }
+    showingSignInDialog = true;
+    await showDialog(
+      context: context,
+      builder: (context) => ScaffoldedDialog(
+        barrierDismissable: false,
+        contentPadding: const EdgeInsets.all(8),
+        titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+        title: const Text("Log-In"),
+        children: [
+          const Text("Username"),
+          const SizedBox(
+            height: 10,
+          ),
+          TextField(onChanged: (value) => newUserName = value),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text("Password"),
+          const SizedBox(
+            height: 10,
+          ),
+          TextField(
+            obscureText: true,
+            onChanged: (value) => newPassword = value,
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          TextButton(
+            //color: Colors.blueAccent,
+            child: Text(
+              "Log-In",
+              style: Theme.of(context)
+                  .textTheme
+                  .button!
+                  .copyWith(color: Colors.white),
+            ),
+            onPressed: () {
+              if (newUserName == "") {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Enter a Username")));
+                return;
+              }
+              if (newPassword == "") {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Enter a Password")));
+                return;
+              }
+              LocalStore.userName = newUserName;
+              LocalStore.password = newPassword;
+              showingSignInDialog = false;
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
+    );
+    showingSignInDialog = false;
+  }
+
   Future<void> _showNewUserDialog() async {
+    if (showingNewUserDialog) {
+      return;
+    }
+    showingNewUserDialog = true;
     String? username;
     String? fullName;
     String? password;
@@ -365,6 +391,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // No problem occured, we can add the user
               try {
                 GraphQlHelper.addUser(username, fullName, password, bluecardId);
+                showingNewUserDialog = false;
                 Navigator.pop(context);
               } on SocketException {
                 _showNoConnectionDialog(context);
@@ -374,9 +401,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+    showingNewUserDialog = false;
   }
 
   Future<void> _showTopUpDialog() async {
+    if (showingTopUpDialog) {
+      return;
+    }
+    showingTopUpDialog = true;
     String? username;
     int? pricePaidEuros;
     try {
@@ -423,6 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
               try {
                 GraphQlHelper.topUp(username!, pricePaidEuros! * 100);
+                showingTopUpDialog = false;
                 Navigator.pop(context);
               } on SocketException {
                 _showNoConnectionDialog(context);
@@ -432,9 +465,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+    showingTopUpDialog = false;
   }
 
   Future<void> _showPurchaseDialog() async {
+    if (showingPurchaseDialog) {
+      return;
+    }
+    showingPurchaseDialog = true;
     String? selectedOfferingName;
     String? username;
     try {
@@ -509,9 +547,14 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+    showingPurchaseDialog = false;
   }
 
   Future<void> _showNoConnectionDialog(BuildContext context) async {
+    if (showingNoConnectionDialog) {
+      return;
+    }
+    showingNoConnectionDialog = true;
     await showDialog(
       context: context,
       builder: (context) => ScaffoldedDialog(
@@ -541,6 +584,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+    showingNoConnectionDialog = false;
   }
 }
 

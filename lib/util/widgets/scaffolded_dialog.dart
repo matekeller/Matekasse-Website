@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const EdgeInsets _defaultInsetPadding =
     EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0);
@@ -19,6 +20,7 @@ class ScaffoldedDialog extends StatelessWidget {
   final ShapeBorder? shape;
   final AlignmentGeometry? alignment;
   final double? blurRadius;
+  final bool barrierDismissable;
 
   const ScaffoldedDialog(
       {this.title,
@@ -34,6 +36,7 @@ class ScaffoldedDialog extends StatelessWidget {
       this.shape,
       this.alignment,
       this.blurRadius,
+      this.barrierDismissable = true,
       Key? key})
       : super(key: key);
 
@@ -42,10 +45,44 @@ class ScaffoldedDialog extends StatelessWidget {
     if (blurRadius != null) {
       return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurRadius!, sigmaY: blurRadius!),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SimpleDialog(
-            title: title,
+        child: _buildDialog(context),
+      );
+    }
+    return _buildDialog(context);
+  }
+
+  Widget _buildDialog(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          GestureDetector(
+            child: Container(
+              color: Colors.transparent,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            onTap: () {
+              if (barrierDismissable) {
+                Navigator.pop(context);
+              }
+            },
+          ),
+          SimpleDialog(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (title != null) title!,
+                IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      FontAwesomeIcons.xmark,
+                      color: Colors.black,
+                    ))
+              ],
+            ),
             titlePadding: titlePadding,
             titleTextStyle: titleTextStyle,
             children: children,
@@ -58,24 +95,7 @@ class ScaffoldedDialog extends StatelessWidget {
             shape: shape,
             alignment: alignment,
           ),
-        ),
-      );
-    }
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SimpleDialog(
-        title: title,
-        titlePadding: titlePadding,
-        titleTextStyle: titleTextStyle,
-        children: children,
-        contentPadding: contentPadding,
-        backgroundColor: backgroundColor,
-        elevation: elevation,
-        semanticLabel: semanticLabel,
-        insetPadding: insetPadding,
-        clipBehavior: clipBehavior,
-        shape: shape,
-        alignment: alignment,
+        ],
       ),
     );
   }
