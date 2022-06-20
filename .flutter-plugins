@@ -1,9 +1,9 @@
 # This is a generated file; do not edit or check into version control.
-mobile_scanner=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/mobile_scanner-2.0.0/
-path_provider=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-2.0.10/
-path_provider_android=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_android-2.0.14/
-path_provider_ios=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_ios-2.0.9/
-path_provider_linux=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-2.1.7/
-path_provider_macos=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_macos-2.0.6/
-path_provider_windows=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-2.1.0/
-sqflite=/usr/local/Caskroom/flutter/2.10.5/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-2.0.2+1/
+mobile_scanner=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/mobile_scanner-2.0.0/
+path_provider=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-2.0.10/
+path_provider_android=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_android-2.0.14/
+path_provider_ios=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_ios-2.0.9/
+path_provider_linux=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-2.1.7/
+path_provider_macos=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_macos-2.0.6/
+path_provider_windows=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-2.1.0/
+sqflite=/home/fredi/snap/flutter/common/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-2.0.2+1/

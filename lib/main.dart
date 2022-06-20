@@ -10,6 +10,7 @@ import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/user_list.dart';
+import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'offering_grid.dart';
 import 'transaction_list.dart';
@@ -99,8 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: const Text("Users"),
                 onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (context) {
-                      return const UserList();
-                    })),
+                  return const UserList();
+                })),
               ),
               Divider(),
               ListTile(
@@ -114,7 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   _signIn(context);
                 },
               ),
-
             ],
           ),
         ),
@@ -191,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
         await showDialog(
           barrierDismissible: false,
           context: context,
-          builder: (context) => SimpleDialog(
+          builder: (context) => ScaffoldedDialog(
             contentPadding: const EdgeInsets.all(8),
             titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
             title: const Text("Log-In"),
@@ -266,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     await showDialog(
       context: context,
-      builder: (context) => SimpleDialog(
+      builder: (context) => ScaffoldedDialog(
         contentPadding: const EdgeInsets.all(8),
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("New User"),
@@ -387,7 +387,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     showDialog(
       context: context,
-      builder: (context) => SimpleDialog(
+      builder: (context) => ScaffoldedDialog(
         contentPadding: const EdgeInsets.all(8),
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("Top-Up"),
@@ -446,7 +446,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return SimpleDialog(
+        return ScaffoldedDialog(
           contentPadding: const EdgeInsets.all(8),
           titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
           title: const Text("Purchase"),
@@ -514,7 +514,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _showNoConnectionDialog(BuildContext context) async {
     await showDialog(
       context: context,
-      builder: (context) => SimpleDialog(
+      builder: (context) => ScaffoldedDialog(
         contentPadding: const EdgeInsets.all(8),
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("No Connection"),
