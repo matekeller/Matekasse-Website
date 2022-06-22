@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/graphql_helper.dart';
 
@@ -54,55 +55,62 @@ class _UserListState extends State<UserList> {
   List<User> _users = [];
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          foregroundColor: Colors.white,
-          iconTheme: Theme.of(context).iconTheme,
-          title: const Text("Users"),
-          leading: IconButton(
-            icon: const Icon(FontAwesomeIcons.arrowLeft),
-            onPressed: () => Navigator.pop(context),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.amber,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            foregroundColor: Colors.white,
+            iconTheme: Theme.of(context).iconTheme,
+            title: const Text("Users"),
+            leading: IconButton(
+              icon: const Icon(FontAwesomeIcons.arrowLeft),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-        ),
-        body: FutureBuilder(
-          future: () async {
-            _users = await GraphQlHelper.updateAllUsers();
-            return _users;
-          }(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  _users = await GraphQlHelper.updateAllUsers();
-                  setState(
-                    () {},
-                  );
-                },
-                child: ListView(
-                  children: [
-                    for (User user in _users) UserWidget(user: user),
-                    const SizedBox(
-                      height: 700,
-                      child: Icon(
-                        FontAwesomeIcons.dog,
-                        color: Colors.grey,
-                        size: 50,
+          body: FutureBuilder(
+            future: () async {
+              _users = await GraphQlHelper.updateAllUsers();
+              return _users;
+            }(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _users = await GraphQlHelper.updateAllUsers();
+                    setState(
+                      () {},
+                    );
+                  },
+                  child: ListView(
+                    children: [
+                      for (User user in _users) UserWidget(user: user),
+                      const SizedBox(
+                        height: 700,
+                        child: Icon(
+                          FontAwesomeIcons.dog,
+                          color: Colors.grey,
+                          size: 50,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                  child: Text(
-                      "There was an error.\n" + snapshot.error.toString()));
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
+                    ],
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                    child: Text(
+                        "There was an error.\n" + snapshot.error.toString()));
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
