@@ -57,12 +57,19 @@ class _TransactionListState extends State<TransactionList> {
                 for (Transaction transaction in _transactions)
                   TransactionWidget(transaction: transaction),
                 Visibility(
-                  child: Center(
+                  child: const Center(
                     child: CircularProgressIndicator(),
                   ),
                   visible: _loading,
                 ),
-                const SizedBox(height: 700,child: Icon(FontAwesomeIcons.dog, color: Colors.grey,size: 50,),)
+                const SizedBox(
+                  height: 700,
+                  child: Icon(
+                    FontAwesomeIcons.dog,
+                    color: Colors.grey,
+                    size: 50,
+                  ),
+                )
               ],
             ),
           );
@@ -99,7 +106,6 @@ class _TransactionListState extends State<TransactionList> {
       GraphQlHelper.getTransactionList().then((value) => setState(() {
             _transactions.addAll(value);
             _loading = false;
-            print(value);
           }));
     }
   }

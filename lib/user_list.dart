@@ -26,13 +26,16 @@ class UserWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(user.username, style: Theme.of(context).textTheme.bodyLarge),
-            Divider(),
+            const Divider(),
             Text("Full Name: " + user.fullName),
-            Text("Balance: " + (-user.balanceCents ~/ 100).toString() +
-                "," +
-                (-user.balanceCents % 100 < 10 ? "0" : "") +
-                (-user.balanceCents % 100).toString() +
-                "€",)
+            Text(
+              "Balance: " +
+                  (-user.balanceCents ~/ 100).toString() +
+                  "," +
+                  (-user.balanceCents % 100 < 10 ? "0" : "") +
+                  (-user.balanceCents % 100).toString() +
+                  "€",
+            )
           ],
         ),
       ),
@@ -58,7 +61,7 @@ class _UserListState extends State<UserList> {
           iconTheme: Theme.of(context).iconTheme,
           title: const Text("Users"),
           leading: IconButton(
-            icon: Icon(FontAwesomeIcons.arrowLeft),
+            icon: const Icon(FontAwesomeIcons.arrowLeft),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -72,12 +75,21 @@ class _UserListState extends State<UserList> {
               return RefreshIndicator(
                 onRefresh: () async {
                   _users = await GraphQlHelper.updateAllUsers();
-                  setState(() {},);
+                  setState(
+                    () {},
+                  );
                 },
                 child: ListView(
                   children: [
                     for (User user in _users) UserWidget(user: user),
-                    const SizedBox(height: 700,child: Icon(FontAwesomeIcons.dog, color: Colors.grey,size: 50,),),
+                    const SizedBox(
+                      height: 700,
+                      child: Icon(
+                        FontAwesomeIcons.dog,
+                        color: Colors.grey,
+                        size: 50,
+                      ),
+                    ),
                   ],
                 ),
               );

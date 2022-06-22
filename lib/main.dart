@@ -110,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   return const UserList();
                 })),
               ),
-              Divider(),
+              const Divider(),
               ListTile(
                 leading: const Icon(FontAwesomeIcons.arrowRightFromBracket),
                 title: const Text("Log out"),
@@ -182,12 +182,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<bool> _signIn(BuildContext context) async {
-    String newUserName = "";
-    String newPassword = "";
     bool authTokenExpired = true;
     try {
       authTokenExpired = JwtDecoder.isExpired(LocalStore.authToken);
-      print(authTokenExpired);
     } catch (e) {
       // There is no auth token, therefore it cant be valid.
     }
