@@ -246,13 +246,14 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"mutation {\\n  updateBluecardId(bluecardIdOld: \\"RUFEA13DWEQ6\\", bluecardIdNew: \\"RUFEA13DWEQ6\\")\\n}","variables":{}}''';
+        '''{"query":"mutation {\\n  updateBluecardId(bluecardIdOld: \\"$oldBluecardId\\", bluecardIdNew: \\"$newBluecardId\\")\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
       return true;
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");
