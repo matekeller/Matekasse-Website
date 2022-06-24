@@ -618,9 +618,9 @@ class _MoneyTextFieldState extends State<MoneyTextField> {
       onChanged: (value) {
         try {
           pricePayedCents = int.parse(value);
-          if (pricePayedCents! % 5 != 0) {
+          if (pricePayedCents! % 5 != 0 && pricePayedCents! <= 0) {
             pricePayedCents = null;
-            errorText = "Input a multiple of 5";
+            errorText = "Input a positive multiple of 5";
           }
         } catch (e) {
           pricePayedCents = null;
