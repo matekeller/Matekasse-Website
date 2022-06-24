@@ -7,10 +7,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
+import 'package:matemate/nfc_scanner.dart';
 import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/user_list.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
+import 'package:matemate/util/widgets/user_scan_row.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'offering_grid.dart';
 import 'transaction_list.dart';
@@ -329,7 +331,7 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(
             height: 10,
           ),
-          BarcodeScanRow(onChanged: (value) => bluecardId = value),
+          UserScanRow(onChanged: (value) => bluecardId = value),
           const SizedBox(
             height: 20,
           ),
@@ -438,7 +440,7 @@ class _MyHomePageState extends State<MyHomePage> {
             height: 16,
           ),
           const Text("Payer-Code:"),
-          BarcodeScanRow(
+          UserScanRow(
               onChanged: (bluecardId) => (username =
                   GraphQlHelper.getUsernameByBluecardId(bluecardId ?? ""))),
           TextButton(
@@ -518,7 +520,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const Text("User"),
             const SizedBox(height: 10),
-            BarcodeScanRow(onChanged: (newBluecardId) {
+            UserScanRow(onChanged: (newBluecardId) {
               username =
                   GraphQlHelper.getUsernameByBluecardId(newBluecardId ?? "");
             }),
@@ -631,95 +633,6 @@ class _MoneyTextFieldState extends State<MoneyTextField> {
         widget.onChanged(pricePayedCents);
         setState(() {});
       },
-    );
-  }
-}
-
-/// A simple row containing a text field and a button for a barcode scanner
-/// After scanning, the textfield contains the scanned value, but can be explicitly edited
-class BarcodeScanRow extends StatefulWidget {
-  final void Function(String?) onChanged;
-
-  /// How many scans have to be the same at the same time, improves accuracy
-  final int redundantScans;
-  const BarcodeScanRow(
-      {required this.onChanged, this.redundantScans = 3, Key? key})
-      : super(key: key);
-
-  @override
-  State<BarcodeScanRow> createState() => _BarcodeScanRowState();
-}
-
-class _BarcodeScanRowState extends State<BarcodeScanRow> {
-  String? code;
-
-  /// Once in a while, a barcode will be scanned incorrectly, but almost never
-  /// twice in a row in the same way. Therefore, we scan multiple times until
-  /// all [redundantScans] last scans are the same.
-  List<String> scannedCodes = [];
-
-  /// For some reason, the scanning widget would be popped many times after scanning,
-  /// crashing the app. This ensures that this wont happen
-  bool canPop = true;
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            onChanged: (value) {
-              code = value;
-              widget.onChanged(code);
-            },
-            controller: TextEditingController(text: code ?? ""),
-          ),
-        ),
-        TextButton(
-            onPressed: () async {
-              scannedCodes = [];
-              canPop = true;
-              Navigator.of(context)
-                  .push(
-                MaterialPageRoute(
-                  builder: (context) => MobileScanner(
-                    allowDuplicates: true,
-                    controller: MobileScannerController(),
-                    onDetect: (barcode, args) {
-                      // Removes the earliest scan if the list would get too long
-                      if (scannedCodes.length >= widget.redundantScans) {
-                        scannedCodes.removeAt(0);
-                      }
-                      // adds the newest scan
-                      scannedCodes.add(barcode.rawValue ?? "");
-                      // if we have enough scans, it changes the value if and
-                      // only if all scans are the same.
-                      if (scannedCodes.length == widget.redundantScans) {
-                        for (int i = 1; i < widget.redundantScans; i++) {
-                          if (scannedCodes[i] != scannedCodes[0]) {
-                            return;
-                          }
-                        }
-                        // Ensuring that everything is only popped once.
-                        if (canPop) {
-                          code = scannedCodes[0];
-                          Navigator.of(context).pop();
-                          canPop = false;
-                        }
-                      }
-                    },
-                  ),
-                ),
-              )
-                  .then((value) {
-                setState(() {
-                  widget.onChanged(code);
-                });
-              });
-            },
-            child: const Icon(
-              FontAwesomeIcons.barcode,
-            ))
-      ],
     );
   }
 }

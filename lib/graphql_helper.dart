@@ -172,6 +172,7 @@ class GraphQlHelper {
             balanceCents: userJson['balance'] ?? 0,
             fullName: userJson['fullName'],
             username: userJson['username'],
+            bluecardId: userJson['bluecardId'],
           ),
         );
       }
@@ -220,6 +221,32 @@ class GraphQlHelper {
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
         '''{"query":"mutation {\\n  topup(payer: \\"$username\\", amountCents: $ammount)\\n}","variables":{}}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    } else {
+      throw Exception(response.reasonPhrase);
+    }
+  }
+
+  ///Sends a topup request with the given username and ammount of €
+  static Future<bool> updateBluecardId(
+      String oldBluecardId, String newBluecardId) async {
+    String authToken = LocalStore.authToken;
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    request.body =
+        '''{"query":"mutation {\\n  updateBluecardId(bluecardIdOld: \\"RUFEA13DWEQ6\\", bluecardIdNew: \\"RUFEA13DWEQ6\\")\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 

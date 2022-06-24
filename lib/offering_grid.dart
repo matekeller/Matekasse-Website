@@ -47,22 +47,28 @@ class _OfferingGridState extends State<OfferingGrid> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CachedNetworkImage(
-                      imageUrl: offering.imageUrl,
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
+                    Expanded(
+                      child: CachedNetworkImage(
+                        imageUrl: offering.imageUrl,
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                      ),
                     ),
-                    Text(
-                      (offering.priceCents ~/ 100).toString() +
-                          "," +
-                          (offering.priceCents % 100 >= 10
-                              ? (offering.priceCents % 100).toString()
-                              : "0" + (offering.priceCents % 100).toString()) +
-                          "€",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: selectedOfferingName == offering.name
-                              ? Colors.white
-                              : Colors.black),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        (offering.priceCents ~/ 100).toString() +
+                            "," +
+                            (offering.priceCents % 100 >= 10
+                                ? (offering.priceCents % 100).toString()
+                                : "0" +
+                                    (offering.priceCents % 100).toString()) +
+                            "€",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: selectedOfferingName == offering.name
+                                ? Colors.white
+                                : Colors.black),
+                      ),
                     ),
                   ],
                 ),
