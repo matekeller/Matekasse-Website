@@ -14,61 +14,69 @@ class UserWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // just showing the absolute value. Whether its positive or negative
     // internally doesnt matter
-    return Container(
-      margin: const EdgeInsets.all(12.0),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          //border: Border.all(width: 2, color: Colors.blueGrey),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(offset: Offset(0, 5), blurRadius: 5, color: Colors.grey)
-          ]),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(user.username,
-                    style: Theme.of(context).textTheme.bodyLarge),
-                PopupMenuButton(
-                    itemBuilder: (context) => [
-                          PopupMenuItem(
-                            child: const Text("Change BluecardID"),
-                            onTap: () async {
-                              print("da");
-                              WidgetsBinding.instance.addPostFrameCallback(
-                                (_) {
-                                  print(user.bluecardId);
-                                  _showChangeBluecardIdDialog(
-                                      oldBluecardId: user.bluecardId,
-                                      context: context);
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                    icon: const Icon(
-                      FontAwesomeIcons.ellipsis,
-                      color: Colors.grey,
-                    ))
-              ],
-            ),
-            const Divider(),
-            Text("Full Name: " + user.fullName),
-            Text(
-              "Balance: " +
-                  (-user.balanceCents ~/ 100).toString() +
-                  "," +
-                  (-user.balanceCents % 100 < 10 ? "0" : "") +
-                  (-user.balanceCents % 100).toString() +
-                  "€",
-            ),
-            if (kDebugMode) Text("BluecardID: " + user.bluecardId),
-          ],
+    return GestureDetector(
+      onTap: () {
+        Clipboard.setData(ClipboardData(text: user.bluecardId));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Copied BluecardID ${user.bluecardId} to Clipboard!")));
+      },
+      child: Container(
+        margin: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            //border: Border.all(width: 2, color: Colors.blueGrey),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: const [
+              BoxShadow(offset: Offset(0, 5), blurRadius: 5, color: Colors.grey)
+            ]),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(user.username,
+                      style: Theme.of(context).textTheme.bodyLarge),
+                  PopupMenuButton(
+                      itemBuilder: (context) => [
+                            PopupMenuItem(
+                              child: const Text("Change BluecardID"),
+                              onTap: () async {
+                                print("da");
+                                WidgetsBinding.instance.addPostFrameCallback(
+                                  (_) {
+                                    print(user.bluecardId);
+                                    _showChangeBluecardIdDialog(
+                                        oldBluecardId: user.bluecardId,
+                                        context: context);
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                      icon: const Icon(
+                        FontAwesomeIcons.ellipsis,
+                        color: Colors.grey,
+                      ))
+                ],
+              ),
+              const Divider(),
+              Text("Full Name: " + user.fullName),
+              Text('BluecardID: ${user.bluecardId}'),
+              Text(
+                "Balance: " +
+                    (-user.balanceCents ~/ 100).toString() +
+                    "," +
+                    (-user.balanceCents % 100 < 10 ? "0" : "") +
+                    (-user.balanceCents % 100).toString() +
+                    "€",
+              ),
+            ],
+          ),
         ),
       ),
     );

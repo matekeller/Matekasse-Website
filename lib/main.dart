@@ -485,8 +485,9 @@ class _MyHomePageState extends State<MyHomePage> {
     showingPurchaseDialog = true;
     String? selectedOfferingName;
     String? username;
+    List<User> _users = [];
     try {
-      await GraphQlHelper.updateAllUsers();
+      _users = await GraphQlHelper.updateAllUsers();
     } on SocketException {
       _showNoConnectionDialog(context);
       return;
@@ -543,6 +544,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text(
                             "The bluecardID is not valid, or the user is not registered yet")));
+                    return;
+                  }
+                  if (_users
+                          .firstWhere((element) => element.username == username)
+                          .balanceCents <
+                      LocalStore.offerings
+                          .firstWhere(
+                              (element) => element.name == selectedOfferingName)
+                          .priceCents) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            "The user does not have enough money on their account: ${_users.firstWhere((element) => element.username == username).balanceCents}ct.")));
                     return;
                   }
                   try {
