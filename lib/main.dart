@@ -547,8 +547,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     return;
                   }
                   if (_users
-                          .firstWhere((element) => element.username == username)
-                          .balanceCents <
+                              .firstWhere(
+                                  (element) => element.username == username)
+                              .balanceCents *
+                          (-1) < //Taking the additive inverse, because backend stores balance as negative.
                       LocalStore.offerings
                           .firstWhere(
                               (element) => element.name == selectedOfferingName)
