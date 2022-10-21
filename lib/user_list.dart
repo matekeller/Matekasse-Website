@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -132,65 +131,74 @@ class _UserListState extends State<UserList> {
   List<User> _users = [];
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.amber,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.light,
-      ),
-      child: SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            foregroundColor: Colors.white,
-            iconTheme: Theme.of(context).iconTheme,
-            title: const Text("Users"),
-            leading: IconButton(
-              icon: const Icon(FontAwesomeIcons.arrowLeft),
-              onPressed: () => Navigator.pop(context),
+    return FutureBuilder<List<User>>(future: () async {
+      _users = await GraphQlHelper.updateAllUsers();
+      return _users;
+    }(), builder: (context, snapshot) {
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: Colors.amber,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              foregroundColor: Colors.white,
+              iconTheme: Theme.of(context).iconTheme,
+              title: const Text("Users"),
+              actions: [
+                IconButton(
+                    onPressed: !snapshot.hasData
+                        ? null
+                        : () {
+                            showSearch(
+                                context: context,
+                                delegate: UserSearchDelegate(
+                                    userList: snapshot.data ?? []));
+                          },
+                    icon: const Icon(Icons.search))
+              ],
+              leading: IconButton(
+                icon: const Icon(FontAwesomeIcons.arrowLeft),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            body: Container(
+              child: ((snapshot.hasData
+                  ? RefreshIndicator(
+                      onRefresh: () async {
+                        _users = await GraphQlHelper.updateAllUsers();
+                        setState(
+                          () {},
+                        );
+                      },
+                      child: ListView(
+                        children: [
+                          for (User user in _users) UserWidget(user: user),
+                          const SizedBox(
+                            height: 700,
+                            child: Icon(
+                              FontAwesomeIcons.dog,
+                              color: Colors.grey,
+                              size: 50,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : (snapshot.hasError
+                      ? Center(
+                          child: Text("There was an error.\n" +
+                              snapshot.error.toString()))
+                      : const Center(
+                          child: CircularProgressIndicator(),
+                        )))),
             ),
           ),
-          body: FutureBuilder(
-            future: () async {
-              _users = await GraphQlHelper.updateAllUsers();
-              return _users;
-            }(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    _users = await GraphQlHelper.updateAllUsers();
-                    setState(
-                      () {},
-                    );
-                  },
-                  child: ListView(
-                    children: [
-                      for (User user in _users) UserWidget(user: user),
-                      const SizedBox(
-                        height: 700,
-                        child: Icon(
-                          FontAwesomeIcons.dog,
-                          color: Colors.grey,
-                          size: 50,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                    child: Text(
-                        "There was an error.\n" + snapshot.error.toString()));
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   _showChangeBluecardIdDialog(String oldBlueCardId) {}
@@ -207,4 +215,62 @@ class User {
       required this.fullName,
       required this.balanceCents,
       required this.bluecardId});
+}
+
+class UserSearchDelegate extends SearchDelegate {
+  UserSearchDelegate({
+    required this.userList,
+  });
+  final List<User> userList;
+
+  @override
+  Widget? buildLeading(BuildContext context) => IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, null));
+  @override
+  List<Widget>? buildActions(BuildContext context) => [
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            if (query.isEmpty) {
+              close(context, null);
+            } else {
+              query = '';
+            }
+          },
+        ),
+      ];
+
+  @override
+  Widget buildResults(BuildContext context) => ListView(children: [
+        UserWidget(
+            user: userList.firstWhere(
+                (user) => user.username == query || user.username.contains("")))
+      ]);
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<User> suggestions = userList.where((user) {
+      final result = user.username.toLowerCase();
+      final input = query.toLowerCase();
+
+      return result.contains(input);
+    }).toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        final suggestion = suggestions[index];
+
+        return ListTile(
+          title: Text(suggestion.username),
+          onTap: () {
+            query = suggestion.username;
+
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
 }
