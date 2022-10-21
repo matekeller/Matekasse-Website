@@ -241,7 +241,7 @@ class UserSearchDelegate extends SearchDelegate {
         ),
       ];
 
-  @override
+  @override // unused
   Widget buildResults(BuildContext context) => ListView(children: [
         UserWidget(
             user: userList.firstWhere(
@@ -262,14 +262,7 @@ class UserSearchDelegate extends SearchDelegate {
       itemBuilder: (context, index) {
         final suggestion = suggestions[index];
 
-        return ListTile(
-          title: Text(suggestion.username),
-          onTap: () {
-            query = suggestion.username;
-
-            showResults(context);
-          },
-        );
+        return UserWidget(user: suggestion);
       },
     );
   }
