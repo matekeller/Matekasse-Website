@@ -301,116 +301,143 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     await showDialog(
-      context: context,
-      builder: (context) => ScaffoldedDialog(
-        contentPadding: const EdgeInsets.all(8),
-        titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-        title: const Text("New User"),
-        children: [
-          const Text("Username"),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            onChanged: (value) => username = value,
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text("Full Name"),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            onChanged: ((value) => fullName = value),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text("Bluecard ID"),
-          const SizedBox(
-            height: 10,
-          ),
-          UserScanRow(onChanged: (value) => bluecardId = value),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text("Password"),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            obscureText: true,
-            onChanged: ((value) => password = value),
-          ),
-          TextButton(
-            //color: Colors.blueAccent,
-            child: Text(
-              "Register",
-              style: Theme.of(context)
-                  .textTheme
-                  .button!
-                  .copyWith(color: Colors.white),
-            ),
-            onPressed: () {
-              // Gate clauses for username
-              if (username == null || username == "") {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Enter a username")));
-                return;
-              }
-              if (GraphQlHelper.userExists(username!)) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("A user with this username already exists")));
-                return;
-              }
-              // Gate clauses for fullName
-              if (fullName == null || fullName == "") {
-                fullName = "";
-              }
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return ScaffoldedDialog(
+              contentPadding: const EdgeInsets.all(8),
+              titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+              title: const Text("New User"),
+              children: [
+                const Text("Username"),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(username ?? '',
+                    style: const TextStyle(color: Colors.black38)),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text("Full Name"),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(onChanged: (value) {
+                  setState(() {
+                    fullName = value;
+                    var names = fullName?.split(' ');
 
-              // Gate clauses for bluecardId
-              if (bluecardId == null || bluecardId == "") {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Enter or scan a bluecard-id")));
-                return;
-              }
-              if (GraphQlHelper.getUsernameByBluecardId(bluecardId!) != null) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text(
-                        "There already is an account with this bluecard-id")));
-                return;
-              }
-              if (bluecardId!.length != 12) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("This is not a valid bluecardId")));
-                return;
-              }
-              // Gate clauses for pw
-              if (password == null || password == "") {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Enter a password")));
-                return;
-              }
-              // Maybe ad password strength checker?
-              if (password!.length < 8) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("The password needs at least 8 characters")));
-                return;
-              }
-              // No problem occured, we can add the user
-              try {
-                GraphQlHelper.addUser(username, fullName, password, bluecardId);
-                showingNewUserDialog = false;
-                Navigator.pop(context);
-              } on SocketException {
-                _showNoConnectionDialog(context);
-              }
-            },
-          ),
-        ],
-      ),
-    );
+                    if (names!.length == 1) {
+                      username = names[0].toLowerCase();
+                    } else if (names.length > 1) {
+                      try {
+                        username = (names[0] + names.last[0]).toLowerCase();
+                      } on RangeError {
+                        username = names[0].toLowerCase();
+                      }
+                    }
+                    var additionalChars = 0;
+                    while (GraphQlHelper.userExists(username!) &&
+                        names.last.length >= additionalChars) {
+                      username =
+                          (names[0] + names.last.substring(0, additionalChars))
+                              .toLowerCase();
+                      additionalChars++;
+                    }
+                  });
+                }),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text("Bluecard ID"),
+                const SizedBox(
+                  height: 10,
+                ),
+                UserScanRow(onChanged: (value) => bluecardId = value),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text("Password"),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  obscureText: true,
+                  onChanged: ((value) => password = value),
+                ),
+                TextButton(
+                  //color: Colors.blueAccent,
+                  child: Text(
+                    "Register",
+                    style: Theme.of(context)
+                        .textTheme
+                        .button!
+                        .copyWith(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    // Gate clauses for username
+                    if (username == null || username == "") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Enter a username")));
+                      return;
+                    }
+                    if (GraphQlHelper.userExists(username!)) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "A user with this username already exists")));
+                      return;
+                    }
+                    // Gate clauses for fullName
+                    if (fullName == null || fullName == "") {
+                      fullName = "";
+                    }
+
+                    // Gate clauses for bluecardId
+                    if (bluecardId == null || bluecardId == "") {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Enter or scan a bluecard-id")));
+                      return;
+                    }
+                    if (GraphQlHelper.getUsernameByBluecardId(bluecardId!) !=
+                        null) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "There already is an account with this bluecard-id")));
+                      return;
+                    }
+                    if (bluecardId!.length != 12) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("This is not a valid bluecardId")));
+                      return;
+                    }
+                    // Gate clauses for pw
+                    if (password == null || password == "") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Enter a password")));
+                      return;
+                    }
+                    // Maybe ad password strength checker?
+                    if (password!.length < 8) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "The password needs at least 8 characters")));
+                      return;
+                    }
+                    // No problem occured, we can add the user
+                    try {
+                      GraphQlHelper.addUser(
+                          username, fullName, password, bluecardId);
+                      showingNewUserDialog = false;
+                      Navigator.pop(context);
+                    } on SocketException {
+                      _showNoConnectionDialog(context);
+                    }
+                  },
+                ),
+              ],
+            );
+          });
+        });
     showingNewUserDialog = false;
   }
 
