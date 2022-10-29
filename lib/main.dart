@@ -336,7 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         username = names[0].toLowerCase();
                       }
                     }
-                    var additionalChars = 0;
+                    var additionalChars = 1;
                     while (GraphQlHelper.userExists(username!) &&
                         names.last.length >= additionalChars) {
                       username =
