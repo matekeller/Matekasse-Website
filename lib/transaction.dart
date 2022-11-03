@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:matemate/local_store.dart';
+import 'package:intl/intl.dart';
 
 class TransactionWidget extends StatelessWidget {
   final Transaction transaction;
@@ -11,6 +12,11 @@ class TransactionWidget extends StatelessWidget {
     // just showing the absolute value. Whether its positive or negative
     // internally doesnt matter.
     int pricePaidCents = transaction.pricePaidCents.abs();
+
+    var dateLocal = DateFormat("dd.MM.yyyy - HH:mm").format(
+        DateFormat("yy-MM-dd HH:mm:ss")
+            .parse(transaction.date.toString(), true)
+            .toLocal());
     return Container(
       margin: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
@@ -59,21 +65,7 @@ class TransactionWidget extends StatelessWidget {
             const Divider(),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                  "Date: " +
-                      transaction.date.day.toString() +
-                      "." +
-                      transaction.date.month.toString() +
-                      "." +
-                      transaction.date.year.toString() +
-                      " - " +
-                      (transaction.date.hour >= 10
-                          ? transaction.date.hour.toString()
-                          : "0" + transaction.date.hour.toString()) +
-                      ":" +
-                      (transaction.date.minute >= 10
-                          ? transaction.date.minute.toString()
-                          : "0" + transaction.date.minute.toString()),
+              child: Text("Date: " + dateLocal.toString(),
                   style: Theme.of(context).textTheme.bodyLarge!),
             ),
             Padding(
