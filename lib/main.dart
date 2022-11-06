@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/nfc_scanner.dart';
@@ -14,8 +15,10 @@ import 'package:matemate/user_list.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:matemate/util/widgets/user_scan_row.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'offering_grid.dart';
 import 'transaction_list.dart';
+import 'settings.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -81,13 +84,57 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   // Flags indicating which dialogs are open
   bool showingSignInDialog = false;
   bool showingNewUserDialog = false;
   bool showingPurchaseDialog = false;
   bool showingTopUpDialog = false;
   bool showingNoConnectionDialog = false;
+  bool showingAuthDialog = false;
+  bool didJustCloseAuthDialog = false;
+
+  Map prefsMap = <String, dynamic>{};
+  final LocalAuthentication auth = LocalAuthentication();
+
+  @override
+  void initState() {
+    super.initState();
+    getPrefs();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      if (prefsMap['authSwitch'] != null && prefsMap['authSwitch']) {
+        await _showAuthDialog();
+      }
+    });
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && !showingAuthDialog) {
+      if (didJustCloseAuthDialog) {
+        didJustCloseAuthDialog = false;
+      } else {
+        _showAuthDialog();
+      }
+    }
+  }
+
+  getPrefs() async {
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
+    var keys = prefs.getKeys();
+    for (String key in keys) {
+      prefsMap[key] = prefs.get(key);
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +170,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   return const UserList();
                 })),
               ),
+              ListTile(
+                  leading: const Icon(FontAwesomeIcons.gear),
+                  title: const Text("Settings"),
+                  onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const Settings();
+                      }))),
               const Divider(),
               ListTile(
                 leading: const Icon(FontAwesomeIcons.arrowRightFromBracket),
@@ -275,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
               LocalStore.userName = newUserName;
               LocalStore.password = newPassword;
               showingSignInDialog = false;
-              Navigator.pop(context);
+              Navigator.pop(context, false);
             },
           )
         ],
@@ -637,6 +691,41 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
     showingNoConnectionDialog = false;
+  }
+
+  Future<void> _showAuthDialog() async {
+    getPrefs();
+    if (showingAuthDialog || !prefsMap['authSwitch']) {
+      return;
+    }
+    showingAuthDialog = true;
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) => ScaffoldedDialog(
+              barrierDismissable: false,
+              closable: false,
+              blurRadius: 25,
+              contentPadding: const EdgeInsets.all(8),
+              titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+              title: const Text("Authentication"),
+              children: [
+                const Text("Authentication is activated. Please authenticate."),
+                TextButton(
+                    child: const Text("Authenticate"),
+                    onPressed: () async {
+                      bool didAuthenticate = false;
+
+                      didAuthenticate = await auth.authenticate(
+                          localizedReason:
+                              "Authentication is activated. Please authenticate.");
+                      if (didAuthenticate) {
+                        showingAuthDialog = false;
+                        didJustCloseAuthDialog = true;
+                        Navigator.pop(context);
+                      }
+                    })
+              ],
+            ));
   }
 }
 

@@ -21,6 +21,7 @@ class ScaffoldedDialog extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final double? blurRadius;
   final bool barrierDismissable;
+  final bool closable;
 
   const ScaffoldedDialog(
       {this.title,
@@ -37,6 +38,7 @@ class ScaffoldedDialog extends StatelessWidget {
       this.alignment,
       this.blurRadius,
       this.barrierDismissable = true,
+      this.closable = true,
       Key? key})
       : super(key: key);
 
@@ -73,14 +75,15 @@ class ScaffoldedDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (title != null) title!,
-                IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(
-                      FontAwesomeIcons.xmark,
-                      color: Colors.black,
-                    ))
+                if (closable)
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(
+                        FontAwesomeIcons.xmark,
+                        color: Colors.black,
+                      ))
               ],
             ),
             titlePadding: titlePadding,
