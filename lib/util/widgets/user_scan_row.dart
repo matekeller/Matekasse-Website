@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/nfc_scanner.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:textfield_search/textfield_search.dart';
+
+import '../../user_list.dart';
 
 /// A simple row containing a text field and a button for a barcode scanner
 /// After scanning, the textfield contains the scanned value, but can be explicitly edited
@@ -26,6 +30,7 @@ class UserScanRow extends StatefulWidget {
 }
 
 class _UserScanRowState extends State<UserScanRow> {
+  TextEditingController searchfieldController = TextEditingController();
   String? code;
 
   /// Whether code is a bluecardId. If it is false, code is a hex string from the
@@ -40,28 +45,51 @@ class _UserScanRowState extends State<UserScanRow> {
   /// For some reason, the scanning widget would be popped many times after scanning,
   /// crashing the app. This ensures that this wont happen
   bool canPop = true;
+
+  @override
+  void initState() {
+    super.initState();
+    searchfieldController.addListener(_printLatestValue);
+  }
+
+  _printLatestValue() {
+    print("text field: ${searchfieldController.text}");
+  }
+
+  Future<List> _getSearchResults() async {
+    List _list = <dynamic>[];
+    final _users = await GraphQlHelper.updateAllUsers();
+    List _jsonList = [];
+
+    for (User user in _users) {
+      _jsonList.add({'label': user.username, 'value': user.bluecardId});
+    }
+    for (dynamic element in _jsonList) {
+      _list.add(SearchItem.fromJson(element));
+    }
+
+    return _list;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: TextField(
-            style: Theme.of(context)
-                .textTheme
-                .subtitle1!
-                .copyWith(color: blueCardId ? Colors.blue : Colors.purple),
-            onChanged: (value) {
-              code = value;
-              widget.onChanged(code);
+          child: TextFieldSearch(
+            label: "Search users...",
+            controller: searchfieldController,
+            future: () {
+              return _getSearchResults();
             },
-            onTap: () {
+            getSelectedValue: (value) {
               if (!blueCardId) {
                 setState(() {
                   blueCardId = true;
                 });
               }
+              searchfieldController.text = value.value;
             },
-            controller: TextEditingController(text: code ?? ""),
           ),
         ),
         if (widget.nfcEnabled)
@@ -162,5 +190,16 @@ class _UserScanRowState extends State<UserScanRow> {
               ))
       ],
     );
+  }
+}
+
+class SearchItem {
+  final String label;
+  dynamic value;
+
+  SearchItem({required this.label, this.value});
+
+  factory SearchItem.fromJson(Map<String, dynamic> json) {
+    return SearchItem(label: json['label'], value: json['value']);
   }
 }
