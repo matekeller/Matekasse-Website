@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-
+    getPrefs();
     if (state == AppLifecycleState.resumed &&
         !showingAuthDialog &&
         prefsMap['authSwitch']) {
