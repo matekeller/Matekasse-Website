@@ -100,10 +100,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    getPrefs();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      prefsMap = await getPrefs();
       if (prefsMap['authSwitch'] != null && prefsMap['authSwitch']) {
-        await _showAuthDialog();
+        _showAuthDialog();
       }
     });
     WidgetsBinding.instance.addObserver(this);
@@ -118,7 +119,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed && !showingAuthDialog) {
+
+    if (state == AppLifecycleState.resumed &&
+        !showingAuthDialog &&
+        prefsMap['authSwitch']) {
       if (didJustCloseAuthDialog) {
         didJustCloseAuthDialog = false;
       } else {
@@ -134,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       prefsMap[key] = prefs.get(key);
     }
     setState(() {});
+    return prefsMap;
   }
 
   @override
@@ -694,8 +699,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _showAuthDialog() async {
-    getPrefs();
-    if (showingAuthDialog || !prefsMap['authSwitch']) {
+    prefsMap = await getPrefs();
+    if (showingAuthDialog ||
+        (prefsMap['authSwitch'] != null && !prefsMap['authSwitch'])) {
       return;
     }
     showingAuthDialog = true;

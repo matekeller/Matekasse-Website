@@ -32,14 +32,12 @@ class _AuthenticationState extends State<Authentication> {
   Future<bool> saveSwitchState(bool value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('authSwitch', value);
-    print('Auth Switch value saved $value');
     return prefs.setBool('authSwitch', value);
   }
 
   Future<bool> getSwitchState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isSwitched = prefs.getBool('authSwitch') ?? false;
-    print(isSwitched);
     return isSwitched;
   }
 
@@ -80,9 +78,7 @@ class _AuthenticationState extends State<Authentication> {
                     setState(() {
                       authSwitch = value;
                       saveSwitchState(value);
-                      print("Saved state is $authSwitch");
                     });
-                    print(authSwitch);
                   });
             })),
             const ListTile(
