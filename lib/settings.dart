@@ -28,7 +28,9 @@ class _SettingsState extends State<Settings> {
           children: [
             ListTile(
               leading: const Icon(FontAwesomeIcons.fingerprint),
-              title: const Text("Authentification"),
+              title: const Text("Authentication"),
+              subtitle: const Text(
+                  "(De)activate and manage authentication functionality"),
               onTap: () =>
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return const Authentication();

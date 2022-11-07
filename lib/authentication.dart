@@ -51,11 +51,20 @@ class _AuthenticationState extends State<Authentication> {
             statusBarBrightness: Brightness.light,
           ),
           foregroundColor: Colors.white,
-          title: const Text("Authentification"),
+          title: const Text("Authentication"),
           iconTheme: IconTheme.of(context)),
       body: SafeArea(
         child: Column(
           children: [
+            const ListTile(
+                title: Text(
+                    "The authentication functionality asks the user for a authentication "
+                    "(e.g. Fingerprint, FaceID) everytime the app is started or resumed. "
+                    "It should automatically find all enrolled authentication methods on "
+                    "the device and choose the strongest of them (usually biometrics). Note"
+                    " that on some Android devices, auth modes are only recognized as \"Strong\" "
+                    "or \"Weak\" due to some unfinished Flutter API endpoints. They should work"
+                    " nonetheless though.")),
             FutureBuilder(future: () async {
               canAuthenticateWithBiometrics = await auth.isDeviceSupported();
               return canAuthenticateWithBiometrics;
@@ -70,17 +79,18 @@ class _AuthenticationState extends State<Authentication> {
                         "Your device does not support biometric authentication."));
               }
             })),
-            FutureBuilder(builder: ((context, snapshot) {
-              return SwitchListTile(
-                  title: const Text("Activate authentication"),
-                  value: authSwitch,
-                  onChanged: (bool value) {
-                    setState(() {
-                      authSwitch = value;
-                      saveSwitchState(value);
+            if (canAuthenticateWithBiometrics)
+              FutureBuilder(builder: ((context, snapshot) {
+                return SwitchListTile(
+                    title: const Text("Activate authentication"),
+                    value: authSwitch,
+                    onChanged: (bool value) {
+                      setState(() {
+                        authSwitch = value;
+                        saveSwitchState(value);
+                      });
                     });
-                  });
-            })),
+              })),
             const ListTile(
               title: Text(
                 "SUPPORTED MODES",
