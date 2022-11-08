@@ -610,6 +610,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             UserScanRow(onChanged: (newBluecardId) {
               username =
                   GraphQlHelper.getUsernameByBluecardId(newBluecardId ?? "");
+              print("Blaukarte: " + (newBluecardId ?? ""));
             }),
             TextButton(
                 child: Text(

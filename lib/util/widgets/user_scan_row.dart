@@ -89,6 +89,8 @@ class _UserScanRowState extends State<UserScanRow> {
                 });
               }
               searchfieldController.text = value.value;
+              code = searchfieldController.text;
+              widget.onChanged(code);
             },
           ),
         ),
@@ -181,6 +183,7 @@ class _UserScanRowState extends State<UserScanRow> {
                 ).then((value) {
                   setState(() {
                     blueCardId = true;
+                    searchfieldController.text = code ?? "";
                     widget.onChanged(code);
                   });
                 });
