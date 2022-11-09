@@ -54,6 +54,7 @@ class _UserScanRowState extends State<UserScanRow> {
 
   _printLatestValue() {
     print("text field: ${searchfieldController.text}");
+    widget.onChanged(searchfieldController.text);
   }
 
   Future<List> _getSearchResults() async {
