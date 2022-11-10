@@ -146,6 +146,54 @@ class GraphQlHelper {
     throw Exception(response.reasonPhrase);
   }
 
+  static Future<List<Transaction>> getTransactionListByUser(
+      {required String username}) async {
+    hasNextPage = false;
+
+    String authToken = LocalStore.authToken;
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    request.body =
+        '''{"query":"query {\\n    transactionsByUser(username: \\"$username\\") {\\n        admin{username}\\n      offeringId\\n      timestamp\\n      pricePaidCents\\n}\\n}","variables":{}}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    String responseString = await response.stream.bytesToString();
+    print(responseString);
+    if (response.statusCode == 200) {
+      List<dynamic> transactionMaps =
+          jsonDecode(responseString)['data']['transactionsByUser'];
+      List<Transaction> transaction = [];
+
+      for (dynamic transactionMap in transactionMaps) {
+        String offeringId = transactionMap['offeringId'];
+        String adminUsername = transactionMap['admin']['username'];
+        String payerUsername = username;
+        int pricePaidCents = transactionMap['pricePaidCents'];
+        DateTime date = DateTime.parse(transactionMap['timestamp']);
+
+        transaction.add(Transaction(
+            payerUsername: payerUsername,
+            adminUsername: adminUsername,
+            offeringName: offeringId,
+            pricePaidCents: pricePaidCents,
+            date: date));
+      }
+
+      return transaction;
+    } else if (response.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    }
+
+    throw Exception(response.reasonPhrase);
+  }
+
   static Future<List<User>> updateAllUsers() async {
     String authToken = LocalStore.authToken;
     var headers = {

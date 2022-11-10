@@ -8,10 +8,10 @@ import 'transaction.dart';
 
 class TransactionList extends StatefulWidget {
   final void Function(BuildContext context) onSocketException;
-  const TransactionList({
-    Key? key,
-    required this.onSocketException,
-  }) : super(key: key);
+  final String username;
+  const TransactionList(
+      {Key? key, required this.onSocketException, this.username = "matekasse"})
+      : super(key: key);
 
   @override
   State<TransactionList> createState() => _TransactionListState();
@@ -36,9 +36,18 @@ class _TransactionListState extends State<TransactionList> {
           if (_transactions.isNotEmpty) {
             return _transactions;
           }
-          List<Transaction> transactions =
-              await GraphQlHelper.getTransactionList(fromBeginning: true);
+          List<Transaction> transactions = [];
+
+          if (widget.username != "matekasse") {
+            transactions = await GraphQlHelper.getTransactionListByUser(
+                username: widget.username);
+          } else {
+            transactions =
+                await GraphQlHelper.getTransactionList(fromBeginning: true);
+          }
+
           await GraphQlHelper.updateOfferings();
+
           return transactions;
         } on SocketException {
           widget.onSocketException(context);
@@ -84,8 +93,14 @@ class _TransactionListState extends State<TransactionList> {
 
   Future<void> _refreshTransactionList() async {
     try {
-      _transactions =
-          await GraphQlHelper.getTransactionList(fromBeginning: true);
+      if (widget.username != "matekasse") {
+        _transactions = await GraphQlHelper.getTransactionListByUser(
+            username: widget.username);
+      } else {
+        _transactions =
+            await GraphQlHelper.getTransactionList(fromBeginning: true);
+      }
+
       await GraphQlHelper.updateOfferings();
       setState(() {});
     } on SocketException {
@@ -102,11 +117,18 @@ class _TransactionListState extends State<TransactionList> {
       setState(() {
         _loading = true;
       });
-
-      GraphQlHelper.getTransactionList().then((value) => setState(() {
-            _transactions.addAll(value);
-            _loading = false;
-          }));
+      if (widget.username != "matekasse") {
+        GraphQlHelper.getTransactionListByUser(username: widget.username)
+            .then((value) => setState(() {
+                  _transactions.addAll(value);
+                  _loading = false;
+                }));
+      } else {
+        GraphQlHelper.getTransactionList().then((value) => setState(() {
+              _transactions.addAll(value);
+              _loading = false;
+            }));
+      }
     }
   }
 }

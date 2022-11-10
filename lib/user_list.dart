@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:matemate/util/widgets/user_scan_row.dart';
+import 'package:matemate/history.dart';
 
 class UserWidget extends StatelessWidget {
   final User user;
@@ -56,6 +57,17 @@ class UserWidget extends StatelessWidget {
                                 );
                               },
                             ),
+                            PopupMenuItem(
+                              child: const Text("Transaction History"),
+                              onTap: () async {
+                                WidgetsBinding.instance.addPostFrameCallback(
+                                    (_) => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => History(
+                                                username: user.username))));
+                              },
+                            )
                           ],
                       icon: const Icon(
                         FontAwesomeIcons.ellipsis,
