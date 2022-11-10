@@ -74,7 +74,7 @@ class _TransactionListState extends State<TransactionList> {
                 const SizedBox(
                   height: 700,
                   child: Icon(
-                    FontAwesomeIcons.dog,
+                    FontAwesomeIcons.cat,
                     color: Colors.grey,
                     size: 50,
                   ),
