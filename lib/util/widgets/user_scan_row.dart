@@ -63,11 +63,7 @@ class _UserScanRowState extends State<UserScanRow> {
     List _jsonList = [];
 
     for (User user in _users) {
-      if (user.username == "gero" ||
-          user.username == "fredi" ||
-          user.username == "lukas") {
-        _jsonList.add({'label': user.username, 'value': user.bluecardId});
-      }
+      _jsonList.add({'label': user.username, 'value': user.bluecardId});
     }
     for (dynamic element in _jsonList) {
       _list.add(SearchItem.fromJson(element));
