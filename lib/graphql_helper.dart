@@ -258,6 +258,36 @@ class GraphQlHelper {
     }
   }
 
+  static Future<bool> purchaseMultipleProducts(
+      String username, List<String> offeringIDs) async {
+    String authToken = LocalStore.authToken;
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+    var products = "";
+    for (String id in offeringIDs) {
+      products +=
+          '''\\n purchase(product: \\"$id\\", payer: \\"$username\\")''';
+    }
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    request.body =
+        '''{"query":"mutation BuyMultiple {$products \\n}","variables":{}}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    } else {
+      throw Exception(response.reasonPhrase);
+    }
+  }
+
   ///Sends a topup request with the given username and ammount of €
   static Future<bool> topUp(String username, int ammount) async {
     String authToken = LocalStore.authToken;

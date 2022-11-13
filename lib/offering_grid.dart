@@ -5,7 +5,7 @@ import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 
 class OfferingGrid extends StatefulWidget {
-  final void Function(String?) onChanged;
+  final void Function(List<String>?) onChanged;
   const OfferingGrid({required this.onChanged, Key? key}) : super(key: key);
 
   @override
@@ -13,7 +13,7 @@ class OfferingGrid extends StatefulWidget {
 }
 
 class _OfferingGridState extends State<OfferingGrid> {
-  String? selectedOfferingName;
+  List<String>? selectedOfferingsName = [];
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,7 +30,7 @@ class _OfferingGridState extends State<OfferingGrid> {
           await GraphQlHelper.updateOfferings();
           setState(
             () {
-              selectedOfferingName = null;
+              selectedOfferingsName = null;
               widget.onChanged(null);
             },
           );
@@ -65,24 +65,30 @@ class _OfferingGridState extends State<OfferingGrid> {
                                     (offering.priceCents % 100).toString()) +
                             "€",
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: selectedOfferingName == offering.name
-                                ? Colors.white
-                                : Colors.black),
+                            color:
+                                selectedOfferingsName!.contains(offering.name)
+                                    ? Colors.white
+                                    : Colors.black),
                       ),
                     ),
                   ],
                 ),
-                color: selectedOfferingName == offering.name
+                color: selectedOfferingsName!.contains(offering.name)
                     ? Theme.of(context).primaryColor
                     : Colors.white,
                 onPressed: () {
-                  if (selectedOfferingName != offering.name) {
+                  if (!selectedOfferingsName!.contains(offering.name)) {
                     setState(
                       () {
-                        selectedOfferingName = offering.name;
-                        widget.onChanged(offering.name);
+                        selectedOfferingsName!.add(offering.name);
+                        widget.onChanged(selectedOfferingsName);
                       },
                     );
+                  } else {
+                    setState(() {
+                      selectedOfferingsName!.remove(offering.name);
+                      widget.onChanged(selectedOfferingsName);
+                    });
                   }
                 },
               )

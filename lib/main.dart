@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:fab_circular_menu/fab_circular_menu.dart';
@@ -569,8 +570,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       return;
     }
     showingPurchaseDialog = true;
-    String? selectedOfferingName;
+    List<String>? selectedOfferingsName;
     String? username;
+    int sumOfSelectedOfferings = 0;
     List<User> _users = [];
     try {
       _users = await GraphQlHelper.updateAllUsers();
@@ -596,8 +598,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: LimitedBox(
                     maxHeight: 500,
                     child: OfferingGrid(
-                      onChanged: (newSelectedTile) {
-                        selectedOfferingName = newSelectedTile;
+                      onChanged: (newSelectedTiles) {
+                        selectedOfferingsName = newSelectedTiles;
                       },
                     )),
               );
@@ -620,7 +622,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       .copyWith(color: Colors.white),
                 ),
                 onPressed: () {
-                  if (selectedOfferingName == null) {
+                  if (selectedOfferingsName == null ||
+                      selectedOfferingsName!.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text("You have to choose an Offering")));
                     return;
@@ -632,23 +635,35 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             "The bluecardID is not valid, or the user is not registered yet")));
                     return;
                   }
+
+                  for (Offering offering in LocalStore.offerings.where(
+                      (element) =>
+                          selectedOfferingsName!.contains(element.name))) {
+                    sumOfSelectedOfferings += offering.priceCents;
+                  }
+
                   if (_users
                               .firstWhere(
                                   (element) => element.username == username)
                               .balanceCents *
                           (-1) < //Taking the additive inverse, because backend stores balance as negative.
-                      LocalStore.offerings
-                          .firstWhere(
-                              (element) => element.name == selectedOfferingName)
-                          .priceCents) {
+                      sumOfSelectedOfferings) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(
                             "The user does not have enough money on their account: ${_users.firstWhere((element) => element.username == username).balanceCents.abs()}ct.")));
+                    sumOfSelectedOfferings = 0;
                     return;
                   }
+
                   try {
-                    GraphQlHelper.purchaseProduct(
-                        username!, selectedOfferingName!);
+                    if (selectedOfferingsName!.length == 1) {
+                      GraphQlHelper.purchaseProduct(
+                          username!, selectedOfferingsName!.first);
+                    } else {
+                      GraphQlHelper.purchaseMultipleProducts(
+                          username!, selectedOfferingsName!);
+                    }
+
                     Navigator.of(context).pop();
                   } on SocketException {
                     _showNoConnectionDialog(context);
