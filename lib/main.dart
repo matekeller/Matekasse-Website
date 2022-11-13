@@ -643,7 +643,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           .priceCents) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(
-                            "The user does not have enough money on their account: ${_users.firstWhere((element) => element.username == username).balanceCents}ct.")));
+                            "The user does not have enough money on their account: ${_users.firstWhere((element) => element.username == username).balanceCents.abs()}ct.")));
                     return;
                   }
                   try {
