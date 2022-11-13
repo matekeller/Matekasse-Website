@@ -47,6 +47,26 @@ class _OfferingGridState extends State<OfferingGrid> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Align(
+                      alignment: const Alignment(1.6, -1.2),
+                      heightFactor: 0.0,
+                      child: CircleAvatar(
+                          maxRadius: 10.0,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          child: Text(
+                            selectedOfferingsName!
+                                    .where(
+                                        (element) => element == offering.name)
+                                    .isEmpty
+                                ? ""
+                                : selectedOfferingsName!
+                                    .where(
+                                        (element) => element == offering.name)
+                                    .length
+                                    .toString(),
+                          )),
+                    ),
                     Expanded(
                       child: CachedNetworkImage(
                         imageUrl: offering.imageUrl,
@@ -70,21 +90,22 @@ class _OfferingGridState extends State<OfferingGrid> {
                                     ? Colors.white
                                     : Colors.black),
                       ),
-                    ),
+                    )
                   ],
                 ),
                 color: selectedOfferingsName!.contains(offering.name)
                     ? Theme.of(context).primaryColor
                     : Colors.white,
                 onPressed: () {
-                  if (!selectedOfferingsName!.contains(offering.name)) {
-                    setState(
-                      () {
-                        selectedOfferingsName!.add(offering.name);
-                        widget.onChanged(selectedOfferingsName);
-                      },
-                    );
-                  } else {
+                  setState(
+                    () {
+                      selectedOfferingsName!.add(offering.name);
+                      widget.onChanged(selectedOfferingsName);
+                    },
+                  );
+                },
+                onLongPress: () {
+                  if (selectedOfferingsName!.contains(offering.name)) {
                     setState(() {
                       selectedOfferingsName!.remove(offering.name);
                       widget.onChanged(selectedOfferingsName);
