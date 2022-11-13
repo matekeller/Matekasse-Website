@@ -707,31 +707,36 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     showingAuthDialog = true;
     await showDialog(
         context: context,
-        builder: (BuildContext context) => ScaffoldedDialog(
-              barrierDismissable: false,
-              closable: false,
-              blurRadius: 25,
-              contentPadding: const EdgeInsets.all(8),
-              titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-              title: const Text("Authentication"),
-              children: [
-                const Text("Authentication is activated. Please authenticate."),
-                TextButton(
-                    child: const Text("Authenticate"),
-                    onPressed: () async {
-                      bool didAuthenticate = false;
+        builder: (BuildContext context) {
+          return WillPopScope(
+              onWillPop: () async => false,
+              child: ScaffoldedDialog(
+                barrierDismissable: false,
+                closable: false,
+                blurRadius: 25,
+                contentPadding: const EdgeInsets.all(8),
+                titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+                title: const Text("Authentication"),
+                children: [
+                  const Text(
+                      "Authentication is activated. Please authenticate."),
+                  TextButton(
+                      child: const Text("Authenticate"),
+                      onPressed: () async {
+                        bool didAuthenticate = false;
 
-                      didAuthenticate = await auth.authenticate(
-                          localizedReason:
-                              "Authentication is activated. Please authenticate.");
-                      if (didAuthenticate) {
-                        showingAuthDialog = false;
-                        didJustCloseAuthDialog = true;
-                        Navigator.pop(context);
-                      }
-                    })
-              ],
-            ));
+                        didAuthenticate = await auth.authenticate(
+                            localizedReason:
+                                "Authentication is activated. Please authenticate.");
+                        if (didAuthenticate) {
+                          showingAuthDialog = false;
+                          didJustCloseAuthDialog = true;
+                          Navigator.pop(context);
+                        }
+                      })
+                ],
+              ));
+        });
   }
 }
 
