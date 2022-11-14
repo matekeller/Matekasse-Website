@@ -10,7 +10,7 @@ class TransactionList extends StatefulWidget {
   final void Function(BuildContext context) onSocketException;
   final String username;
   const TransactionList(
-      {Key? key, required this.onSocketException, this.username = "matekasse"})
+      {Key? key, required this.onSocketException, this.username = "asdf"})
       : super(key: key);
 
   @override
@@ -38,7 +38,7 @@ class _TransactionListState extends State<TransactionList> {
           }
           List<Transaction> transactions = [];
 
-          if (widget.username != "matekasse") {
+          if (widget.username != "asdf") {
             transactions = await GraphQlHelper.getTransactionListByUser(
                 username: widget.username);
           } else {
