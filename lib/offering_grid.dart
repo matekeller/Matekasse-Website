@@ -30,7 +30,7 @@ class _OfferingGridState extends State<OfferingGrid> {
           await GraphQlHelper.updateOfferings();
           setState(
             () {
-              selectedOfferingsName = null;
+              selectedOfferingsName = [];
               widget.onChanged(null);
             },
           );
