@@ -188,11 +188,31 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 leading: const Icon(FontAwesomeIcons.arrowRightFromBracket),
                 title: const Text("Log out"),
                 onTap: () {
-                  LocalStore.authToken = "";
-                  LocalStore.userName = "";
-                  LocalStore.password = "";
-                  Navigator.pop(context);
-                  _signIn(context);
+                  AlertDialog alert = AlertDialog(
+                      title: const Text("Log Out"),
+                      content: const Text("Are you sure you want to log out?"),
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context, true);
+                              LocalStore.authToken = "";
+                              LocalStore.userName = "";
+                              LocalStore.password = "";
+                              Navigator.pop(context);
+                              _signIn(context);
+                            },
+                            child: const Text("Yes")),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context, false);
+                            },
+                            child: const Text("No"))
+                      ]);
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return alert;
+                      });
                 },
               ),
             ],
