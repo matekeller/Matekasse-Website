@@ -106,7 +106,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n    transactionsPaginated(first: 10, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            }\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n}","variables":{}}''';
+        '''{"query":"query {\\n    transactionsPaginated(first: 10, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
@@ -128,12 +128,17 @@ class GraphQlHelper {
         //     timestampSecondsSinceEpochFloat.toInt();
         int pricePaidCents = transactionMap['node']['pricePaidCents'];
         DateTime date = DateTime.parse(transactionMap['node']['timestamp']);
+        int transactionID = transactionMap['node']['id'];
+        bool deleted = transactionMap['node']['deleted'];
+
         transactionsPage.add(Transaction(
             payerUsername: payerUsername,
             adminUsername: adminUsername,
             offeringName: offeringId,
             pricePaidCents: pricePaidCents,
-            date: date));
+            date: date,
+            id: transactionID,
+            deleted: deleted));
         _currentCursor = transactionMap['cursor'];
       }
       hasNextPage = jsonDecode(responseString)['data']['transactionsPaginated']
@@ -158,14 +163,14 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n    transactionsByUser(username: \\"$username\\") {\\n        admin{username}\\n      offeringId\\n      timestamp\\n      pricePaidCents\\n}\\n}","variables":{}}''';
+        '''{"query":"query {\\n    transactionsByUser(username: \\"$username\\") {\\n        admin{username}\\n      offeringId\\n      timestamp\\n      pricePaidCents\\n            id\\n            deleted\\n}\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     String responseString = await response.stream.bytesToString();
-    print(responseString);
+
     if (response.statusCode == 200) {
       List<dynamic> transactionMaps =
           jsonDecode(responseString)['data']['transactionsByUser'];
@@ -177,13 +182,17 @@ class GraphQlHelper {
         String payerUsername = username;
         int pricePaidCents = transactionMap['pricePaidCents'];
         DateTime date = DateTime.parse(transactionMap['timestamp']);
+        int transactionID = transactionMap['id'];
+        bool deleted = transactionMap['deleted'];
 
         transaction.add(Transaction(
             payerUsername: payerUsername,
             adminUsername: adminUsername,
             offeringName: offeringId,
             pricePaidCents: pricePaidCents,
-            date: date));
+            date: date,
+            id: transactionID,
+            deleted: deleted));
       }
 
       return transaction;
