@@ -299,9 +299,11 @@ class GraphQlHelper {
       'Content-Type': 'application/json'
     };
     var products = "";
+    int count = 1;
     for (String id in offeringIDs) {
       products +=
-          '''\\n purchase(product: \\"$id\\", payer: \\"$username\\")''';
+          '''\\n purchase$count: purchase(product: \\"$id\\", payer: \\"$username\\")''';
+      count++;
     }
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
