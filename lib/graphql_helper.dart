@@ -276,7 +276,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"mutation {\\n  undoPurchase(transactionID: $transactionID)\\n}","variables":{}}''';
+        '''{"query":"mutation {\\n  undoPurchase(transactionId: $transactionID)\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 

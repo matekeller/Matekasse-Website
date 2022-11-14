@@ -64,7 +64,46 @@ class _TransactionListState extends State<TransactionList> {
               controller: scrollController,
               children: [
                 for (Transaction transaction in _transactions)
-                  TransactionWidget(transaction: transaction),
+                  !transaction.deleted
+                      ? Dismissible(
+                          key: UniqueKey(),
+                          child: TransactionWidget(transaction: transaction),
+                          onDismissed: (direction) async {
+                            await GraphQlHelper.undoPurchase(transaction.id);
+                            setState(
+                              () {},
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(
+                                    'Transaction with ID ${transaction.id} by payer ${transaction.payerUsername} dismissed.')));
+                          },
+                          confirmDismiss: (DismissDirection direction) async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text(
+                                      'Are you sure you want to delete?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text('Yes'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('No'),
+                                    )
+                                  ],
+                                );
+                              },
+                            );
+
+                            return confirmed;
+                          },
+                        )
+                      : TransactionWidget(transaction: transaction),
                 Visibility(
                   child: const Center(
                     child: CircularProgressIndicator(),
