@@ -156,7 +156,7 @@ class _TransactionListState extends State<TransactionList> {
       setState(() {
         _loading = true;
       });
-      if (widget.username != "matekasse") {
+      if (widget.username != "asdf") {
         GraphQlHelper.getTransactionListByUser(username: widget.username)
             .then((value) => setState(() {
                   _transactions.addAll(value);
