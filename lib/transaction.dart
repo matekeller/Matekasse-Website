@@ -15,7 +15,7 @@ class TransactionWidget extends StatelessWidget {
     // internally doesnt matter.
     int pricePaidCents = transaction.pricePaidCents;
     double pricePaidEuros = pricePaidCents / 100;
-    print(transaction.payerUsername + " " + pricePaidCents.toString());
+
     TextStyle deletedStyle = const TextStyle(
         decoration: TextDecoration.lineThrough, color: Colors.grey);
 
