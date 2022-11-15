@@ -243,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         floatingActionButton: CircularMenu(
           animationDuration: const Duration(milliseconds: 500),
           curve: Curves.bounceOut,
-          reverseCurve: Curves.bounceIn,
+          reverseCurve: Curves.easeInOutQuint,
           toggleButtonColor: Colors.amber,
           toggleButtonIconColor: Colors.white,
           items: [
