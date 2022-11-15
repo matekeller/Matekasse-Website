@@ -9,6 +9,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:matemate/graphql_helper.dart';
+import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/nfc_scanner.dart';
 import 'package:matemate/offering.dart';
@@ -180,7 +181,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ListTile(
                 leading: const Icon(FontAwesomeIcons.boxesStacked),
                 title: const Text("Inventory"),
-                onTap: () {},
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                  return const Inventory();
+                })),
               ),
               ListTile(
                   leading: const Icon(FontAwesomeIcons.gear),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/transaction.dart';
 import 'package:http/http.dart' as http;
@@ -451,6 +452,44 @@ class GraphQlHelper {
     return users.firstWhere((user) => user["username"] == username,
             orElse: () => null) !=
         null;
+  }
+
+  static Future<List<InventoryItem>> getInventory() async {
+    String authToken = LocalStore.authToken;
+    List<InventoryItem> inventory = [];
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    request.body =
+        '''{"query":"query {\\n    inventory{\\n      offeringId\\n      amount\\n}\\n}","variables":{}}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    String responseString = await response.stream.bytesToString();
+
+    if (response.statusCode == 200) {
+      List<dynamic> inventoryMaps =
+          jsonDecode(responseString)['data']['inventory'];
+
+      for (dynamic inventoryItem in inventoryMaps) {
+        String offeringId = inventoryItem['offeringId'];
+        int amount = inventoryItem['amount'];
+
+        inventory.add(InventoryItem(offeringID: offeringId, amount: amount));
+      }
+
+      return inventory;
+    } else if (response.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    }
+
+    throw Exception(response.reasonPhrase);
   }
 }
 
