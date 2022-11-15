@@ -178,6 +178,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 })),
               ),
               ListTile(
+                leading: const Icon(FontAwesomeIcons.boxesStacked),
+                title: const Text("Inventory"),
+                onTap: () {},
+              ),
+              ListTile(
                   leading: const Icon(FontAwesomeIcons.gear),
                   title: const Text("Settings"),
                   onTap: () => Navigator.push(context,
