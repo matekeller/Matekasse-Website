@@ -13,7 +13,9 @@ class TransactionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // just showing the absolute value. Whether its positive or negative
     // internally doesnt matter.
-    int pricePaidCents = transaction.pricePaidCents.abs();
+    int pricePaidCents = transaction.pricePaidCents;
+    double pricePaidEuros = pricePaidCents / 100;
+    print(transaction.payerUsername + " " + pricePaidCents.toString());
     TextStyle deletedStyle = const TextStyle(
         decoration: TextDecoration.lineThrough, color: Colors.grey);
 
@@ -42,28 +44,39 @@ class TransactionWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   color: !transaction.deleted
                       ? (transaction.offeringName == "topup"
-                          ? Colors.green
+                          ? (pricePaidCents < 0
+                              ? Colors.green
+                              : Colors
+                                  .red) // if cents < 0 its an actual topup, else its a topdown via database
                           : Colors.red)
                       : Colors.grey,
                   child: Text(
-                    (pricePaidCents ~/ 100).toString() +
-                        "," +
-                        (pricePaidCents % 100 < 10 ? "0" : "") +
-                        (pricePaidCents % 100).toString() +
-                        "€",
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(color: Colors.white),
+                    transaction.offeringName == "topup"
+                        ? NumberFormat("###0.00", "de")
+                                .format(pricePaidEuros *
+                                    (-1)) // we want to change the sign if its a topup
+                                .toString() +
+                            "€"
+                        : NumberFormat("###0.00", "de")
+                                .format(pricePaidEuros)
+                                .toString() +
+                            "€",
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                       LocalStore.offerings
-                          .firstWhere((element) =>
-                              element.name == transaction.offeringName)
-                          .readableName,
+                                  .firstWhere((element) =>
+                                      element.name == transaction.offeringName)
+                                  .readableName ==
+                              "Aufladung"
+                          ? (pricePaidCents < 0 ? "Aufladung" : "Ausbuchung")
+                          : LocalStore.offerings
+                              .firstWhere((element) =>
+                                  element.name == transaction.offeringName)
+                              .readableName,
                       style: !transaction.deleted
                           ? Theme.of(context).textTheme.bodyLarge!
                           : deletedStyle),
