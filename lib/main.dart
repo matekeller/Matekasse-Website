@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:circular_menu/circular_menu.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -230,47 +231,36 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             }
           },
         ),
-        floatingActionButton: FabCircularMenu(
-          animationDuration: const Duration(milliseconds: 100),
-          ringWidth: 40,
-          ringDiameter: 300,
-          fabOpenIcon: const Icon(
-            FontAwesomeIcons.plus,
-            color: Colors.white,
-          ),
-          fabCloseIcon: const Icon(FontAwesomeIcons.xmark, color: Colors.white),
-          children: [
-            IconButton(
-              onPressed: () {
-                _showNewUserDialog();
-              },
-              icon: const Icon(
-                FontAwesomeIcons.user,
-                color: Colors.white,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                _showTopUpDialog();
-              },
-              icon: const Icon(
-                FontAwesomeIcons.euroSign,
-                color: Colors.white,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                _showPurchaseDialog();
-              },
-              icon: const Icon(
-                FontAwesomeIcons.wineBottle,
-                color: Colors.white,
-              ),
-            ),
+        floatingActionButton: CircularMenu(
+          animationDuration: const Duration(milliseconds: 500),
+          curve: Curves.bounceOut,
+          reverseCurve: Curves.bounceIn,
+          toggleButtonColor: Colors.amber,
+          toggleButtonIconColor: Colors.white,
+          items: [
+            CircularMenuItem(
+                icon: FontAwesomeIcons.user,
+                color: Colors.amber,
+                onTap: () {
+                  _showNewUserDialog();
+                }),
+            CircularMenuItem(
+                icon: FontAwesomeIcons.euroSign,
+                color: Colors.amber,
+                onTap: () {
+                  _showTopUpDialog();
+                }),
+            CircularMenuItem(
+                icon: FontAwesomeIcons.wineBottle,
+                color: Colors.amber,
+                onTap: () {
+                  _showPurchaseDialog();
+                })
           ],
+          alignment: Alignment.bottomRight,
         ),
-        //makes auto-formatting nicer for build methods.
       ),
+      //makes auto-formatting nicer for build methods.
     );
   }
 
