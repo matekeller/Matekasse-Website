@@ -55,6 +55,8 @@ class _InventoryState extends State<Inventory> {
                             separatorBuilder: (context, index) =>
                                 const Divider(),
                             itemBuilder: (context, index) {
+                              inventory.sort(
+                                  ((a, b) => b.amount.compareTo(a.amount)));
                               Offering offering = LocalStore.offerings
                                   .firstWhere((element) =>
                                       element.name ==
