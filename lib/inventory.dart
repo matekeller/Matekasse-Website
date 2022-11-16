@@ -17,6 +17,17 @@ class Inventory extends StatefulWidget {
 
 class _InventoryState extends State<Inventory> {
   List<InventoryItem> inventory = [];
+  Map thresholds = <String, int>{
+    'club': 20,
+    'mio_lemongrass': 10,
+    'mio_ginger': 10,
+    'water': 8,
+    'mio_orange_caffeine': 10,
+    'mio_lemon_caffeine': 10,
+    'mio': 10,
+    'stift_apfelschorle': 4,
+    'mio_pomegranate': 10
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +59,7 @@ class _InventoryState extends State<Inventory> {
                           onRefresh: () async {
                             await GraphQlHelper.updateOfferings();
                             inventory = await GraphQlHelper.getInventory();
+
                             setState(() {});
                           },
                           child: ListView.separated(
@@ -55,6 +67,11 @@ class _InventoryState extends State<Inventory> {
                             separatorBuilder: (context, index) =>
                                 const Divider(),
                             itemBuilder: (context, index) {
+                              if (!thresholds
+                                  .containsKey(inventory[index].offeringID)) {
+                                thresholds.addEntries(
+                                    {inventory[index].offeringID: 0}.entries);
+                              }
                               inventory.sort(
                                   ((a, b) => b.amount.compareTo(a.amount)));
                               Offering offering = LocalStore.offerings
@@ -63,15 +80,41 @@ class _InventoryState extends State<Inventory> {
                                       inventory[index].offeringID);
 
                               return ListTile(
-                                //style: ListTileStyle.list,
                                 contentPadding: const EdgeInsets.all(4),
                                 leading: CachedNetworkImage(
                                     imageUrl: offering.imageUrl,
                                     placeholder: (context, url) =>
                                         const CircularProgressIndicator()),
                                 title: Text(offering.readableName),
-                                subtitle: Text("Amount: " +
-                                    inventory[index].amount.toString()),
+                                subtitle: RichText(
+                                    text: TextSpan(
+                                        style:
+                                            DefaultTextStyle.of(context).style,
+                                        children: <TextSpan>[
+                                      const TextSpan(text: "Amount: "),
+                                      TextSpan(
+                                          text: inventory[index]
+                                              .amount
+                                              .toString(),
+                                          style: TextStyle(
+                                              color: inventory[index].amount <=
+                                                      thresholds[
+                                                          inventory[index]
+                                                              .offeringID]
+                                                  ? Colors.red
+                                                  : DefaultTextStyle.of(context)
+                                                      .style
+                                                      .color,
+                                              fontWeight: inventory[index]
+                                                          .amount <=
+                                                      thresholds[
+                                                          inventory[index]
+                                                              .offeringID]
+                                                  ? FontWeight.bold
+                                                  : DefaultTextStyle.of(context)
+                                                      .style
+                                                      .fontWeight))
+                                    ])),
                               );
                             },
                           ))
