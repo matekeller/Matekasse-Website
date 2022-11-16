@@ -14,15 +14,13 @@ class OfferingGrid extends StatefulWidget {
 
 class _OfferingGridState extends State<OfferingGrid> {
   List<String>? selectedOfferingsName = [];
+  Border border = Border.all(color: Colors.transparent);
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: const [
-          BoxShadow(color: Colors.grey, offset: Offset(0, 5), blurRadius: 10)
-        ],
+        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(12),
       ),
       child: RefreshIndicator(
@@ -43,79 +41,116 @@ class _OfferingGridState extends State<OfferingGrid> {
             for (Offering offering in LocalStore.offerings
                 .where((element) => element.name != "topup")
                 .toList())
-              MaterialButton(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Align(
-                      alignment: const Alignment(1.6, -1.2),
-                      heightFactor: 0.0,
-                      child: CircleAvatar(
-                          maxRadius: 10.0,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
+              Container(
+                  decoration: BoxDecoration(
+                      border: getBorder(LocalStore.offerings
+                          .where((element) => element.name != "topup")
+                          .toList()
+                          .indexOf(offering))),
+                  child: MaterialButton(
+                    elevation: 0,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Align(
+                          alignment: const Alignment(1.6, -1.2),
+                          heightFactor: 0.0,
+                          child: CircleAvatar(
+                              maxRadius: 10.0,
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black,
+                              child: Text(
+                                selectedOfferingsName!
+                                        .where((element) =>
+                                            element == offering.name)
+                                        .isEmpty
+                                    ? ""
+                                    : selectedOfferingsName!
+                                        .where((element) =>
+                                            element == offering.name)
+                                        .length
+                                        .toString(),
+                              )),
+                        ),
+                        Expanded(
+                          child: CachedNetworkImage(
+                            imageUrl: offering.imageUrl,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            selectedOfferingsName!
-                                    .where(
-                                        (element) => element == offering.name)
-                                    .isEmpty
-                                ? ""
-                                : selectedOfferingsName!
-                                    .where(
-                                        (element) => element == offering.name)
-                                    .length
-                                    .toString(),
-                          )),
+                            (offering.priceCents ~/ 100).toString() +
+                                "," +
+                                (offering.priceCents % 100 >= 10
+                                    ? (offering.priceCents % 100).toString()
+                                    : "0" +
+                                        (offering.priceCents % 100)
+                                            .toString()) +
+                                "€",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                    color: selectedOfferingsName!
+                                            .contains(offering.name)
+                                        ? Colors.white
+                                        : Colors.black),
+                          ),
+                        )
+                      ],
                     ),
-                    Expanded(
-                      child: CachedNetworkImage(
-                        imageUrl: offering.imageUrl,
-                        placeholder: (context, url) =>
-                            const CircularProgressIndicator(),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        (offering.priceCents ~/ 100).toString() +
-                            "," +
-                            (offering.priceCents % 100 >= 10
-                                ? (offering.priceCents % 100).toString()
-                                : "0" +
-                                    (offering.priceCents % 100).toString()) +
-                            "€",
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color:
-                                selectedOfferingsName!.contains(offering.name)
-                                    ? Colors.white
-                                    : Colors.black),
-                      ),
-                    )
-                  ],
-                ),
-                color: selectedOfferingsName!.contains(offering.name)
-                    ? Theme.of(context).primaryColor
-                    : Colors.white,
-                onPressed: () {
-                  setState(
-                    () {
-                      selectedOfferingsName!.add(offering.name);
-                      widget.onChanged(selectedOfferingsName);
+                    color: selectedOfferingsName!.contains(offering.name)
+                        ? Theme.of(context).primaryColor
+                        : Colors.white,
+                    onPressed: () {
+                      setState(
+                        () {
+                          selectedOfferingsName!.add(offering.name);
+                          widget.onChanged(selectedOfferingsName);
+                        },
+                      );
                     },
-                  );
-                },
-                onLongPress: () {
-                  if (selectedOfferingsName!.contains(offering.name)) {
-                    setState(() {
-                      selectedOfferingsName!.remove(offering.name);
-                      widget.onChanged(selectedOfferingsName);
-                    });
-                  }
-                },
-              )
+                    onLongPress: () {
+                      if (selectedOfferingsName!.contains(offering.name)) {
+                        setState(() {
+                          selectedOfferingsName!.remove(offering.name);
+                          widget.onChanged(selectedOfferingsName);
+                        });
+                      }
+                    },
+                  ))
           ],
         ),
       ),
     );
+  }
+
+  Border getBorder(int offeringIndex) {
+    Border border = Border.all(color: Colors.transparent);
+
+    if (offeringIndex % 3 == 0 || offeringIndex % 3 == 1) {
+      border = Border(
+          right: BorderSide(color: Colors.grey, width: 0.5),
+          bottom: border.bottom,
+          top: border.top,
+          left: border.left);
+    }
+
+    if (offeringIndex <
+        LocalStore.offerings
+                .where((element) => element.name != "topup")
+                .toList()
+                .length -
+            3) {
+      border = Border(
+          bottom: BorderSide(color: Colors.grey, width: 0.5),
+          top: border.top,
+          left: border.left,
+          right: border.right);
+    }
+    return border;
   }
 }
