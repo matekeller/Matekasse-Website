@@ -132,7 +132,7 @@ class _TransactionListState extends State<TransactionList> {
 
   Future<void> _refreshTransactionList() async {
     try {
-      if (widget.username != "matekasse") {
+      if (widget.username != "asdf") {
         _transactions = await GraphQlHelper.getTransactionListByUser(
             username: widget.username);
       } else {
