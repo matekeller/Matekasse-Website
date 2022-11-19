@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
@@ -758,10 +759,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       child: const Text("Authenticate"),
                       onPressed: () async {
                         bool didAuthenticate = false;
+                        try {
+                          didAuthenticate = await auth.authenticate(
+                              options: const AuthenticationOptions(
+                                  stickyAuth: true, biometricOnly: true),
+                              localizedReason:
+                                  "Authentication is activated. Please authenticate.");
+                        } on PlatformException catch (e) {
+                          if (e.code == auth_error.notAvailable ||
+                              e.code == auth_error.notEnrolled ||
+                              e.code == auth_error.biometricOnlyNotSupported) {
+                            didAuthenticate = await auth.authenticate(
+                                options: const AuthenticationOptions(
+                                    biometricOnly: false, stickyAuth: true),
+                                localizedReason:
+                                    "Authentication is activated. Please authenticate.");
+                          } else {
+                            didAuthenticate = true;
+                          }
+                        }
 
-                        didAuthenticate = await auth.authenticate(
-                            localizedReason:
-                                "Authentication is activated. Please authenticate.");
                         if (didAuthenticate) {
                           showingAuthDialog = false;
                           didJustCloseAuthDialog = true;
