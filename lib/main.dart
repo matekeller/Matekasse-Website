@@ -765,6 +765,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                   stickyAuth: true, biometricOnly: true),
                               localizedReason:
                                   "Authentication is activated. Please authenticate.");
+                          if (didAuthenticate) {
+                            didJustCloseAuthDialog =
+                                false; // with biometricOnly: true it somehow doesnt cause a AppLifeCycle resume
+                          }
                         } on PlatformException catch (e) {
                           if (e.code == auth_error.notAvailable ||
                               e.code == auth_error.notEnrolled ||
@@ -774,6 +778,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                     biometricOnly: false, stickyAuth: true),
                                 localizedReason:
                                     "Authentication is activated. Please authenticate.");
+                            if (didAuthenticate) {
+                              didJustCloseAuthDialog = true;
+                            }
                           } else {
                             didAuthenticate = true;
                           }
@@ -781,7 +788,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                         if (didAuthenticate) {
                           showingAuthDialog = false;
-                          didJustCloseAuthDialog = true;
                           Navigator.pop(context);
                         }
                       })
