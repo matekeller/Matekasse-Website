@@ -81,24 +81,26 @@ class _OfferingGridState extends State<OfferingGrid> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            (offering.priceCents ~/ 100).toString() +
-                                "," +
-                                (offering.priceCents % 100 >= 10
-                                    ? (offering.priceCents % 100).toString()
-                                    : "0" +
-                                        (offering.priceCents % 100)
-                                            .toString()) +
-                                "€",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                    color: selectedOfferingsName!
-                                            .contains(offering.name)
-                                        ? Colors.white
-                                        : Colors.black),
-                          ),
+                          child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                (offering.priceCents ~/ 100).toString() +
+                                    "," +
+                                    (offering.priceCents % 100 >= 10
+                                        ? (offering.priceCents % 100).toString()
+                                        : "0" +
+                                            (offering.priceCents % 100)
+                                                .toString()) +
+                                    "€",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                        color: selectedOfferingsName!
+                                                .contains(offering.name)
+                                            ? Colors.white
+                                            : Colors.black),
+                              )),
                         )
                       ],
                     ),
