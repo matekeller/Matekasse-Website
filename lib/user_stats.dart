@@ -2,9 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/date_symbol_data_file.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
+import 'package:matemate/offering.dart';
 import 'package:matemate/transaction.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +22,24 @@ class UserStats extends StatefulWidget {
 
 class _UserStatsState extends State<UserStats> {
   List<Transaction> transactions = [];
+  LinkedScrollControllerGroup _controllers = LinkedScrollControllerGroup();
+  ScrollController _month = ScrollController();
+  ScrollController _all = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = LinkedScrollControllerGroup();
+    _month = _controllers.addAndGet();
+    _all = _controllers.addAndGet();
+  }
+
+  @override
+  void dispose() {
+    _month.dispose();
+    _all.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +65,11 @@ class _UserStatsState extends State<UserStats> {
             iconTheme: IconTheme.of(context),
           ),
           body: SafeArea(
-            child: Center(
-                child: Container(
-                    height: 500,
+            child: Column(children: [
+              Flexible(
+                  child: ListView(children: [
+                Container(
+                    height: 300,
                     child: snapshot.hasData
                         ? RefreshIndicator(
                             onRefresh: () async {
@@ -80,16 +103,16 @@ class _UserStatsState extends State<UserStats> {
                                                         "yyy-MM-dd HH:mm:ss")
                                                     .parse(
                                                         time.toString(), true)),
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     color: Colors.white),
                                               )),
-                                              Divider(
+                                              const Divider(
                                                 color: Colors.white,
                                               ),
                                               GridView(
                                                   shrinkWrap: true,
                                                   gridDelegate:
-                                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                                      const SliverGridDelegateWithFixedCrossAxisCount(
                                                           crossAxisCount: 4),
                                                   children: [
                                                     for (Transaction transaction
@@ -131,6 +154,7 @@ class _UserStatsState extends State<UserStats> {
                                     enableAutoIntervalOnZooming: true,
                                     intervalType: DateTimeIntervalType.days),
                                 primaryYAxis: NumericAxis(
+                                    anchorRangeToVisiblePoints: false,
                                     desiredIntervals: 1,
                                     title: AxisTitle(text: "#Mate"),
                                     maximum: 10),
@@ -185,7 +209,102 @@ class _UserStatsState extends State<UserStats> {
                                     snapshot.error.toString()))
                             : const Center(
                                 child: CircularProgressIndicator(),
-                              )))),
+                              ))),
+                const Divider(),
+              ])),
+              Expanded(
+                  child: Row(
+                children: [
+                  Expanded(
+                      child: ListView(
+                    controller: _month,
+                    children: [
+                      const ListTile(
+                        title: Text(
+                          "This month:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      for (Offering offering in LocalStore.offerings
+                          .where((element) => element.name != "topup"))
+                        ListTile(
+                          contentPadding: const EdgeInsets.all(4.0),
+                          leading: CachedNetworkImage(
+                            imageUrl: offering.imageUrl,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                          ),
+                          title: Text("× " +
+                              transactions
+                                  .where((element) =>
+                                      element.offeringName == offering.name &&
+                                      DateTime(element.date.toLocal().year,
+                                              element.date.toLocal().month) ==
+                                          DateTime(DateTime.now().year,
+                                              DateTime.now().month))
+                                  .length
+                                  .toString()),
+                        ),
+                      const Divider(),
+                      ListTile(
+                          leading: const Icon(FontAwesomeIcons.euroSign),
+                          title: Text(NumberFormat("###0.00", "de").format(
+                                  transactions
+                                          .where((element) =>
+                                              DateTime(
+                                                  element.date.toLocal().year,
+                                                  element.date
+                                                      .toLocal()
+                                                      .month) ==
+                                              DateTime(DateTime.now().year,
+                                                  DateTime.now().month))
+                                          .fold(0, (previousValue, element) {
+                                        int prevCents = previousValue as int;
+                                        return prevCents +
+                                            element.pricePaidCents;
+                                      }).toDouble() /
+                                      100) +
+                              "€"))
+                    ],
+                  )),
+                  const VerticalDivider(),
+                  Expanded(
+                      child: ListView(
+                    controller: _all,
+                    children: [
+                      const ListTile(
+                        title: Text(
+                          "Overall:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      for (Offering offering in LocalStore.offerings
+                          .where((element) => element.name != "topup"))
+                        ListTile(
+                          contentPadding: const EdgeInsets.all(4.0),
+                          title: Text("× " +
+                              transactions
+                                  .where((element) =>
+                                      element.offeringName == offering.name)
+                                  .length
+                                  .toString()),
+                        ),
+                      const Divider(),
+                      ListTile(
+                          title: Text(NumberFormat("###0.00", "de").format(
+                                  transactions.fold(0,
+                                          (previousValue, element) {
+                                        int prevCents = previousValue as int;
+                                        return prevCents +
+                                            element.pricePaidCents;
+                                      }).toDouble() /
+                                      100) +
+                              "€"))
+                    ],
+                  ))
+                ],
+              ))
+            ]),
           ));
     });
   }
