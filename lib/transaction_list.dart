@@ -67,6 +67,7 @@ class _TransactionListState extends State<TransactionList> {
                   !transaction.deleted
                       ? Dismissible(
                           key: UniqueKey(),
+                          direction: DismissDirection.endToStart,
                           child: TransactionWidget(transaction: transaction),
                           onDismissed: (direction) async {
                             await GraphQlHelper.undoPurchase(transaction.id);
