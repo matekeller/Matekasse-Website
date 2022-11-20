@@ -17,16 +17,18 @@ class Inventory extends StatefulWidget {
 
 class _InventoryState extends State<Inventory> {
   List<InventoryItem> inventory = [];
+
+  // thresholds should be: (capacity_fridge + capacity_storage) / 2
   Map thresholds = <String, int>{
-    'club': 20,
-    'mio_lemongrass': 10,
-    'mio_ginger': 10,
-    'water': 8,
-    'mio_orange_caffeine': 10,
-    'mio_lemon_caffeine': 10,
-    'mio': 10,
-    'stift_apfelschorle': 4,
-    'mio_pomegranate': 10
+    'club': 50,
+    'mio_lemongrass': 17,
+    'mio_ginger': 17,
+    'water': 16,
+    'mio_orange_caffeine': 17,
+    'mio_lemon_caffeine': 17,
+    'mio': 17,
+    'stift_apfelschorle': 14,
+    'mio_pomegranate': 17
   };
 
   @override
@@ -97,7 +99,7 @@ class _InventoryState extends State<Inventory> {
                                               .amount
                                               .toString(),
                                           style: TextStyle(
-                                              color: inventory[index].amount <=
+                                              color: inventory[index].amount <
                                                       thresholds[
                                                           inventory[index]
                                                               .offeringID]
