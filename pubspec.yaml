@@ -51,6 +51,7 @@ dependencies:
   shared_preferences: ^2.0.15
   textfield_search: ^0.10.0
   circular_menu: ^2.0.1
+  syncfusion_flutter_charts: ^20.3.57
 
 dev_dependencies:
   flutter_test:

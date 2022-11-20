@@ -7,6 +7,8 @@ import 'package:matemate/transaction_list.dart';
 import 'package:matemate/user_list.dart';
 import 'package:matemate/transaction_list.dart';
 
+import 'user_stats.dart';
+
 class History extends StatefulWidget {
   final String username;
   const History({Key? key, required this.username}) : super(key: key);
@@ -20,14 +22,24 @@ class _HistoryState extends State<History> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          systemOverlayStyle: const SystemUiOverlayStyle(
-            statusBarColor: Colors.amber,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.light,
-          ),
-          foregroundColor: Colors.white,
-          title: Text("Transaction History of ${widget.username}"),
-          iconTheme: IconTheme.of(context)),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.amber,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.light,
+        ),
+        foregroundColor: Colors.white,
+        title: Text("Transaction History of ${widget.username}"),
+        iconTheme: IconTheme.of(context),
+        actions: [
+          IconButton(
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          UserStats(username: widget.username))),
+              icon: const Icon(FontAwesomeIcons.chartLine))
+        ],
+      ),
       body: SafeArea(
         child: TransactionList(
           username: widget.username,
