@@ -235,6 +235,22 @@ class UserSearchDelegate extends SearchDelegate {
   });
   final List<User> userList;
 
+// Prevent SearchDelegate from applying dark AppBarTheme
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return Theme.of(context).copyWith(
+        appBarTheme: const AppBarTheme(
+          systemOverlayStyle:
+              SystemUiOverlayStyle(statusBarBrightness: Brightness.light),
+          foregroundColor: Colors.white,
+        ),
+        textTheme: Theme.of(context)
+            .textTheme
+            .copyWith(headline6: const TextStyle(color: Colors.white)),
+        inputDecorationTheme: const InputDecorationTheme(
+            hintStyle: TextStyle(color: Colors.white)));
+  }
+
   @override
   Widget? buildLeading(BuildContext context) => IconButton(
       icon: const Icon(Icons.arrow_back),
