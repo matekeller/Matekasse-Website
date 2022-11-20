@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/rendering.dart';
 import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/transaction.dart';
@@ -128,7 +129,18 @@ class GraphQlHelper {
         // int timestampSecondsSinceEpoch =
         //     timestampSecondsSinceEpochFloat.toInt();
         int pricePaidCents = transactionMap['node']['pricePaidCents'];
-        DateTime date = DateTime.parse(transactionMap['node']['timestamp']);
+        DateTime parsedDate =
+            DateTime.parse(transactionMap['node']['timestamp']);
+        DateTime date = DateTime.utc(
+            parsedDate.year,
+            parsedDate.month,
+            parsedDate.day,
+            parsedDate.hour,
+            parsedDate.minute,
+            parsedDate.second,
+            parsedDate.millisecond,
+            parsedDate.microsecond); // server is in UTC
+
         int transactionID = transactionMap['node']['id'];
         bool deleted = transactionMap['node']['deleted'];
 
@@ -182,7 +194,18 @@ class GraphQlHelper {
         String adminUsername = transactionMap['admin']['username'];
         String payerUsername = username;
         int pricePaidCents = transactionMap['pricePaidCents'];
-        DateTime date = DateTime.parse(transactionMap['timestamp']);
+        DateTime parsedDate = DateTime.parse(transactionMap['timestamp']);
+
+        DateTime date = DateTime.utc(
+            parsedDate.year,
+            parsedDate.month,
+            parsedDate.day,
+            parsedDate.hour,
+            parsedDate.minute,
+            parsedDate.second,
+            parsedDate.millisecond,
+            parsedDate.microsecond); // server is in UTC
+
         int transactionID = transactionMap['id'];
         bool deleted = transactionMap['deleted'];
 
