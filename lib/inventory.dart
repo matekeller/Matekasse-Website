@@ -50,7 +50,7 @@ class _InventoryState extends State<Inventory> {
                   iconTheme: Theme.of(context).iconTheme,
                   title: const Text("Inventory"),
                   leading: IconButton(
-                    icon: const Icon(FontAwesomeIcons.arrowLeft),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () => Navigator.pop(context),
                   )),
               body: Container(

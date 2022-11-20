@@ -172,7 +172,7 @@ class _UserListState extends State<UserList> {
                     icon: const Icon(Icons.search))
               ],
               leading: IconButton(
-                icon: const Icon(FontAwesomeIcons.arrowLeft),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
