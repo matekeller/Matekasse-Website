@@ -108,7 +108,7 @@ class _InventoryState extends State<Inventory> {
                                                       .style
                                                       .color,
                                               fontWeight: inventory[index]
-                                                          .amount <=
+                                                          .amount <
                                                       thresholds[
                                                           inventory[index]
                                                               .offeringID]
