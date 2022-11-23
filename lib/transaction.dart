@@ -1,8 +1,10 @@
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:matemate/local_store.dart';
 import 'package:intl/intl.dart';
+import 'package:matemate/user_page.dart';
 
 class TransactionWidget extends StatelessWidget {
   final Transaction transaction;
@@ -92,10 +94,26 @@ class TransactionWidget extends StatelessWidget {
                       : deletedStyle),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("Payer: " + transaction.payerUsername.toString(),
-                  style: !transaction.deleted ? null : deletedStyle),
-            ),
+                padding: const EdgeInsets.all(8.0),
+                child: RichText(
+                    text: TextSpan(children: [
+                  TextSpan(
+                      text: "Payer: ",
+                      style: !transaction.deleted
+                          ? Theme.of(context).textTheme.bodyMedium
+                          : deletedStyle),
+                  TextSpan(
+                      text: transaction.payerUsername,
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UserPage(
+                                    username: transaction.payerUsername))),
+                      style: !transaction.deleted
+                          ? Theme.of(context).textTheme.bodyMedium
+                          : deletedStyle)
+                ]))),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text("Admin: " + transaction.adminUsername.toString(),
