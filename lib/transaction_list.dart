@@ -70,13 +70,40 @@ class _TransactionListState extends State<TransactionList> {
                           direction: DismissDirection.endToStart,
                           child: TransactionWidget(transaction: transaction),
                           onDismissed: (direction) async {
-                            await GraphQlHelper.undoPurchase(transaction.id);
-                            setState(
-                              () {},
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(
-                                    'Transaction with ID ${transaction.id} by payer ${transaction.payerUsername} dismissed.')));
+                            if (transaction.offeringName == "topup") {
+                              var balanceOfUser =
+                                  (await GraphQlHelper.updateAllUsers())
+                                          .firstWhere((element) =>
+                                              element.username ==
+                                              transaction.payerUsername)
+                                          .balanceCents *
+                                      -1;
+
+                              if (balanceOfUser -
+                                      (transaction.pricePaidCents * -1) <
+                                  0) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Transaction deletion denied. Deletion would result in negative user balance.")));
+                              } else {
+                                await GraphQlHelper.undoPurchase(
+                                    transaction.id);
+                                setState(
+                                  () {},
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        'Transaction with ID ${transaction.id} by payer ${transaction.payerUsername} dismissed.')));
+                              }
+                            } else {
+                              await GraphQlHelper.undoPurchase(transaction.id);
+                              setState(
+                                () {},
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text(
+                                      'Transaction with ID ${transaction.id} by payer ${transaction.payerUsername} dismissed.')));
+                            }
                           },
                           confirmDismiss: (DismissDirection direction) async {
                             final confirmed = await showDialog<bool>(
