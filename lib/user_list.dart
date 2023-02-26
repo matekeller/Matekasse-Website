@@ -46,10 +46,8 @@ class UserWidget extends StatelessWidget {
                             PopupMenuItem(
                               child: const Text("Change BluecardID"),
                               onTap: () async {
-                                print("da");
                                 WidgetsBinding.instance.addPostFrameCallback(
                                   (_) {
-                                    print(user.bluecardId);
                                     _showChangeBluecardIdDialog(
                                         oldBluecardId: user.bluecardId,
                                         context: context);
@@ -78,6 +76,7 @@ class UserWidget extends StatelessWidget {
               const Divider(),
               Text("Full Name: " + user.fullName),
               Text('BluecardID: ${user.bluecardId}'),
+              Text("SmartCards: " + user.smartcards.length.toString()),
               Text(
                 "Balance: " +
                     (-user.balanceCents ~/ 100).toString() +
@@ -218,6 +217,7 @@ class _UserListState extends State<UserList> {
 
 class User {
   final String bluecardId;
+  final List<String> smartcards;
   final String username;
   final String fullName;
   final int balanceCents;
@@ -226,7 +226,8 @@ class User {
       {required this.username,
       required this.fullName,
       required this.balanceCents,
-      required this.bluecardId});
+      required this.bluecardId,
+      required this.smartcards});
 }
 
 class UserSearchDelegate extends SearchDelegate {

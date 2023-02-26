@@ -60,6 +60,7 @@ class _UserPageState extends State<UserPage> {
                     user: User(
                         balanceCents: snapshot.data!.keys.first.balanceCents,
                         bluecardId: snapshot.data!.keys.first.bluecardId,
+                        smartcards: snapshot.data!.keys.first.smartcards,
                         fullName: snapshot.data!.keys.first.fullName,
                         username: snapshot.data!.keys.first.username)),
                 const Divider(),

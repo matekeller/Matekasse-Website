@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:circular_menu/circular_menu.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
@@ -97,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   bool showingNoConnectionDialog = false;
   bool showingAuthDialog = false;
   bool didJustCloseAuthDialog = false;
+  bool showingAddSmartCardDialog = false;
 
   Map prefsMap = <String, dynamic>{};
   final LocalAuthentication auth = LocalAuthentication();
@@ -242,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           },
         ),
         floatingActionButton: CircularMenu(
+          radius: 120,
           animationDuration: const Duration(milliseconds: 500),
           curve: Curves.bounceOut,
           reverseCurve: Curves.easeInOutQuint,
@@ -265,6 +268,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 color: Colors.amber,
                 onTap: () {
                   _showPurchaseDialog();
+                }),
+            CircularMenuItem(
+                icon: FontAwesomeIcons.creditCard,
+                color: Colors.amber,
+                onTap: () {
+                  _showAddSmartCardDialog();
                 })
           ],
           alignment: Alignment.bottomRight,
@@ -694,6 +703,62 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       },
     );
     showingPurchaseDialog = false;
+  }
+
+  Future<void> _showAddSmartCardDialog() async {
+    if (showingAddSmartCardDialog) {
+      return;
+    }
+    showingAddSmartCardDialog = true;
+    var username;
+    var smartcard;
+
+    try {
+      await GraphQlHelper.updateAllUsers();
+    } on SocketException {
+      _showNoConnectionDialog(context);
+      return;
+    }
+
+    await showDialog(
+        context: context,
+        builder: (context) => ScaffoldedDialog(
+                contentPadding: const EdgeInsets.all(8),
+                titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+                title: const Text("Add SmartCard to user"),
+                children: [
+                  const Text("User:"),
+                  UserScanRow(
+                    onChanged: (newBluecardId) {
+                      username = GraphQlHelper.getUsernameByBluecardId(
+                          newBluecardId ?? "");
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  const Text("SmartCard:"),
+                  UserScanRow(
+                      searchable: false,
+                      barcodeEnabled: true,
+                      nfcEnabled: false,
+                      onChanged: (newSmartCard) {
+                        smartcard = newSmartCard;
+                      }),
+                  TextButton(
+                      onPressed: () async {
+                        try {
+                          GraphQlHelper.addSmartCardToUser(username, smartcard);
+                          Navigator.pop(context);
+                        } on Exception {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("error")));
+                        }
+                      },
+                      child: const Text("Add"))
+                ]));
+
+    showingAddSmartCardDialog = false;
   }
 
   Future<void> _showNoConnectionDialog(BuildContext context) async {

@@ -236,7 +236,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n  users {\\n      balance\\n      fullName\\n      username\\n      bluecardId\\n  }\\n}\\n\\n","variables":{}}''';
+        '''{"query":"query {\\n  users {\\n      balance\\n      fullName\\n      username\\n      bluecardId\\n      smartcards {      smartcardId\\n}\\n  }\\n}\\n\\n","variables":{}}''';
 
     request.headers.addAll(headers);
 
@@ -248,13 +248,20 @@ class GraphQlHelper {
       LocalStore.allUsersJson = jsonEncode(usersJson);
       List<User> users = [];
       for (dynamic userJson in usersJson) {
+        //print(userJson['smartcards']);
+        List<String> smartcardList = [];
+
+        for (dynamic smartcard in userJson['smartcards']) {
+          smartcardList.add(smartcard['smartcardId']);
+        }
+
         users.add(
           User(
-            balanceCents: userJson['balance'] ?? 0,
-            fullName: userJson['fullName'],
-            username: userJson['username'],
-            bluecardId: userJson['bluecardId'],
-          ),
+              balanceCents: userJson['balance'] ?? 0,
+              fullName: userJson['fullName'],
+              username: userJson['username'],
+              bluecardId: userJson['bluecardId'],
+              smartcards: smartcardList),
         );
       }
       return users;
@@ -384,6 +391,32 @@ class GraphQlHelper {
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
         '''{"query":"mutation {\\n  updateBluecardId(bluecardIdOld: \\"$oldBluecardId\\", bluecardIdNew: \\"$newBluecardId\\")\\n}","variables":{}}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+      return true;
+    } else if (response.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    } else {
+      throw Exception(response.reasonPhrase);
+    }
+  }
+
+  static Future<bool> addSmartCardToUser(
+      String username, String smartCardID) async {
+    String authToken = LocalStore.authToken;
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    request.body =
+        '''{"query":"mutation {\\n  addSmartcardToUser(username: \\"$username\\", smartcardId: \\"$smartCardID\\")\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
