@@ -69,12 +69,10 @@ class TransactionWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                      LocalStore.offerings
-                                  .firstWhere((element) =>
-                                      element.name == transaction.offeringName)
-                                  .readableName ==
-                              "Aufladung"
-                          ? (pricePaidCents < 0 ? "Aufladung" : "Ausbuchung")
+                      transaction.offeringName == "topup"
+                          ? (transaction.pricePaidCents < 0
+                              ? "Aufladung"
+                              : "Ausbuchung")
                           : LocalStore.offerings
                               .firstWhere((element) =>
                                   element.name == transaction.offeringName)
