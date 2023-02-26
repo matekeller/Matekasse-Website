@@ -442,7 +442,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 const SizedBox(
                   height: 10,
                 ),
-                UserScanRow(onChanged: (value) => bluecardId = value),
+                UserScanRow(
+                    searchable: false,
+                    onChanged: (value) => bluecardId = value),
                 const SizedBox(
                   height: 20,
                 ),

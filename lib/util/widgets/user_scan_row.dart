@@ -14,6 +14,7 @@ class UserScanRow extends StatefulWidget {
   final void Function(String?) onChanged;
   final bool barcodeEnabled;
   final bool nfcEnabled;
+  final bool searchable;
 
   /// How many scans have to be the same at the same time, improves accuracy
   final int redundantBarcodeScans;
@@ -22,6 +23,7 @@ class UserScanRow extends StatefulWidget {
       this.redundantBarcodeScans = 3,
       this.barcodeEnabled = true,
       this.nfcEnabled = false,
+      this.searchable = true,
       Key? key})
       : super(key: key);
 
@@ -77,23 +79,40 @@ class _UserScanRowState extends State<UserScanRow> {
     return Row(
       children: [
         Expanded(
-          child: TextFieldSearch(
-            label: "Search users...",
-            controller: searchfieldController,
-            future: () {
-              return _getSearchResults();
-            },
-            getSelectedValue: (value) {
-              if (!blueCardId) {
-                setState(() {
-                  blueCardId = true;
-                });
-              }
-              searchfieldController.text = value.value;
-              code = searchfieldController.text;
-              widget.onChanged(code);
-            },
-          ),
+          child: widget.searchable
+              ? TextFieldSearch(
+                  label: "Search users...",
+                  controller: searchfieldController,
+                  future: () {
+                    return _getSearchResults();
+                  },
+                  getSelectedValue: (value) {
+                    if (!blueCardId) {
+                      setState(() {
+                        blueCardId = true;
+                      });
+                    }
+                    searchfieldController.text = value.value;
+                    code = searchfieldController.text;
+                    widget.onChanged(code);
+                  },
+                )
+              : TextField(
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                      color: blueCardId ? Colors.blue : Colors.purple),
+                  onChanged: (value) {
+                    code = value;
+                    widget.onChanged(code);
+                  },
+                  onTap: () {
+                    if (!blueCardId) {
+                      setState(() {
+                        blueCardId = true;
+                      });
+                    }
+                  },
+                  controller: TextEditingController(text: code ?? ""),
+                ),
         ),
         if (widget.nfcEnabled)
           const SizedBox(
@@ -111,6 +130,7 @@ class _UserScanRowState extends State<UserScanRow> {
                 builder: (context) => ScaffoldedDialog(children: [
                   NfcScanner(onDiscovered: (tagData) {
                     code = tagData;
+                    print(code);
                     Navigator.pop(context);
                   })
                 ]),
