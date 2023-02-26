@@ -107,7 +107,6 @@ class UserWidget extends StatelessWidget {
             onChanged: (bluecardId) {
               newBlueCardId = bluecardId ?? oldBluecardId;
             },
-            nfcEnabled: false,
           ),
           TextButton(
               onPressed: () async {

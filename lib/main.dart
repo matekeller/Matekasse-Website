@@ -13,7 +13,6 @@ import 'package:local_auth/error_codes.dart' as auth_error;
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
-import 'package:matemate/nfc_scanner.dart';
 import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/user_list.dart';
@@ -743,7 +742,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   UserScanRow(
                       searchable: false,
                       barcodeEnabled: true,
-                      nfcEnabled: false,
                       onChanged: (newSmartCard) {
                         smartcard = newSmartCard;
                       }),

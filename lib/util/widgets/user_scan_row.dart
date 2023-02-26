@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/graphql_helper.dart';
-import 'package:matemate/nfc_scanner.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:textfield_search/textfield_search.dart';
@@ -13,7 +12,6 @@ import '../../user_list.dart';
 class UserScanRow extends StatefulWidget {
   final void Function(String?) onChanged;
   final bool barcodeEnabled;
-  final bool nfcEnabled;
   final bool searchable;
 
   /// How many scans have to be the same at the same time, improves accuracy
@@ -22,7 +20,6 @@ class UserScanRow extends StatefulWidget {
       {required this.onChanged,
       this.redundantBarcodeScans = 3,
       this.barcodeEnabled = true,
-      this.nfcEnabled = false,
       this.searchable = true,
       Key? key})
       : super(key: key);
@@ -35,8 +32,7 @@ class _UserScanRowState extends State<UserScanRow> {
   TextEditingController searchfieldController = TextEditingController();
   String? code;
 
-  /// Whether code is a bluecardId. If it is false, code is a hex string from the
-  /// NFC reader
+  /// Whether code is a bluecardId.
   bool blueCardId = true;
 
   /// Once in a while, a barcode will be scanned incorrectly, but almost never
@@ -114,33 +110,6 @@ class _UserScanRowState extends State<UserScanRow> {
                   controller: TextEditingController(text: code ?? ""),
                 ),
         ),
-        if (widget.nfcEnabled)
-          const SizedBox(
-            width: 5,
-          ),
-        if (widget.nfcEnabled)
-          TextButton(
-            style: TextButtonTheme.of(context).style!.copyWith(
-                backgroundColor: MaterialStateProperty.all(Colors.purple[400])),
-            onPressed: () async {
-              FocusScope.of(context).unfocus();
-              canPop = true;
-              showDialog(
-                context: context,
-                builder: (context) => ScaffoldedDialog(children: [
-                  NfcScanner(onDiscovered: (tagData) {
-                    code = tagData;
-                    print(code);
-                    Navigator.pop(context);
-                  })
-                ]),
-              ).then((value) => setState(() {
-                    blueCardId = false;
-                    widget.onChanged(code);
-                  }));
-            },
-            child: const Icon(FontAwesomeIcons.nfcSymbol),
-          ),
         if (widget.barcodeEnabled)
           const SizedBox(
             width: 5,
