@@ -495,11 +495,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               "There already is an account with this bluecard-id")));
                       return;
                     }
-                    if (bluecardId!.length != 12) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("This is not a valid bluecardId")));
-                      return;
-                    }
+
                     // Gate clauses for pw
                     if (password == null || password == "") {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -571,8 +567,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ),
             onPressed: () {
               if (username == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("The bluecardID is invalid")));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("The user is not registered yet.")));
                 return;
               }
               if (pricePaidEuros == null) {
@@ -661,8 +657,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
                   if (username == null) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            "The bluecardID is not valid, or the user is not registered yet")));
+                        content: Text("The user is not registered yet")));
                     return;
                   }
 
