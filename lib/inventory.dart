@@ -156,21 +156,20 @@ class _InventoryState extends State<Inventory> {
                                               color: inventory[index].amount < 7 ||
                                                       (inventory[index].amount > 0 &&
                                                           inventory[index].amount <
-                                                              thresholds[
-                                                                  inventory[index]
-                                                                      .offeringID])
+                                                              thresholds[inventory[index]
+                                                                  .offeringID])
                                                   ? Colors.red
                                                   : DefaultTextStyle.of(context)
                                                       .style
                                                       .color,
                                               fontWeight: inventory[index].amount <
-                                                      thresholds[
-                                                          inventory[index]
-                                                              .offeringID]
+                                                          7 ||
+                                                      (inventory[index].amount >
+                                                              0 &&
+                                                          inventory[index].amount <
+                                                              thresholds[inventory[index].offeringID])
                                                   ? FontWeight.bold
-                                                  : DefaultTextStyle.of(context)
-                                                      .style
-                                                      .fontWeight))
+                                                  : DefaultTextStyle.of(context).style.fontWeight))
                                     ])),
                               );
                             },
