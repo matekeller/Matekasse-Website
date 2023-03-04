@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/rendering.dart';
 import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/transaction.dart';

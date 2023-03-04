@@ -5,7 +5,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/transaction_list.dart';
 import 'package:matemate/user_list.dart';
-import 'package:matemate/transaction_list.dart';
 
 import 'user_stats.dart';
 
