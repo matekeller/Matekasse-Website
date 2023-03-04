@@ -82,7 +82,7 @@ class GraphQlHelper {
   /// Returns a list containing the transactions from the server, that have a cursor
   /// between [_currentCursor]- 10 and [_currentCursor]
   static Future<List<Transaction>> getTransactionList(
-      {bool fromBeginning = false}) async {
+      {bool fromBeginning = false, int first = 10}) async {
     // If we start from the beginning, we will start at the highest cursor +1
     // but if we have no transactions this would fail. This is why we take the highest
     // cursor here
@@ -107,7 +107,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n    transactionsPaginated(first: 10, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n}","variables":{}}''';
+        '''{"query":"query {\\n    transactionsPaginated(first: $first, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
