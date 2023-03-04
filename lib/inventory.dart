@@ -153,7 +153,7 @@ class _InventoryState extends State<Inventory> {
                                               .amount
                                               .toString(),
                                           style: TextStyle(
-                                              color: inventory[index].amount < 7 ||
+                                              color: (inventory[index].amount > 0 && inventory[index].amount < 7) ||
                                                       (inventory[index].amount > 0 &&
                                                           inventory[index].amount <
                                                               thresholds[inventory[index]
@@ -162,12 +162,11 @@ class _InventoryState extends State<Inventory> {
                                                   : DefaultTextStyle.of(context)
                                                       .style
                                                       .color,
-                                              fontWeight: inventory[index].amount <
-                                                          7 ||
-                                                      (inventory[index].amount >
-                                                              0 &&
+                                              fontWeight: (inventory[index].amount > 0 &&
                                                           inventory[index].amount <
-                                                              thresholds[inventory[index].offeringID])
+                                                              7) ||
+                                                      (inventory[index].amount > 0 &&
+                                                          inventory[index].amount < thresholds[inventory[index].offeringID])
                                                   ? FontWeight.bold
                                                   : DefaultTextStyle.of(context).style.fontWeight))
                                     ])),
