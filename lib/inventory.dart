@@ -38,7 +38,7 @@ class _InventoryState extends State<Inventory> {
                 .isAfter(DateTime.now().subtract(const Duration(days: 30)))) {
           transactions = await GraphQlHelper.getTransactionList(
               fromBeginning: true, first: first);
-          first += 50;
+          first += 100;
         }
         transactions.removeWhere((element) => DateFormat("yy-MM-dd HH:mm:ss")
             .parse(element.date.toString(), true)
@@ -95,7 +95,7 @@ class _InventoryState extends State<Inventory> {
                               transactions =
                                   await GraphQlHelper.getTransactionList(
                                       fromBeginning: true, first: first);
-                              first += 50;
+                              first += 100;
                             }
 
                             transactions.removeWhere((element) =>

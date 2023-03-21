@@ -100,6 +100,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Map prefsMap = <String, dynamic>{};
   final LocalAuthentication auth = LocalAuthentication();
 
+  TransactionList tList = TransactionList(
+    onSocketException: (context) {},
+  );
+
   @override
   void initState() {
     super.initState();
@@ -232,9 +236,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           future: _signIn(context),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return TransactionList(
+              tList = TransactionList(
                 onSocketException: _showNoConnectionDialog,
               );
+              return tList;
             } else {
               return Container();
             }
@@ -688,6 +693,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     }
 
                     Navigator.of(context).pop();
+                    tList.createState();
                   } on SocketException {
                     _showNoConnectionDialog(context);
                   }
