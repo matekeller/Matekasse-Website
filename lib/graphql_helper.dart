@@ -82,13 +82,15 @@ class GraphQlHelper {
   /// Returns a list containing the transactions from the server, that have a cursor
   /// between [_currentCursor]- 10 and [_currentCursor]
   static Future<List<Transaction>> getTransactionList(
-      {bool fromBeginning = false, int first = 10}) async {
+      {bool fromBeginning = false, int after = 0, int first = 10}) async {
     // If we start from the beginning, we will start at the highest cursor +1
     // but if we have no transactions this would fail. This is why we take the highest
     // cursor here
     if (fromBeginning) {
       _currentCursor = await getEndCursor();
       hasNextPage = true;
+    } else {
+      _currentCursor = after;
     }
     // Check if it is 0 here, and if yes append the empty list
     if (_currentCursor == 0) {

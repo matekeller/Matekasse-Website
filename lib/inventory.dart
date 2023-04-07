@@ -30,15 +30,17 @@ class _InventoryState extends State<Inventory> {
         var first = 300;
         var count = 0;
         inventory = await GraphQlHelper.getInventory();
+        var cursor = await GraphQlHelper.getEndCursor();
+        cursor++;
 
         while (transactions.isEmpty ||
             DateFormat("yy-MM-dd HH:mm:ss")
                 .parse(transactions.last.date.toString(), true)
                 .toLocal()
                 .isAfter(DateTime.now().subtract(const Duration(days: 30)))) {
-          transactions = await GraphQlHelper.getTransactionList(
-              fromBeginning: true, first: first);
-          first += 100;
+          transactions.addAll(await GraphQlHelper.getTransactionList(
+              after: cursor, first: first));
+          cursor -= first;
         }
         transactions.removeWhere((element) => DateFormat("yy-MM-dd HH:mm:ss")
             .parse(element.date.toString(), true)
@@ -85,6 +87,9 @@ class _InventoryState extends State<Inventory> {
 
                             inventory = await GraphQlHelper.getInventory();
 
+                            var cursor = await GraphQlHelper.getEndCursor();
+                            cursor++;
+
                             while (transactions.isEmpty ||
                                 DateFormat("yy-MM-dd HH:mm:ss")
                                     .parse(
@@ -92,10 +97,10 @@ class _InventoryState extends State<Inventory> {
                                     .toLocal()
                                     .isAfter(DateTime.now()
                                         .subtract(const Duration(days: 30)))) {
-                              transactions =
+                              transactions.addAll(
                                   await GraphQlHelper.getTransactionList(
-                                      fromBeginning: true, first: first);
-                              first += 100;
+                                      after: cursor, first: first));
+                              cursor -= first;
                             }
 
                             transactions.removeWhere((element) =>
