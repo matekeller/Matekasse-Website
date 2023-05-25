@@ -670,12 +670,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     sumOfSelectedOfferings += offering.priceCents;
                   }
 
-                  if (_users
-                              .firstWhere(
-                                  (element) => element.username == username)
-                              .balanceCents *
-                          (-1) < //Taking the additive inverse, because backend stores balance as negative.
-                      sumOfSelectedOfferings) {
+                  if (!_users
+                          .firstWhere((element) => element.username == username)
+                          .isAdmin &&
+                      _users
+                                  .firstWhere(
+                                      (element) => element.username == username)
+                                  .balanceCents *
+                              (-1) < //Taking the additive inverse, because backend stores balance as negative.
+                          sumOfSelectedOfferings) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text(
                             "The user does not have enough money on their account: ${_users.firstWhere((element) => element.username == username).balanceCents.abs()}ct.")));

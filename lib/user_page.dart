@@ -60,7 +60,8 @@ class _UserPageState extends State<UserPage> {
                         bluecardId: snapshot.data!.keys.first.bluecardId,
                         smartcards: snapshot.data!.keys.first.smartcards,
                         fullName: snapshot.data!.keys.first.fullName,
-                        username: snapshot.data!.keys.first.username)),
+                        username: snapshot.data!.keys.first.username,
+                        isAdmin: snapshot.data!.keys.first.isAdmin)),
                 const Divider(),
                 ListTile(
                     title: const Text(

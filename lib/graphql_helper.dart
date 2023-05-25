@@ -237,7 +237,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n  users {\\n      balance\\n      fullName\\n      username\\n      bluecardId\\n      smartcards {      smartcardId\\n}\\n  }\\n}\\n\\n","variables":{}}''';
+        '''{"query":"query {\\n  users {\\n      balance\\n      fullName\\n      username\\n      bluecardId\\n      smartcards {      smartcardId\\n}\\n  isAdmin     }\\n}\\n\\n","variables":{}}''';
 
     request.headers.addAll(headers);
 
@@ -262,7 +262,8 @@ class GraphQlHelper {
               fullName: userJson['fullName'],
               username: userJson['username'],
               bluecardId: userJson['bluecardId'],
-              smartcards: smartcardList),
+              smartcards: smartcardList,
+              isAdmin: userJson['isAdmin']),
         );
       }
       return users;

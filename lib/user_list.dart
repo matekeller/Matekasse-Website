@@ -220,13 +220,15 @@ class User {
   final String username;
   final String fullName;
   final int balanceCents;
+  final bool isAdmin;
 
   const User(
       {required this.username,
       required this.fullName,
       required this.balanceCents,
       required this.bluecardId,
-      required this.smartcards});
+      required this.smartcards,
+      required this.isAdmin});
 }
 
 class UserSearchDelegate extends SearchDelegate {
