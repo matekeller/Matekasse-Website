@@ -96,7 +96,7 @@ class _InventoryState extends State<Inventory> {
                                         transactions.last.date.toString(), true)
                                     .toLocal()
                                     .isAfter(DateTime.now()
-                                        .subtract(const Duration(days: 30)))) {
+                                        .subtract(const Duration(days: 28)))) {
                               transactions.addAll(
                                   await GraphQlHelper.getTransactionList(
                                       after: cursor, first: first));
@@ -108,7 +108,7 @@ class _InventoryState extends State<Inventory> {
                                     .parse(element.date.toString(), true)
                                     .toLocal()
                                     .isBefore(DateTime.now()
-                                        .subtract(const Duration(days: 30))));
+                                        .subtract(const Duration(days: 28))));
 
                             for (InventoryItem item in inventory) {
                               count = 0;
@@ -158,8 +158,8 @@ class _InventoryState extends State<Inventory> {
                                               .amount
                                               .toString(),
                                           style: TextStyle(
-                                              color: (inventory[index].amount > 0 && inventory[index].amount < 7) ||
-                                                      (inventory[index].amount > 0 &&
+                                              color: inventory[index].amount > 0 &&
+                                                      (inventory[index].amount < 7 ||
                                                           inventory[index].amount <
                                                               thresholds[inventory[index]
                                                                   .offeringID])
@@ -167,11 +167,12 @@ class _InventoryState extends State<Inventory> {
                                                   : DefaultTextStyle.of(context)
                                                       .style
                                                       .color,
-                                              fontWeight: (inventory[index].amount > 0 &&
+                                              fontWeight: inventory[index].amount >
+                                                          0 &&
+                                                      (inventory[index].amount <
+                                                              7 ||
                                                           inventory[index].amount <
-                                                              7) ||
-                                                      (inventory[index].amount > 0 &&
-                                                          inventory[index].amount < thresholds[inventory[index].offeringID])
+                                                              thresholds[inventory[index].offeringID])
                                                   ? FontWeight.bold
                                                   : DefaultTextStyle.of(context).style.fontWeight))
                                     ])),
