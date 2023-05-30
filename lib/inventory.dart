@@ -27,6 +27,7 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<InventoryItem>>(
       future: () async {
+        transactions = [];
         var first = 300;
         var count = 0;
         inventory = await GraphQlHelper.getInventory();
@@ -80,6 +81,7 @@ class _InventoryState extends State<Inventory> {
                   child: ((snapshot.hasData
                       ? RefreshIndicator(
                           onRefresh: () async {
+                            transactions = [];
                             var first = 300;
                             var count = 0;
 
