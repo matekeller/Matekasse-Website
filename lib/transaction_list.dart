@@ -21,11 +21,16 @@ class _TransactionListState extends State<TransactionList> {
   List<Transaction> _transactions = [];
   bool _loading = false;
   late ScrollController scrollController;
+  late int endCursor;
+  int timesScrolledToBottom = 0;
   @override
   void initState() {
     super.initState();
     scrollController = ScrollController();
     scrollController.addListener(_scrolledToBottom);
+    GraphQlHelper.getEndCursor().then((value) => setState(() {
+          endCursor = value;
+        }));
   }
 
   @override
@@ -169,6 +174,10 @@ class _TransactionListState extends State<TransactionList> {
       }
 
       await GraphQlHelper.updateOfferings();
+      GraphQlHelper.getEndCursor().then((value) {
+        endCursor = value;
+      });
+      timesScrolledToBottom = 0;
       setState(() {});
     } on SocketException {
       widget.onSocketException(context);
@@ -182,6 +191,7 @@ class _TransactionListState extends State<TransactionList> {
 
     if (scrollController.position.extentAfter < 300 && !_loading) {
       setState(() {
+        timesScrolledToBottom += 1;
         _loading = true;
       });
       if (widget.username != "asdf") {
@@ -191,10 +201,12 @@ class _TransactionListState extends State<TransactionList> {
                   _loading = false;
                 }));
       } else {
-        GraphQlHelper.getTransactionList().then((value) => setState(() {
-              _transactions.addAll(value);
-              _loading = false;
-            }));
+        GraphQlHelper.getTransactionList(
+                after: endCursor - timesScrolledToBottom * 10 + 1)
+            .then((value) => setState(() {
+                  _transactions.addAll(value);
+                  _loading = false;
+                }));
       }
     }
   }
