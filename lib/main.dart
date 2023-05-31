@@ -13,6 +13,7 @@ import 'package:matemate/inventory.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:matemate/statistics.dart';
 import 'package:matemate/user_list.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:matemate/util/widgets/user_scan_row.dart';
@@ -190,6 +191,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   return const Inventory();
                 })),
               ),
+              ListTile(
+                  leading: const Icon(FontAwesomeIcons.chartLine),
+                  title: const Text("Statistics"),
+                  onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return const Statistics();
+                      }))),
               ListTile(
                   leading: const Icon(FontAwesomeIcons.gear),
                   title: const Text("Settings"),
