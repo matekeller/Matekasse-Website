@@ -211,10 +211,75 @@ class StatisticsList extends ListView {
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ));
         } else if (index == LocalStore.offerings.length + 1) {
+          return ListTile(
+              title: const Text("Total Offerings"),
+              subtitle: RichText(
+                text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: <TextSpan>[
+                      const TextSpan(
+                          text: "Sold: ",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: transactionsToLookAt
+                              .where(
+                                  (element) => element.offeringName != "topup")
+                              .length
+                              .toString()),
+                      const TextSpan(
+                          text: "\nTotal: ",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: NumberFormat("###0.00", "de").format(
+                                  (transactionsToLookAt.where((element) =>
+                                              element.offeringName != "topup"))
+                                          .fold<int>(
+                                              0,
+                                              (sum, transaction) =>
+                                                  sum +
+                                                  transaction.pricePaidCents)
+                                          .toDouble() /
+                                      100) +
+                              "€"),
+                      const TextSpan(
+                          text: "\n    Sold via Matekasse: ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic)),
+                      TextSpan(
+                          text: transactionsToLookAt
+                              .where((element) =>
+                                  element.offeringName != "topup" &&
+                                  element.payerUsername == "matekasse")
+                              .length
+                              .toString()),
+                      const TextSpan(
+                          text: "\n    Total via Matekasse: ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic)),
+                      TextSpan(
+                          text: NumberFormat("###0.00", "de").format(
+                                  transactionsToLookAt
+                                          .where((element) =>
+                                              element.offeringName != "topup" &&
+                                              element.payerUsername ==
+                                                  "matekasse")
+                                          .fold<int>(
+                                              0,
+                                              (sum, transaction) =>
+                                                  sum +
+                                                  transaction.pricePaidCents)
+                                          .toDouble() /
+                                      100) +
+                              "€")
+                    ]),
+              ));
+        } else if (index == LocalStore.offerings.length + 2) {
           return const Center(
               child: Text("Top-Ups",
                   style: TextStyle(fontWeight: FontWeight.bold)));
-        } else if (index == LocalStore.offerings.length + 2) {
+        } else if (index == LocalStore.offerings.length + 3) {
           return ListTile(
             leading: Container(
                 margin: const EdgeInsets.all(4),
