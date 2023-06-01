@@ -7,7 +7,6 @@ import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:matemate/transaction.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({
@@ -22,8 +21,12 @@ class _StatisticsState extends State<Statistics>
     with SingleTickerProviderStateMixin {
   List<Transaction> transactions = [];
   List<Transaction> transactionsToHandle = [];
+  int offeringsNumber = LocalStore.offerings.length;
+  double userBalances = 0;
   late TabController _tabController;
   var tabIndex = 0;
+
+  List<Widget> tabs = [];
 
   @override
   void initState() {
@@ -36,6 +39,18 @@ class _StatisticsState extends State<Statistics>
         });
       },
     );
+    GraphQlHelper.updateAllUsers().then((value) {
+      setState(() {
+        userBalances = -1 *
+            (value
+                    .where((element) =>
+                        element.username != "matekasse" &&
+                        element.username != "matekiosk")
+                    .fold<int>(0, (sum, user) => sum + user.balanceCents)
+                    .toDouble() /
+                100);
+      });
+    });
     _tabController = TabController(length: 4, vsync: this);
 
     _tabController.addListener(() {
@@ -87,342 +102,30 @@ class _StatisticsState extends State<Statistics>
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () => Navigator.pop(context),
                 )),
-            body: TabBarView(controller: _tabController, children: [
-              ((snapshot.hasData && transactions.isNotEmpty
-                  ? Column(
-                      children: [
-                        const Text("Offerings",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                            child: ListView.separated(
-                                itemBuilder: (context, index) {
-                                  Offering offering = (LocalStore.offerings
-                                    ..sort((b, a) {
-                                      var compare = transactionsToHandle
-                                          .where((element) =>
-                                              element.offeringName == a.name)
-                                          .length
-                                          .compareTo(transactionsToHandle
-                                              .where((element) =>
-                                                  element.offeringName ==
-                                                  b.name)
-                                              .length);
-                                      return compare == 0
-                                          ? b.readableName
-                                              .compareTo(a.readableName)
-                                          : compare;
-                                    }))[index];
-
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.all(4),
-                                    leading: CachedNetworkImage(
-                                      imageUrl: offering.imageUrl,
-                                      placeholder: (context, url) =>
-                                          const CircularProgressIndicator(),
-                                    ),
-                                    title: Text(offering.readableName),
-                                    subtitle: RichText(
-                                        text: TextSpan(
-                                            style: DefaultTextStyle.of(context)
-                                                .style,
-                                            children: <TextSpan>[
-                                          const TextSpan(
-                                              text: "Sold: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: transactionsToHandle
-                                                  .where((element) =>
-                                                      element.offeringName ==
-                                                      offering.name)
-                                                  .length
-                                                  .toString()),
-                                          const TextSpan(
-                                              text: "\nTotal: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: NumberFormat(
-                                                      "###0.00", "de")
-                                                  .format(transactionsToHandle
-                                                          .where((element) =>
-                                                              element
-                                                                  .offeringName ==
-                                                              offering.name)
-                                                          .fold<int>(
-                                                              0,
-                                                              (sum, transaction) =>
-                                                                  sum +
-                                                                  transaction
-                                                                      .pricePaidCents)
-                                                          .toDouble() /
-                                                      100)),
-                                          const TextSpan(text: "€")
-                                        ])),
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const Divider(),
-                                itemCount: LocalStore.offerings.length))
-                      ],
-                    )
-                  : (snapshot.hasError
-                      ? Center(
-                          child: Text("There was an error.\n" +
-                              snapshot.error.toString()))
-                      : const Center(child: CircularProgressIndicator())))),
-              ((snapshot.hasData && transactions.isNotEmpty
-                  ? Column(
-                      children: [
-                        const Text("Offerings",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                            child: ListView.separated(
-                                itemBuilder: (context, index) {
-                                  Offering offering = (LocalStore.offerings
-                                    ..sort((b, a) {
-                                      var compare = transactionsToHandle
-                                          .where((element) =>
-                                              element.offeringName == a.name)
-                                          .length
-                                          .compareTo(transactionsToHandle
-                                              .where((element) =>
-                                                  element.offeringName ==
-                                                  b.name)
-                                              .length);
-                                      return compare == 0
-                                          ? b.readableName
-                                              .compareTo(a.readableName)
-                                          : compare;
-                                    }))[index];
-
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.all(4),
-                                    leading: CachedNetworkImage(
-                                      imageUrl: offering.imageUrl,
-                                      placeholder: (context, url) =>
-                                          const CircularProgressIndicator(),
-                                    ),
-                                    title: Text(offering.readableName),
-                                    subtitle: RichText(
-                                        text: TextSpan(
-                                            style: DefaultTextStyle.of(context)
-                                                .style,
-                                            children: <TextSpan>[
-                                          const TextSpan(
-                                              text: "Sold: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: transactionsToHandle
-                                                  .where((element) =>
-                                                      element.offeringName ==
-                                                      offering.name)
-                                                  .length
-                                                  .toString()),
-                                          const TextSpan(
-                                              text: "\nTotal: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: NumberFormat(
-                                                      "###0.00", "de")
-                                                  .format(transactionsToHandle
-                                                          .where((element) =>
-                                                              element
-                                                                  .offeringName ==
-                                                              offering.name)
-                                                          .fold<int>(
-                                                              0,
-                                                              (sum, transaction) =>
-                                                                  sum +
-                                                                  transaction
-                                                                      .pricePaidCents)
-                                                          .toDouble() /
-                                                      100)),
-                                          const TextSpan(text: "€")
-                                        ])),
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const Divider(),
-                                itemCount: LocalStore.offerings.length))
-                      ],
-                    )
-                  : (snapshot.hasError
-                      ? Center(
-                          child: Text("There was an error.\n" +
-                              snapshot.error.toString()))
-                      : const Center(child: CircularProgressIndicator())))),
-              ((snapshot.hasData && transactions.isNotEmpty
-                  ? Column(
-                      children: [
-                        const Text("Offerings",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                            child: ListView.separated(
-                                itemBuilder: (context, index) {
-                                  Offering offering = (LocalStore.offerings
-                                    ..sort((b, a) {
-                                      var compare = transactionsToHandle
-                                          .where((element) =>
-                                              element.offeringName == a.name)
-                                          .length
-                                          .compareTo(transactionsToHandle
-                                              .where((element) =>
-                                                  element.offeringName ==
-                                                  b.name)
-                                              .length);
-                                      return compare == 0
-                                          ? b.readableName
-                                              .compareTo(a.readableName)
-                                          : compare;
-                                    }))[index];
-
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.all(4),
-                                    leading: CachedNetworkImage(
-                                      imageUrl: offering.imageUrl,
-                                      placeholder: (context, url) =>
-                                          const CircularProgressIndicator(),
-                                    ),
-                                    title: Text(offering.readableName),
-                                    subtitle: RichText(
-                                        text: TextSpan(
-                                            style: DefaultTextStyle.of(context)
-                                                .style,
-                                            children: <TextSpan>[
-                                          const TextSpan(
-                                              text: "Sold: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: transactionsToHandle
-                                                  .where((element) =>
-                                                      element.offeringName ==
-                                                      offering.name)
-                                                  .length
-                                                  .toString()),
-                                          const TextSpan(
-                                              text: "\nTotal: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: NumberFormat(
-                                                      "###0.00", "de")
-                                                  .format(transactionsToHandle
-                                                          .where((element) =>
-                                                              element
-                                                                  .offeringName ==
-                                                              offering.name)
-                                                          .fold<int>(
-                                                              0,
-                                                              (sum, transaction) =>
-                                                                  sum +
-                                                                  transaction
-                                                                      .pricePaidCents)
-                                                          .toDouble() /
-                                                      100)),
-                                          const TextSpan(text: "€")
-                                        ])),
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const Divider(),
-                                itemCount: LocalStore.offerings.length))
-                      ],
-                    )
-                  : (snapshot.hasError
-                      ? Center(
-                          child: Text("There was an error.\n" +
-                              snapshot.error.toString()))
-                      : const Center(child: CircularProgressIndicator())))),
-              ((snapshot.hasData && transactions.isNotEmpty
-                  ? Column(
-                      children: [
-                        const Text("Offerings",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(
-                            child: ListView.separated(
-                                itemBuilder: (context, index) {
-                                  Offering offering = (LocalStore.offerings
-                                    ..sort((b, a) {
-                                      var compare = transactionsToHandle
-                                          .where((element) =>
-                                              element.offeringName == a.name)
-                                          .length
-                                          .compareTo(transactionsToHandle
-                                              .where((element) =>
-                                                  element.offeringName ==
-                                                  b.name)
-                                              .length);
-                                      return compare == 0
-                                          ? b.readableName
-                                              .compareTo(a.readableName)
-                                          : compare;
-                                    }))[index];
-
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.all(4),
-                                    leading: CachedNetworkImage(
-                                      imageUrl: offering.imageUrl,
-                                      placeholder: (context, url) =>
-                                          const CircularProgressIndicator(),
-                                    ),
-                                    title: Text(offering.readableName),
-                                    subtitle: RichText(
-                                        text: TextSpan(
-                                            style: DefaultTextStyle.of(context)
-                                                .style,
-                                            children: <TextSpan>[
-                                          const TextSpan(
-                                              text: "Sold: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: transactionsToHandle
-                                                  .where((element) =>
-                                                      element.offeringName ==
-                                                      offering.name)
-                                                  .length
-                                                  .toString()),
-                                          const TextSpan(
-                                              text: "\nTotal: ",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold)),
-                                          TextSpan(
-                                              text: NumberFormat(
-                                                      "###0.00", "de")
-                                                  .format(transactionsToHandle
-                                                          .where((element) =>
-                                                              element
-                                                                  .offeringName ==
-                                                              offering.name)
-                                                          .fold<int>(
-                                                              0,
-                                                              (sum, transaction) =>
-                                                                  sum +
-                                                                  transaction
-                                                                      .pricePaidCents)
-                                                          .toDouble() /
-                                                      100)),
-                                          const TextSpan(text: "€")
-                                        ])),
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const Divider(),
-                                itemCount: LocalStore.offerings.length))
-                      ],
-                    )
-                  : (snapshot.hasError
-                      ? Center(
-                          child: Text("There was an error.\n" +
-                              snapshot.error.toString()))
-                      : const Center(child: CircularProgressIndicator())))),
-            ]),
+            body: TabBarView(
+                controller: _tabController,
+                children: List.filled(4, getTab(snapshot))),
           )));
     }));
+  }
+
+  RenderObjectWidget getTab(AsyncSnapshot<List<Transaction>> snapshot) {
+    return (snapshot.hasData && transactions.isNotEmpty && userBalances != 0
+        ? Column(
+            children: [
+              Expanded(
+                  child: StatisticsList(
+                itemCount: LocalStore.offerings.length + 3,
+                userBalances: userBalances,
+                transactionsToLookAt: transactionsToHandle,
+              ))
+            ],
+          )
+        : (snapshot.hasError
+            ? Center(
+                child:
+                    Text("There was an error.\n" + snapshot.error.toString()))
+            : const Center(child: CircularProgressIndicator())));
   }
 
   List<Transaction> getTransactionSlice(
@@ -471,5 +174,183 @@ class _StatisticsState extends State<Statistics>
       default:
     }
     return transactionsToHandle;
+  }
+}
+
+class StatisticsList extends ListView {
+  final int itemCount;
+  final int? Function(Key)? findChildIndexCallback;
+  final bool addAutomaticKeepAlives;
+  final bool addRepaintBoundaries;
+  final bool addSemanticIndexes;
+  final List<Transaction> transactionsToLookAt;
+  final double userBalances;
+
+  StatisticsList(
+      {required this.userBalances,
+      required this.itemCount,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      required this.transactionsToLookAt,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      separatorBuilder: (context, index) {
+        return const Divider();
+      },
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Container(
+              padding: const EdgeInsets.only(top: 4),
+              child: const Center(
+                child: Text("Offerings",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ));
+        } else if (index == LocalStore.offerings.length + 1) {
+          return const Center(
+              child: Text("Top-Ups",
+                  style: TextStyle(fontWeight: FontWeight.bold)));
+        } else if (index == LocalStore.offerings.length + 2) {
+          return ListTile(
+            leading: Container(
+                margin: const EdgeInsets.all(4),
+                child: const Icon(FontAwesomeIcons.euroSign)),
+            contentPadding: const EdgeInsets.all(4),
+            title: const Text("Top-Ups"),
+            subtitle: RichText(
+                text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: <TextSpan>[
+                  const TextSpan(
+                      text: "Amount: ",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(
+                      text: transactionsToLookAt
+                          .where((element) => element.offeringName == "topup")
+                          .length
+                          .toString()),
+                  const TextSpan(
+                      text: "\nSubtotal: ",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(
+                      text: NumberFormat("###0.00", "de").format(-1 *
+                              (transactionsToLookAt.where((element) =>
+                                      element.offeringName == "topup"))
+                                  .fold<int>(
+                                      0,
+                                      (sum, transaction) =>
+                                          sum + transaction.pricePaidCents)
+                                  .toDouble() /
+                              100) +
+                          "€"),
+                  const TextSpan(
+                      text: "\nAverage: ",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(
+                      text: NumberFormat("###0.00", "de").format(
+                              (transactionsToLookAt
+                                          .where((element) =>
+                                              element.offeringName == "topup")
+                                          .fold<int>(
+                                              0,
+                                              (sum, transaction) =>
+                                                  sum +
+                                                  transaction.pricePaidCents)
+                                          .toDouble() /
+                                      100 *
+                                      -1) /
+                                  (transactionsToLookAt
+                                          .where((element) =>
+                                              element.offeringName == "topup")
+                                          .isEmpty
+                                      ? 1
+                                      : transactionsToLookAt
+                                          .where((element) =>
+                                              element.offeringName == "topup")
+                                          .length)) +
+                          "€"),
+                  const TextSpan(
+                      text: "\nTotal owed to users: ",
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(
+                      text: NumberFormat("###0.00", "de").format(userBalances)),
+                  const TextSpan(text: "€")
+                ])),
+          );
+        }
+        Offering offering = (LocalStore.offerings
+          ..sort((b, a) {
+            var compare = transactionsToLookAt
+                .where((element) => element.offeringName == a.name)
+                .length
+                .compareTo(transactionsToLookAt
+                    .where((element) => element.offeringName == b.name)
+                    .length);
+            return compare == 0
+                ? b.readableName.compareTo(a.readableName)
+                : compare;
+          }))[index - 1];
+
+        return ListTile(
+          contentPadding: const EdgeInsets.all(4),
+          leading: CachedNetworkImage(
+            imageUrl: offering.imageUrl,
+            placeholder: (context, url) => const CircularProgressIndicator(),
+          ),
+          title: Text(offering.readableName),
+          subtitle: RichText(
+              text: TextSpan(
+                  style: DefaultTextStyle.of(context).style,
+                  children: <TextSpan>[
+                const TextSpan(
+                    text: "Sold: ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: transactionsToLookAt
+                        .where(
+                            (element) => element.offeringName == offering.name)
+                        .length
+                        .toString()),
+                const TextSpan(
+                    text: "\nTotal: ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: NumberFormat("###0.00", "de").format(
+                        transactionsToLookAt
+                                .where((element) =>
+                                    element.offeringName == offering.name)
+                                .fold<int>(
+                                    0,
+                                    (sum, transaction) =>
+                                        sum + transaction.pricePaidCents)
+                                .toDouble() /
+                            100)),
+                const TextSpan(text: "€")
+              ])),
+        );
+      },
+      itemCount: itemCount,
+      dragStartBehavior: dragStartBehavior,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
+      addSemanticIndexes: addSemanticIndexes,
+      cacheExtent: cacheExtent,
+      clipBehavior: clipBehavior,
+      controller: controller,
+      findChildIndexCallback: findChildIndexCallback,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      padding: padding,
+      physics: physics,
+      primary: primary,
+      restorationId: restorationId,
+      reverse: reverse,
+      scrollDirection: scrollDirection,
+      shrinkWrap: shrinkWrap,
+    );
   }
 }
