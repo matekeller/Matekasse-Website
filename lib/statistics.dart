@@ -23,10 +23,9 @@ class _StatisticsState extends State<Statistics>
   List<Transaction> transactionsToHandle = [];
   int offeringsNumber = LocalStore.offerings.length;
   double userBalances = 0;
+  double inventoryValue = 0;
   late TabController _tabController;
   var tabIndex = 0;
-
-  List<Widget> tabs = [];
 
   @override
   void initState() {
@@ -231,7 +230,10 @@ class StatisticsList extends ListView {
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextSpan(
                       text: transactionsToLookAt
-                          .where((element) => element.offeringName == "topup")
+                          .where((element) =>
+                              element.offeringName == "topup" &&
+                              element.payerUsername != "matekasse" &&
+                              element.payerUsername != "matekiosk")
                           .length
                           .toString()),
                   const TextSpan(
@@ -240,7 +242,27 @@ class StatisticsList extends ListView {
                   TextSpan(
                       text: NumberFormat("###0.00", "de").format(-1 *
                               (transactionsToLookAt.where((element) =>
-                                      element.offeringName == "topup"))
+                                      element.offeringName == "topup" &&
+                                      element.payerUsername != "matekasse" &&
+                                      element.payerUsername != "matekiosk"))
+                                  .fold<int>(
+                                      0,
+                                      (sum, transaction) =>
+                                          sum + transaction.pricePaidCents)
+                                  .toDouble() /
+                              100) +
+                          "€"),
+                  const TextSpan(
+                      text: "\n    Ausbuchungen: ",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic)),
+                  TextSpan(
+                      text: NumberFormat("###0.00", "de").format(-1 *
+                              transactionsToLookAt
+                                  .where((element) =>
+                                      element.offeringName == "topup" &&
+                                      element.pricePaidCents > 0)
                                   .fold<int>(
                                       0,
                                       (sum, transaction) =>
@@ -252,27 +274,34 @@ class StatisticsList extends ListView {
                       text: "\nAverage: ",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextSpan(
-                      text: NumberFormat("###0.00", "de").format(
+                      text: NumberFormat("###0.00", "de").format(-1 *
                               (transactionsToLookAt
-                                          .where((element) =>
-                                              element.offeringName == "topup")
-                                          .fold<int>(
-                                              0,
-                                              (sum, transaction) =>
-                                                  sum +
-                                                  transaction.pricePaidCents)
-                                          .toDouble() /
-                                      100 *
-                                      -1) /
-                                  (transactionsToLookAt
-                                          .where((element) =>
-                                              element.offeringName == "topup")
-                                          .isEmpty
-                                      ? 1
-                                      : transactionsToLookAt
-                                          .where((element) =>
-                                              element.offeringName == "topup")
-                                          .length)) +
+                                      .where((element) =>
+                                          element.offeringName == "topup" &&
+                                          element.payerUsername !=
+                                              "matekasse" &&
+                                          element.payerUsername != "matekiosk")
+                                      .fold<int>(
+                                          0,
+                                          (sum, transaction) =>
+                                              sum + transaction.pricePaidCents)
+                                      .toDouble() /
+                                  100) /
+                              (transactionsToLookAt
+                                      .where((element) =>
+                                          element.offeringName == "topup" &&
+                                          element.payerUsername !=
+                                              "matekasse" &&
+                                          element.payerUsername != "matekiosk")
+                                      .isEmpty
+                                  ? 1
+                                  : transactionsToLookAt
+                                      .where((element) =>
+                                          element.offeringName == "topup" &&
+                                          element.payerUsername !=
+                                              "matekasse" &&
+                                          element.payerUsername != "matekiosk")
+                                      .length)) +
                           "€"),
                   const TextSpan(
                       text: "\nTotal owed to users: ",
@@ -282,7 +311,63 @@ class StatisticsList extends ListView {
                   const TextSpan(text: "€")
                 ])),
           );
+        } else if (index == LocalStore.offerings.length + 4) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Total Both:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(NumberFormat("###0.00", "de").format((transactionsToLookAt
+                          .where((element) => element.offeringName == "topup"
+                              ? (element.payerUsername != "matekasse" &&
+                                  element.payerUsername != "matekiosk")
+                              : true)
+                          .fold<int>(
+                              0,
+                              (sum, transaction) =>
+                                  sum +
+                                  (transaction.offeringName == "topup" &&
+                                          transaction.pricePaidCents >
+                                              0 // "Ausbuchungen"
+                                      ? -1 * transaction.pricePaidCents
+                                      : transaction.pricePaidCents.abs()))
+                          .toDouble() /
+                      100)) +
+                  "€")
+            ],
+          );
+        } else if (index == LocalStore.offerings.length + 5) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                  text: TextSpan(
+                      style: DefaultTextStyle.of(context)
+                          .style
+                          .merge(const TextStyle(fontWeight: FontWeight.bold)),
+                      children: const <TextSpan>[
+                    TextSpan(
+                      text: "Total Both ",
+                    ),
+                    TextSpan(
+                        text: "(Top-Ups = Debts, w/o Sales via Matekasse)",
+                        style: TextStyle(fontStyle: FontStyle.italic)),
+                    TextSpan(text: ":")
+                  ])),
+              Text(NumberFormat("###0.00", "de").format((transactionsToLookAt
+                          .where((element) =>
+                              (element.payerUsername != "matekasse"))
+                          .fold<int>(
+                              0,
+                              (sum, transaction) =>
+                                  sum + transaction.pricePaidCents)
+                          .toDouble() /
+                      100)) +
+                  "€")
+            ],
+          );
         }
+
         Offering offering = (LocalStore.offerings
           ..sort((b, a) {
             var compare = transactionsToLookAt
