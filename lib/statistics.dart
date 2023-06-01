@@ -67,7 +67,7 @@ class _StatisticsState extends State<Statistics>
         });
       });
     });
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
 
     _tabController.addListener(() {
       setState(() {
@@ -107,6 +107,7 @@ class _StatisticsState extends State<Statistics>
                   tabs: const [
                     Text("Today"),
                     Text("Last Month"),
+                    Text("Last 6 Months"),
                     Text("Last Year"),
                     Text("All")
                   ],
@@ -120,7 +121,7 @@ class _StatisticsState extends State<Statistics>
                 )),
             body: TabBarView(
                 controller: _tabController,
-                children: List.filled(4, getTab(snapshot))),
+                children: List.filled(5, getTab(snapshot))),
           )));
     }));
   }
@@ -176,7 +177,19 @@ class _StatisticsState extends State<Statistics>
             )
             .toList();
         break;
-      case 2: // Last Year
+      case 2:
+        transactionsToHandle = transactions
+            .where(
+              (element) => DateFormat("yy-MM-dd HH:mm:ss")
+                  .parse(element.date.toString(), true)
+                  .toLocal()
+                  .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
+                          DateTime.now().day)
+                      .subtract(const Duration(days: 180))),
+            )
+            .toList();
+        break;
+      case 3: // Last Year
         transactionsToHandle = transactions
             .where(
               (element) => DateFormat("yy-MM-dd HH:mm:ss")
@@ -188,7 +201,7 @@ class _StatisticsState extends State<Statistics>
             )
             .toList();
         break;
-      case 3: // All
+      case 4: // All
         transactionsToHandle = transactions;
         break;
       default:
