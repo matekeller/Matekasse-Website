@@ -49,6 +49,23 @@ class _StatisticsState extends State<Statistics>
                     .toDouble() /
                 100);
       });
+
+      GraphQlHelper.getInventory().then((value) {
+        setState(() {
+          inventoryValue = value
+                  .fold<int>(
+                      0,
+                      (sum, offering) =>
+                          sum +
+                          LocalStore.offerings
+                                  .firstWhere((element) =>
+                                      element.name == offering.offeringID)
+                                  .priceCents *
+                              offering.amount)
+                  .toDouble() /
+              100;
+        });
+      });
     });
     _tabController = TabController(length: 4, vsync: this);
 
@@ -109,14 +126,18 @@ class _StatisticsState extends State<Statistics>
   }
 
   RenderObjectWidget getTab(AsyncSnapshot<List<Transaction>> snapshot) {
-    return (snapshot.hasData && transactions.isNotEmpty && userBalances != 0
+    return (snapshot.hasData &&
+            transactions.isNotEmpty &&
+            userBalances != 0 &&
+            inventoryValue != 0
         ? Column(
             children: [
               Expanded(
                   child: StatisticsList(
-                itemCount: LocalStore.offerings.length + 3,
+                itemCount: LocalStore.offerings.length + 7,
                 userBalances: userBalances,
                 transactionsToLookAt: transactionsToHandle,
+                inventoryValue: inventoryValue,
               ))
             ],
           )
@@ -184,9 +205,11 @@ class StatisticsList extends ListView {
   final bool addSemanticIndexes;
   final List<Transaction> transactionsToLookAt;
   final double userBalances;
+  final double inventoryValue;
 
   StatisticsList(
       {required this.userBalances,
+      required this.inventoryValue,
       required this.itemCount,
       this.findChildIndexCallback,
       this.addAutomaticKeepAlives = true,
@@ -429,6 +452,21 @@ class StatisticsList extends ListView {
                           .toDouble() /
                       100)) +
                   "€")
+            ],
+          );
+        } else if (index == LocalStore.offerings.length + 6) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: const Text("Inventory Value:",
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              Container(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Text(
+                      NumberFormat("###0.00", "de").format(inventoryValue) +
+                          "€"))
             ],
           );
         }
