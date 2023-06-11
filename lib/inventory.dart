@@ -43,10 +43,12 @@ class _InventoryState extends State<Inventory> {
               after: cursor, first: first));
           cursor -= first;
         }
-        transactions.removeWhere((element) => DateFormat("yy-MM-dd HH:mm:ss")
-            .parse(element.date.toString(), true)
-            .toLocal()
-            .isBefore(DateTime.now().subtract(const Duration(days: 30))));
+        transactions.removeWhere((element) =>
+            element.deleted ||
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(element.date.toString(), true)
+                .toLocal()
+                .isBefore(DateTime.now().subtract(const Duration(days: 30))));
 
         for (InventoryItem item in inventory) {
           count = 0;
@@ -106,6 +108,7 @@ class _InventoryState extends State<Inventory> {
                             }
 
                             transactions.removeWhere((element) =>
+                                element.deleted ||
                                 DateFormat("yy-MM-dd HH:mm:ss")
                                     .parse(element.date.toString(), true)
                                     .toLocal()
