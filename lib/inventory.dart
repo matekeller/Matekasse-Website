@@ -38,7 +38,7 @@ class _InventoryState extends State<Inventory> {
             DateFormat("yy-MM-dd HH:mm:ss")
                 .parse(transactions.last.date.toString(), true)
                 .toLocal()
-                .isAfter(DateTime.now().subtract(const Duration(days: 30)))) {
+                .isAfter(DateTime.now().subtract(const Duration(days: 28)))) {
           transactions.addAll(await GraphQlHelper.getTransactionList(
               after: cursor, first: first));
           cursor -= first;
@@ -48,7 +48,7 @@ class _InventoryState extends State<Inventory> {
             DateFormat("yy-MM-dd HH:mm:ss")
                 .parse(element.date.toString(), true)
                 .toLocal()
-                .isBefore(DateTime.now().subtract(const Duration(days: 30))));
+                .isBefore(DateTime.now().subtract(const Duration(days: 28))));
 
         for (InventoryItem item in inventory) {
           count = 0;
@@ -57,7 +57,7 @@ class _InventoryState extends State<Inventory> {
               count += 1;
             }
           }
-          thresholds.addAll({item.offeringID: count ~/ 4});
+          thresholds.addAll({item.offeringID: (count / 4).ceil()});
         }
 
         return inventory;
@@ -123,7 +123,8 @@ class _InventoryState extends State<Inventory> {
                                   count += 1;
                                 }
                               }
-                              thresholds.addAll({item.offeringID: count / 4});
+                              thresholds.addAll(
+                                  {item.offeringID: (count / 4).ceil()});
                             }
 
                             setState(() {});
@@ -165,7 +166,7 @@ class _InventoryState extends State<Inventory> {
                                           style: TextStyle(
                                               color: inventory[index].amount > 0 &&
                                                       (inventory[index].amount < 7 ||
-                                                          inventory[index].amount <
+                                                          inventory[index].amount <=
                                                               thresholds[inventory[index]
                                                                   .offeringID])
                                                   ? Colors.red
@@ -176,7 +177,7 @@ class _InventoryState extends State<Inventory> {
                                                           0 &&
                                                       (inventory[index].amount <
                                                               7 ||
-                                                          inventory[index].amount <
+                                                          inventory[index].amount <=
                                                               thresholds[inventory[index].offeringID])
                                                   ? FontWeight.bold
                                                   : DefaultTextStyle.of(context).style.fontWeight))
