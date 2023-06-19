@@ -135,7 +135,7 @@ class _StatisticsState extends State<Statistics>
             children: [
               Expanded(
                   child: StatisticsList(
-                itemCount: LocalStore.offerings.length + 7,
+                itemCount: LocalStore.offerings.length + 6,
                 userBalances: userBalances,
                 transactionsToLookAt: transactionsToHandle,
                 inventoryValue: inventoryValue,
@@ -425,48 +425,8 @@ class StatisticsList extends ListView {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Total Both:",
+              const Text("Total: ",
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(NumberFormat.currency(
-                      locale: "de_DE",
-                      symbol: "€",
-                      customPattern: '#,##0.00\u00A4')
-                  .format((transactionsToLookAt
-                          .where((element) => element.offeringName == "topup"
-                              ? (element.payerUsername != "matekasse" &&
-                                  element.payerUsername != "matekiosk")
-                              : true)
-                          .fold<int>(
-                              0,
-                              (sum, transaction) =>
-                                  sum +
-                                  (transaction.offeringName == "topup" &&
-                                          transaction.pricePaidCents >
-                                              0 // "Ausbuchungen"
-                                      ? -1 * transaction.pricePaidCents
-                                      : transaction.pricePaidCents.abs()))
-                          .toDouble() /
-                      100)))
-            ],
-          );
-        } else if (index == LocalStore.offerings.length + 5) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                  text: TextSpan(
-                      style: DefaultTextStyle.of(context)
-                          .style
-                          .merge(const TextStyle(fontWeight: FontWeight.bold)),
-                      children: const <TextSpan>[
-                    TextSpan(
-                      text: "Total Both ",
-                    ),
-                    TextSpan(
-                        text: "(Top-Ups = Debts, w/o Sales via Matekasse)",
-                        style: TextStyle(fontStyle: FontStyle.italic)),
-                    TextSpan(text: ":")
-                  ])),
               Text(NumberFormat.currency(
                       locale: "de_DE",
                       symbol: "€",
@@ -482,7 +442,7 @@ class StatisticsList extends ListView {
                       100)))
             ],
           );
-        } else if (index == LocalStore.offerings.length + 6) {
+        } else if (index == LocalStore.offerings.length + 5) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
