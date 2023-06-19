@@ -130,59 +130,96 @@ class _InventoryState extends State<Inventory> {
                             setState(() {});
                           },
                           child: ListView.separated(
-                            itemCount: inventory.length,
+                            shrinkWrap: true,
+                            itemCount: inventory.length + 1,
                             separatorBuilder: (context, index) =>
                                 const Divider(),
                             itemBuilder: (context, index) {
-                              if (!thresholds
-                                  .containsKey(inventory[index].offeringID)) {
-                                thresholds.addEntries(
-                                    {inventory[index].offeringID: 0}.entries);
+                              if (index < inventory.length) {
+                                if (!thresholds
+                                    .containsKey(inventory[index].offeringID)) {
+                                  thresholds.addEntries(
+                                      {inventory[index].offeringID: 0}.entries);
+                                }
+                                inventory.sort(
+                                    ((a, b) => b.amount.compareTo(a.amount)));
+                                Offering offering = LocalStore.offerings
+                                    .firstWhere((element) =>
+                                        element.name ==
+                                        inventory[index].offeringID);
+                                return ListTile(
+                                  contentPadding: const EdgeInsets.all(4),
+                                  leading: CachedNetworkImage(
+                                      imageUrl: offering.imageUrl,
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator()),
+                                  title: Text(offering.readableName),
+                                  subtitle: RichText(
+                                      text: TextSpan(
+                                          style: DefaultTextStyle.of(context)
+                                              .style,
+                                          children: <TextSpan>[
+                                        const TextSpan(text: "Amount: "),
+                                        TextSpan(
+                                            text: inventory[index]
+                                                .amount
+                                                .toString(),
+                                            style: TextStyle(
+                                                color: inventory[index].amount > 0 &&
+                                                        (inventory[index].amount < 7 ||
+                                                            inventory[index]
+                                                                    .amount <=
+                                                                thresholds[inventory[index]
+                                                                    .offeringID])
+                                                    ? Colors.red
+                                                    : DefaultTextStyle.of(context)
+                                                        .style
+                                                        .color,
+                                                fontWeight: inventory[index].amount > 0 &&
+                                                        (inventory[index].amount < 7 ||
+                                                            inventory[index]
+                                                                    .amount <=
+                                                                thresholds[inventory[index].offeringID])
+                                                    ? FontWeight.bold
+                                                    : DefaultTextStyle.of(context).style.fontWeight))
+                                      ])),
+                                );
+                              } else {
+                                return Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Flexible(
+                                        child: ListTile(
+                                            leading:
+                                                Icon(FontAwesomeIcons.euroSign),
+                                            contentPadding: EdgeInsets.all(4),
+                                            title: Text("Inventory Value: ",
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
+                                      ),
+                                      Text(NumberFormat.currency(
+                                              locale: "de_DE",
+                                              symbol: "€",
+                                              customPattern: '#,##0.00\u00A4')
+                                          .format(inventory
+                                                  .fold<int>(
+                                                      0,
+                                                      (sum, offering) =>
+                                                          sum +
+                                                          LocalStore.offerings
+                                                                  .firstWhere((element) =>
+                                                                      element
+                                                                          .name ==
+                                                                      offering
+                                                                          .offeringID)
+                                                                  .priceCents *
+                                                              offering.amount)
+                                                  .toDouble() /
+                                              100))
+                                    ]);
                               }
-                              inventory.sort(
-                                  ((a, b) => b.amount.compareTo(a.amount)));
-                              Offering offering = LocalStore.offerings
-                                  .firstWhere((element) =>
-                                      element.name ==
-                                      inventory[index].offeringID);
-
-                              return ListTile(
-                                contentPadding: const EdgeInsets.all(4),
-                                leading: CachedNetworkImage(
-                                    imageUrl: offering.imageUrl,
-                                    placeholder: (context, url) =>
-                                        const CircularProgressIndicator()),
-                                title: Text(offering.readableName),
-                                subtitle: RichText(
-                                    text: TextSpan(
-                                        style:
-                                            DefaultTextStyle.of(context).style,
-                                        children: <TextSpan>[
-                                      const TextSpan(text: "Amount: "),
-                                      TextSpan(
-                                          text: inventory[index]
-                                              .amount
-                                              .toString(),
-                                          style: TextStyle(
-                                              color: inventory[index].amount > 0 &&
-                                                      (inventory[index].amount < 7 ||
-                                                          inventory[index].amount <=
-                                                              thresholds[inventory[index]
-                                                                  .offeringID])
-                                                  ? Colors.red
-                                                  : DefaultTextStyle.of(context)
-                                                      .style
-                                                      .color,
-                                              fontWeight: inventory[index].amount >
-                                                          0 &&
-                                                      (inventory[index].amount <
-                                                              7 ||
-                                                          inventory[index].amount <=
-                                                              thresholds[inventory[index].offeringID])
-                                                  ? FontWeight.bold
-                                                  : DefaultTextStyle.of(context).style.fontWeight))
-                                    ])),
-                              );
                             },
                           ))
                       : (snapshot.hasError
@@ -191,7 +228,7 @@ class _InventoryState extends State<Inventory> {
                                   snapshot.error.toString()))
                           : const Center(
                               child: CircularProgressIndicator()))))),
-              floatingActionButton: FloatingActionButton(
+              floatingActionButton: /* FloatingActionButton(
                 child: const Icon(FontAwesomeIcons.plus),
                 onPressed: () {
                   showDialog(
@@ -209,7 +246,8 @@ class _InventoryState extends State<Inventory> {
                         );
                       });
                 },
-              ),
+              ) */
+                  null,
             )));
       }),
     );
