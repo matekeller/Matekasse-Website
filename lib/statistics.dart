@@ -266,17 +266,18 @@ class StatisticsList extends ListView {
                           text: "\nTotal: ",
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       TextSpan(
-                          text: NumberFormat("###0.00", "de").format(
-                                  (transactionsToLookAt.where((element) =>
-                                              element.offeringName != "topup"))
-                                          .fold<int>(
-                                              0,
-                                              (sum, transaction) =>
-                                                  sum +
-                                                  transaction.pricePaidCents)
-                                          .toDouble() /
-                                      100) +
-                              "€"),
+                          text: NumberFormat.currency(
+                                  locale: "de_DE",
+                                  symbol: "€",
+                                  customPattern: '#,##0.00\u00A4')
+                              .format((transactionsToLookAt.where((element) =>
+                                          element.offeringName != "topup"))
+                                      .fold<int>(
+                                          0,
+                                          (sum, transaction) =>
+                                              sum + transaction.pricePaidCents)
+                                      .toDouble() /
+                                  100)),
                       const TextSpan(
                           text: "\n    Sold via Matekasse: ",
                           style: TextStyle(
@@ -295,20 +296,20 @@ class StatisticsList extends ListView {
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic)),
                       TextSpan(
-                          text: NumberFormat("###0.00", "de").format(
-                                  transactionsToLookAt
-                                          .where((element) =>
-                                              element.offeringName != "topup" &&
-                                              element.payerUsername ==
-                                                  "matekasse")
-                                          .fold<int>(
-                                              0,
-                                              (sum, transaction) =>
-                                                  sum +
-                                                  transaction.pricePaidCents)
-                                          .toDouble() /
-                                      100) +
-                              "€")
+                          text: NumberFormat.currency(
+                                  locale: "de_DE",
+                                  symbol: "€",
+                                  customPattern: '#,##0.00\u00A4')
+                              .format(transactionsToLookAt
+                                      .where((element) =>
+                                          element.offeringName != "topup" &&
+                                          element.payerUsername == "matekasse")
+                                      .fold<int>(
+                                          0,
+                                          (sum, transaction) =>
+                                              sum + transaction.pricePaidCents)
+                                      .toDouble() /
+                                  100))
                     ]),
               ));
         } else if (index == LocalStore.offerings.length + 2) {
@@ -341,7 +342,11 @@ class StatisticsList extends ListView {
                       text: "\nSubtotal: ",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextSpan(
-                      text: NumberFormat("###0.00", "de").format(-1 *
+                      text: NumberFormat.currency(
+                              locale: "de_DE",
+                              symbol: "€",
+                              customPattern: '#,##0.00\u00A4')
+                          .format(-1 *
                               (transactionsToLookAt.where((element) =>
                                       element.offeringName == "topup" &&
                                       element.payerUsername != "matekasse" &&
@@ -351,15 +356,18 @@ class StatisticsList extends ListView {
                                       (sum, transaction) =>
                                           sum + transaction.pricePaidCents)
                                   .toDouble() /
-                              100) +
-                          "€"),
+                              100)),
                   const TextSpan(
                       text: "\n    Ausbuchungen: ",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontStyle: FontStyle.italic)),
                   TextSpan(
-                      text: NumberFormat("###0.00", "de").format(-1 *
+                      text: NumberFormat.currency(
+                              locale: "de_DE",
+                              symbol: "€",
+                              customPattern: '#,##0.00\u00A4')
+                          .format(-1 *
                               transactionsToLookAt
                                   .where((element) =>
                                       element.offeringName == "topup" &&
@@ -369,13 +377,13 @@ class StatisticsList extends ListView {
                                       (sum, transaction) =>
                                           sum + transaction.pricePaidCents)
                                   .toDouble() /
-                              100) +
-                          "€"),
+                              100)),
                   const TextSpan(
                       text: "\nAverage: ",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextSpan(
-                      text: NumberFormat("###0.00", "de").format(-1 *
+                      text: NumberFormat.currency(locale: "de_DE", symbol: "€", customPattern: '#,##0.00\u00A4')
+                          .format(-1 *
                               (transactionsToLookAt
                                       .where((element) =>
                                           element.offeringName == "topup" &&
@@ -399,17 +407,18 @@ class StatisticsList extends ListView {
                                   : transactionsToLookAt
                                       .where((element) =>
                                           element.offeringName == "topup" &&
-                                          element.payerUsername !=
-                                              "matekasse" &&
+                                          element.payerUsername != "matekasse" &&
                                           element.payerUsername != "matekiosk")
-                                      .length)) +
-                          "€"),
+                                      .length))),
                   const TextSpan(
                       text: "\nTotal owed to users: ",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   TextSpan(
-                      text: NumberFormat("###0.00", "de").format(userBalances)),
-                  const TextSpan(text: "€")
+                      text: NumberFormat.currency(
+                              locale: "de_DE",
+                              symbol: "€",
+                              customPattern: '#,##0.00\u00A4')
+                          .format(userBalances))
                 ])),
           );
         } else if (index == LocalStore.offerings.length + 4) {
@@ -418,7 +427,11 @@ class StatisticsList extends ListView {
             children: [
               const Text("Total Both:",
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(NumberFormat("###0.00", "de").format((transactionsToLookAt
+              Text(NumberFormat.currency(
+                      locale: "de_DE",
+                      symbol: "€",
+                      customPattern: '#,##0.00\u00A4')
+                  .format((transactionsToLookAt
                           .where((element) => element.offeringName == "topup"
                               ? (element.payerUsername != "matekasse" &&
                                   element.payerUsername != "matekiosk")
@@ -433,8 +446,7 @@ class StatisticsList extends ListView {
                                       ? -1 * transaction.pricePaidCents
                                       : transaction.pricePaidCents.abs()))
                           .toDouble() /
-                      100)) +
-                  "€")
+                      100)))
             ],
           );
         } else if (index == LocalStore.offerings.length + 5) {
@@ -455,7 +467,11 @@ class StatisticsList extends ListView {
                         style: TextStyle(fontStyle: FontStyle.italic)),
                     TextSpan(text: ":")
                   ])),
-              Text(NumberFormat("###0.00", "de").format((transactionsToLookAt
+              Text(NumberFormat.currency(
+                      locale: "de_DE",
+                      symbol: "€",
+                      customPattern: '#,##0.00\u00A4')
+                  .format((transactionsToLookAt
                           .where((element) =>
                               (element.payerUsername != "matekasse"))
                           .fold<int>(
@@ -463,8 +479,7 @@ class StatisticsList extends ListView {
                               (sum, transaction) =>
                                   sum + transaction.pricePaidCents)
                           .toDouble() /
-                      100)) +
-                  "€")
+                      100)))
             ],
           );
         } else if (index == LocalStore.offerings.length + 6) {
@@ -477,9 +492,11 @@ class StatisticsList extends ListView {
                       style: TextStyle(fontWeight: FontWeight.bold))),
               Container(
                   padding: const EdgeInsets.only(bottom: 20),
-                  child: Text(
-                      NumberFormat("###0.00", "de").format(inventoryValue) +
-                          "€"))
+                  child: Text(NumberFormat.currency(
+                          locale: "de_DE",
+                          symbol: "€",
+                          customPattern: '#,##0.00\u00A4')
+                      .format(inventoryValue)))
             ],
           );
         }
@@ -521,8 +538,11 @@ class StatisticsList extends ListView {
                     text: "\nTotal: ",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 TextSpan(
-                    text: NumberFormat("###0.00", "de").format(
-                        transactionsToLookAt
+                    text: NumberFormat.currency(
+                            locale: "de_DE",
+                            symbol: "€",
+                            customPattern: '#,##0.00\u00A4')
+                        .format(transactionsToLookAt
                                 .where((element) =>
                                     element.offeringName == offering.name)
                                 .fold<int>(
@@ -530,8 +550,7 @@ class StatisticsList extends ListView {
                                     (sum, transaction) =>
                                         sum + transaction.pricePaidCents)
                                 .toDouble() /
-                            100)),
-                const TextSpan(text: "€")
+                            100))
               ])),
         );
       },

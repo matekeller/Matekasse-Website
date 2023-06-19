@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
@@ -117,21 +118,15 @@ class _OfferingGridState extends State<OfferingGrid> {
                                             fit: BoxFit.scaleDown,
                                             child: Text(
                                               offering.name != "dummy"
-                                                  ? (offering.priceCents ~/
-                                                              100)
-                                                          .toString() +
-                                                      "," +
-                                                      (offering.priceCents %
-                                                                  100 >=
-                                                              10
-                                                          ? (offering.priceCents %
-                                                                  100)
-                                                              .toString()
-                                                          : "0" +
-                                                              (offering.priceCents %
-                                                                      100)
-                                                                  .toString()) +
-                                                      "€"
+                                                  ? NumberFormat.currency(
+                                                          locale: "de_DE",
+                                                          symbol: "€",
+                                                          customPattern:
+                                                              '#,##0.00\u00A4')
+                                                      .format(offering
+                                                              .priceCents
+                                                              .toDouble() /
+                                                          100)
                                                   : "",
                                               style: Theme.of(context)
                                                   .textTheme

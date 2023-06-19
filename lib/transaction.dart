@@ -52,15 +52,16 @@ class TransactionWidget extends StatelessWidget {
                       : Colors.grey,
                   child: Text(
                     transaction.offeringName == "topup"
-                        ? NumberFormat("###0.00", "de")
-                                .format(pricePaidEuros *
-                                    (-1)) // we want to change the sign if its a topup
-                                .toString() +
-                            "€"
-                        : NumberFormat("###0.00", "de")
-                                .format(pricePaidEuros)
-                                .toString() +
-                            "€",
+                        ? NumberFormat.currency(
+                                locale: "de_DE",
+                                symbol: "€",
+                                customPattern: '#,##0.00\u00A4')
+                            .format(pricePaidEuros * -1)
+                        : NumberFormat.currency(
+                                locale: "de_DE",
+                                symbol: "€",
+                                customPattern: '#,##0.00\u00A4')
+                            .format(pricePaidEuros),
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),

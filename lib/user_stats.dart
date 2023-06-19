@@ -248,23 +248,21 @@ class _UserStatsState extends State<UserStats> {
                       const Divider(),
                       ListTile(
                           leading: const Icon(FontAwesomeIcons.euroSign),
-                          title: Text(NumberFormat("###0.00", "de").format(
-                                  transactions
-                                          .where((element) =>
-                                              DateTime(
-                                                  element.date.toLocal().year,
-                                                  element.date
-                                                      .toLocal()
-                                                      .month) ==
-                                              DateTime(DateTime.now().year,
-                                                  DateTime.now().month))
-                                          .fold(0, (previousValue, element) {
-                                        int prevCents = previousValue as int;
-                                        return prevCents +
-                                            element.pricePaidCents;
-                                      }).toDouble() /
-                                      100) +
-                              "€"))
+                          title: Text(NumberFormat.currency(
+                                  locale: "de_DE",
+                                  symbol: "€",
+                                  customPattern: '#,##0.00\u00A4')
+                              .format(transactions
+                                      .where((element) =>
+                                          DateTime(element.date.toLocal().year,
+                                              element.date.toLocal().month) ==
+                                          DateTime(DateTime.now().year,
+                                              DateTime.now().month))
+                                      .fold(0, (previousValue, element) {
+                                    int prevCents = previousValue as int;
+                                    return prevCents + element.pricePaidCents;
+                                  }).toDouble() /
+                                  100)))
                     ],
                   )),
                   const VerticalDivider(),
@@ -291,15 +289,16 @@ class _UserStatsState extends State<UserStats> {
                         ),
                       const Divider(),
                       ListTile(
-                          title: Text(NumberFormat("###0.00", "de").format(
-                                  transactions.fold(0,
-                                          (previousValue, element) {
-                                        int prevCents = previousValue as int;
-                                        return prevCents +
-                                            element.pricePaidCents;
-                                      }).toDouble() /
-                                      100) +
-                              "€"))
+                          title: Text(NumberFormat.currency(
+                                  locale: "de_DE",
+                                  symbol: "€",
+                                  customPattern: '#,##0.00\u00A4')
+                              .format(transactions.fold(0,
+                                      (previousValue, element) {
+                                    int prevCents = previousValue as int;
+                                    return prevCents + element.pricePaidCents;
+                                  }).toDouble() /
+                                  100)))
                     ],
                   ))
                 ],
