@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:matemate/util/widgets/user_scan_row.dart';
@@ -77,14 +78,12 @@ class UserWidget extends StatelessWidget {
               Text("Full Name: " + user.fullName),
               Text('BluecardID: ${user.bluecardId}'),
               Text("SmartCards: " + user.smartcards.length.toString()),
-              Text(
-                "Balance: " +
-                    (-user.balanceCents ~/ 100).toString() +
-                    "," +
-                    (-user.balanceCents % 100 < 10 ? "0" : "") +
-                    (-user.balanceCents % 100).toString() +
-                    "€",
-              ),
+              Text("Balance: " +
+                  NumberFormat.currency(
+                          locale: "de_DE",
+                          symbol: "€",
+                          customPattern: '#,##0.00\u00A4')
+                      .format(user.balanceCents.toDouble() * (-1) / 100)),
             ],
           ),
         ),
