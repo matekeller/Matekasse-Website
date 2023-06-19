@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:circular_menu/circular_menu.dart';
-import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,7 +16,6 @@ import 'package:matemate/statistics.dart';
 import 'package:matemate/user_list.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:matemate/util/widgets/user_scan_row.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'offering_grid.dart';
 import 'transaction_list.dart';

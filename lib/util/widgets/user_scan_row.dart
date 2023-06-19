@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/graphql_helper.dart';
-import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:textfield_search/textfield_search.dart';
 

@@ -1,9 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/date_symbol_data_file.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
