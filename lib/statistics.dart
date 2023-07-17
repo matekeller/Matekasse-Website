@@ -247,180 +247,16 @@ class StatisticsList extends ListView {
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ));
         } else if (index == LocalStore.offerings.length + 1) {
-          return ListTile(
-              title: const Text("Total Offerings"),
-              subtitle: RichText(
-                text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: <TextSpan>[
-                      const TextSpan(
-                          text: "Sold: ",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(
-                          text: transactionsToLookAt
-                              .where(
-                                  (element) => element.offeringName != "topup")
-                              .length
-                              .toString()),
-                      const TextSpan(
-                          text: "\nTotal: ",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(
-                          text: NumberFormat.currency(
-                                  locale: "de_DE",
-                                  symbol: "€",
-                                  customPattern: '#,##0.00\u00A4')
-                              .format((transactionsToLookAt.where((element) =>
-                                          element.offeringName != "topup"))
-                                      .fold<int>(
-                                          0,
-                                          (sum, transaction) =>
-                                              sum + transaction.pricePaidCents)
-                                      .toDouble() /
-                                  100)),
-                      const TextSpan(
-                          text: "\n    Sold via Matekasse: ",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic)),
-                      TextSpan(
-                          text: transactionsToLookAt
-                              .where((element) =>
-                                  element.offeringName != "topup" &&
-                                  element.payerUsername == "matekasse")
-                              .length
-                              .toString()),
-                      const TextSpan(
-                          text: "\n    Total via Matekasse: ",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic)),
-                      TextSpan(
-                          text: NumberFormat.currency(
-                                  locale: "de_DE",
-                                  symbol: "€",
-                                  customPattern: '#,##0.00\u00A4')
-                              .format(transactionsToLookAt
-                                      .where((element) =>
-                                          element.offeringName != "topup" &&
-                                          element.payerUsername == "matekasse")
-                                      .fold<int>(
-                                          0,
-                                          (sum, transaction) =>
-                                              sum + transaction.pricePaidCents)
-                                      .toDouble() /
-                                  100))
-                    ]),
-              ));
+          return TotalOfferingsListTile(
+              transactionsToLookAt: transactionsToLookAt);
         } else if (index == LocalStore.offerings.length + 2) {
           return const Center(
               child: Text("Top-Ups",
                   style: TextStyle(fontWeight: FontWeight.bold)));
         } else if (index == LocalStore.offerings.length + 3) {
-          return ListTile(
-            leading: Container(
-                margin: const EdgeInsets.all(4),
-                child: const Icon(FontAwesomeIcons.euroSign)),
-            contentPadding: const EdgeInsets.all(4),
-            title: const Text("Top-Ups"),
-            subtitle: RichText(
-                text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: <TextSpan>[
-                  const TextSpan(
-                      text: "Amount: ",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextSpan(
-                      text: transactionsToLookAt
-                          .where((element) =>
-                              element.offeringName == "topup" &&
-                              element.payerUsername != "matekasse" &&
-                              element.payerUsername != "matekiosk")
-                          .length
-                          .toString()),
-                  const TextSpan(
-                      text: "\nSubtotal: ",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextSpan(
-                      text: NumberFormat.currency(
-                              locale: "de_DE",
-                              symbol: "€",
-                              customPattern: '#,##0.00\u00A4')
-                          .format(-1 *
-                              (transactionsToLookAt.where((element) =>
-                                      element.offeringName == "topup" &&
-                                      element.payerUsername != "matekasse" &&
-                                      element.payerUsername != "matekiosk"))
-                                  .fold<int>(
-                                      0,
-                                      (sum, transaction) =>
-                                          sum + transaction.pricePaidCents)
-                                  .toDouble() /
-                              100)),
-                  const TextSpan(
-                      text: "\n    Ausbuchungen: ",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic)),
-                  TextSpan(
-                      text: NumberFormat.currency(
-                              locale: "de_DE",
-                              symbol: "€",
-                              customPattern: '#,##0.00\u00A4')
-                          .format(-1 *
-                              transactionsToLookAt
-                                  .where((element) =>
-                                      element.offeringName == "topup" &&
-                                      element.pricePaidCents > 0)
-                                  .fold<int>(
-                                      0,
-                                      (sum, transaction) =>
-                                          sum + transaction.pricePaidCents)
-                                  .toDouble() /
-                              100)),
-                  const TextSpan(
-                      text: "\nAverage: ",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextSpan(
-                      text: NumberFormat.currency(locale: "de_DE", symbol: "€", customPattern: '#,##0.00\u00A4')
-                          .format(-1 *
-                              (transactionsToLookAt
-                                      .where((element) =>
-                                          element.offeringName == "topup" &&
-                                          element.payerUsername !=
-                                              "matekasse" &&
-                                          element.payerUsername != "matekiosk")
-                                      .fold<int>(
-                                          0,
-                                          (sum, transaction) =>
-                                              sum + transaction.pricePaidCents)
-                                      .toDouble() /
-                                  100) /
-                              (transactionsToLookAt
-                                      .where((element) =>
-                                          element.offeringName == "topup" &&
-                                          element.payerUsername !=
-                                              "matekasse" &&
-                                          element.payerUsername != "matekiosk")
-                                      .isEmpty
-                                  ? 1
-                                  : transactionsToLookAt
-                                      .where((element) =>
-                                          element.offeringName == "topup" &&
-                                          element.payerUsername != "matekasse" &&
-                                          element.payerUsername != "matekiosk")
-                                      .length))),
-                  const TextSpan(
-                      text: "\nTotal owed to users: ",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextSpan(
-                      text: NumberFormat.currency(
-                              locale: "de_DE",
-                              symbol: "€",
-                              customPattern: '#,##0.00\u00A4')
-                          .format(userBalances))
-                ])),
-          );
+          return TopupsListTile(
+              transactionsToLookAt: transactionsToLookAt,
+              userBalances: userBalances);
         } else if (index == LocalStore.offerings.length + 4) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -474,45 +310,8 @@ class StatisticsList extends ListView {
                 : compare;
           }))[index - 1];
 
-        return ListTile(
-          contentPadding: const EdgeInsets.all(4),
-          leading: CachedNetworkImage(
-            imageUrl: offering.imageUrl,
-            placeholder: (context, url) => const CircularProgressIndicator(),
-          ),
-          title: Text(offering.readableName),
-          subtitle: RichText(
-              text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                const TextSpan(
-                    text: "Sold: ",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(
-                    text: transactionsToLookAt
-                        .where(
-                            (element) => element.offeringName == offering.name)
-                        .length
-                        .toString()),
-                const TextSpan(
-                    text: "\nTotal: ",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(
-                    text: NumberFormat.currency(
-                            locale: "de_DE",
-                            symbol: "€",
-                            customPattern: '#,##0.00\u00A4')
-                        .format(transactionsToLookAt
-                                .where((element) =>
-                                    element.offeringName == offering.name)
-                                .fold<int>(
-                                    0,
-                                    (sum, transaction) =>
-                                        sum + transaction.pricePaidCents)
-                                .toDouble() /
-                            100))
-              ])),
-        );
+        return OfferingTile(
+            offering: offering, transactionsToLookAt: transactionsToLookAt);
       },
       itemCount: itemCount,
       dragStartBehavior: dragStartBehavior,
@@ -532,5 +331,253 @@ class StatisticsList extends ListView {
       scrollDirection: scrollDirection,
       shrinkWrap: shrinkWrap,
     );
+  }
+}
+
+class OfferingTile extends StatelessWidget {
+  const OfferingTile({
+    Key? key,
+    required this.offering,
+    required this.transactionsToLookAt,
+  }) : super(key: key);
+
+  final Offering offering;
+  final List<Transaction> transactionsToLookAt;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.all(4),
+      leading: CachedNetworkImage(
+        imageUrl: offering.imageUrl,
+        placeholder: (context, url) => const CircularProgressIndicator(),
+      ),
+      title: Text(offering.readableName),
+      subtitle: RichText(
+          text: TextSpan(
+              style: DefaultTextStyle.of(context).style,
+              children: <TextSpan>[
+            const TextSpan(
+                text: "Sold: ", style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(
+                text: transactionsToLookAt
+                    .where((element) => element.offeringName == offering.name)
+                    .length
+                    .toString()),
+            const TextSpan(
+                text: "\nTotal: ",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(
+                text: NumberFormat.currency(
+                        locale: "de_DE",
+                        symbol: "€",
+                        customPattern: '#,##0.00\u00A4')
+                    .format(transactionsToLookAt
+                            .where((element) =>
+                                element.offeringName == offering.name)
+                            .fold<int>(
+                                0,
+                                (sum, transaction) =>
+                                    sum + transaction.pricePaidCents)
+                            .toDouble() /
+                        100))
+          ])),
+    );
+  }
+}
+
+class TopupsListTile extends StatelessWidget {
+  const TopupsListTile({
+    Key? key,
+    required this.transactionsToLookAt,
+    required this.userBalances,
+  }) : super(key: key);
+
+  final List<Transaction> transactionsToLookAt;
+  final double userBalances;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Container(
+          margin: const EdgeInsets.all(4),
+          child: const Icon(FontAwesomeIcons.euroSign)),
+      contentPadding: const EdgeInsets.all(4),
+      title: const Text("Top-Ups"),
+      subtitle: RichText(
+          text: TextSpan(
+              style: DefaultTextStyle.of(context).style,
+              children: <TextSpan>[
+            const TextSpan(
+                text: "Amount: ",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(
+                text: transactionsToLookAt
+                    .where((element) =>
+                        element.offeringName == "topup" &&
+                        element.payerUsername != "matekasse" &&
+                        element.payerUsername != "matekiosk")
+                    .length
+                    .toString()),
+            const TextSpan(
+                text: "\nSubtotal: ",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(
+                text: NumberFormat.currency(
+                        locale: "de_DE",
+                        symbol: "€",
+                        customPattern: '#,##0.00\u00A4')
+                    .format(-1 *
+                        (transactionsToLookAt.where((element) =>
+                                element.offeringName == "topup" &&
+                                element.payerUsername != "matekasse" &&
+                                element.payerUsername != "matekiosk"))
+                            .fold<int>(
+                                0,
+                                (sum, transaction) =>
+                                    sum + transaction.pricePaidCents)
+                            .toDouble() /
+                        100)),
+            const TextSpan(
+                text: "\n    Ausbuchungen: ",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
+            TextSpan(
+                text: NumberFormat.currency(
+                        locale: "de_DE",
+                        symbol: "€",
+                        customPattern: '#,##0.00\u00A4')
+                    .format(-1 *
+                        transactionsToLookAt
+                            .where((element) =>
+                                element.offeringName == "topup" &&
+                                element.pricePaidCents > 0)
+                            .fold<int>(
+                                0,
+                                (sum, transaction) =>
+                                    sum + transaction.pricePaidCents)
+                            .toDouble() /
+                        100)),
+            const TextSpan(
+                text: "\nAverage: ",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(
+                text: NumberFormat.currency(
+                        locale: "de_DE",
+                        symbol: "€",
+                        customPattern: '#,##0.00\u00A4')
+                    .format(-1 *
+                        (transactionsToLookAt
+                                .where((element) =>
+                                    element.offeringName == "topup" &&
+                                    element.payerUsername != "matekasse" &&
+                                    element.payerUsername != "matekiosk")
+                                .fold<int>(
+                                    0,
+                                    (sum, transaction) =>
+                                        sum + transaction.pricePaidCents)
+                                .toDouble() /
+                            100) /
+                        (transactionsToLookAt
+                                .where((element) =>
+                                    element.offeringName == "topup" &&
+                                    element.payerUsername != "matekasse" &&
+                                    element.payerUsername != "matekiosk")
+                                .isEmpty
+                            ? 1
+                            : transactionsToLookAt
+                                .where((element) =>
+                                    element.offeringName == "topup" &&
+                                    element.payerUsername != "matekasse" &&
+                                    element.payerUsername != "matekiosk")
+                                .length))),
+            const TextSpan(
+                text: "\nTotal owed to users: ",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(
+                text: NumberFormat.currency(
+                        locale: "de_DE",
+                        symbol: "€",
+                        customPattern: '#,##0.00\u00A4')
+                    .format(userBalances))
+          ])),
+    );
+  }
+}
+
+class TotalOfferingsListTile extends StatelessWidget {
+  const TotalOfferingsListTile({
+    Key? key,
+    required this.transactionsToLookAt,
+  }) : super(key: key);
+
+  final List<Transaction> transactionsToLookAt;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+        title: const Text("Total Offerings"),
+        subtitle: RichText(
+          text: TextSpan(
+              style: DefaultTextStyle.of(context).style,
+              children: <TextSpan>[
+                const TextSpan(
+                    text: "Sold: ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: transactionsToLookAt
+                        .where((element) => element.offeringName != "topup")
+                        .length
+                        .toString()),
+                const TextSpan(
+                    text: "\nTotal: ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: NumberFormat.currency(
+                            locale: "de_DE",
+                            symbol: "€",
+                            customPattern: '#,##0.00\u00A4')
+                        .format((transactionsToLookAt.where((element) =>
+                                    element.offeringName != "topup"))
+                                .fold<int>(
+                                    0,
+                                    (sum, transaction) =>
+                                        sum + transaction.pricePaidCents)
+                                .toDouble() /
+                            100)),
+                const TextSpan(
+                    text: "\n    Sold via Matekasse: ",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic)),
+                TextSpan(
+                    text: transactionsToLookAt
+                        .where((element) =>
+                            element.offeringName != "topup" &&
+                            element.payerUsername == "matekasse")
+                        .length
+                        .toString()),
+                const TextSpan(
+                    text: "\n    Total via Matekasse: ",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic)),
+                TextSpan(
+                    text: NumberFormat.currency(
+                            locale: "de_DE",
+                            symbol: "€",
+                            customPattern: '#,##0.00\u00A4')
+                        .format(transactionsToLookAt
+                                .where((element) =>
+                                    element.offeringName != "topup" &&
+                                    element.payerUsername == "matekasse")
+                                .fold<int>(
+                                    0,
+                                    (sum, transaction) =>
+                                        sum + transaction.pricePaidCents)
+                                .toDouble() /
+                            100))
+              ]),
+        ));
   }
 }

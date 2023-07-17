@@ -117,12 +117,11 @@ class UserWidget extends StatelessWidget {
                     Navigator.pop(context);
                   }
                 } else {
-                  // TODO: Differentiate errors
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text("There was an error. Please try again")));
                 }
               },
-              child: Text("Submit"))
+              child: const Text("Submit"))
         ],
       ),
     );
@@ -209,8 +208,6 @@ class _UserListState extends State<UserList> {
       );
     });
   }
-
-  _showChangeBluecardIdDialog(String oldBlueCardId) {}
 }
 
 class User {
@@ -247,7 +244,7 @@ class UserSearchDelegate extends SearchDelegate {
         ),
         textTheme: Theme.of(context)
             .textTheme
-            .copyWith(headline6: const TextStyle(color: Colors.white)),
+            .copyWith(titleLarge: const TextStyle(color: Colors.white)),
         inputDecorationTheme: const InputDecorationTheme(
             hintStyle: TextStyle(color: Colors.white)));
   }

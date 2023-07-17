@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
           ),
           iconTheme: const IconThemeData(color: Colors.white),
           textTheme:
-              const TextTheme(headline3: TextStyle(color: Colors.white))),
+              const TextTheme(displaySmall: TextStyle(color: Colors.white))),
       home: const AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle(
             statusBarColor: Colors.amber,
@@ -355,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               "Log-In",
               style: Theme.of(context)
                   .textTheme
-                  .button!
+                  .labelLarge!
                   .copyWith(color: Colors.white),
             ),
             onPressed: () {
@@ -470,7 +470,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     "Register",
                     style: Theme.of(context)
                         .textTheme
-                        .button!
+                        .labelLarge!
                         .copyWith(color: Colors.white),
                   ),
                   onPressed: () {
@@ -571,7 +571,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               "Top-Up!",
               style: Theme.of(context)
                   .textTheme
-                  .button!
+                  .labelLarge!
                   .copyWith(color: Colors.white),
             ),
             onPressed: () {
@@ -653,7 +653,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   "Buy",
                   style: Theme.of(context)
                       .textTheme
-                      .button!
+                      .labelLarge!
                       .copyWith(color: Colors.white),
                 ),
                 onPressed: () {
@@ -719,8 +719,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       return;
     }
     showingAddSmartCardDialog = true;
-    var username;
-    var smartcard;
+    String? username;
+    String? smartcard;
 
     try {
       await GraphQlHelper.updateAllUsers();
@@ -756,7 +756,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   TextButton(
                       onPressed: () async {
                         try {
-                          GraphQlHelper.addSmartCardToUser(username, smartcard);
+                          GraphQlHelper.addSmartCardToUser(
+                              username!, smartcard!);
                           Navigator.pop(context);
                         } on Exception {
                           ScaffoldMessenger.of(context).showSnackBar(

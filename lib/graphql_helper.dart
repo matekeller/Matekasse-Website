@@ -399,7 +399,6 @@ class GraphQlHelper {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
       return true;
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");
@@ -425,7 +424,6 @@ class GraphQlHelper {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
       return true;
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");

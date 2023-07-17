@@ -50,7 +50,6 @@ class _UserScanRowState extends State<UserScanRow> {
   }
 
   _printLatestValue() {
-    print("text field: ${searchfieldController.text}");
     widget.onChanged(searchfieldController.text);
   }
 
@@ -93,7 +92,7 @@ class _UserScanRowState extends State<UserScanRow> {
                   },
                 )
               : TextField(
-                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: blueCardId ? Colors.blue : Colors.purple),
                   onChanged: (value) {
                     code = value;
@@ -113,75 +112,78 @@ class _UserScanRowState extends State<UserScanRow> {
           const SizedBox(
             width: 5,
           ),
-        if (widget.barcodeEnabled)
-          TextButton(
-              style: TextButtonTheme.of(context).style!.copyWith(
-                  backgroundColor: MaterialStateProperty.all(Colors.blue[400])),
-              onPressed: () async {
-                FocusScope.of(context).unfocus();
-                scannedCodes = [];
-                canPop = true;
-                showDialog(
-                  context: context,
-                  builder: (context) => Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(5),
-                      child: Stack(
-                        children: [
-                          MobileScanner(
-                            allowDuplicates: true,
-                            controller: MobileScannerController(),
-                            onDetect: (barcode, args) {
-                              // Removes the earliest scan if the list would get too long
-                              if (scannedCodes.length >=
-                                  widget.redundantBarcodeScans) {
-                                scannedCodes.removeAt(0);
-                              }
-                              // adds the newest scan
-                              scannedCodes.add(barcode.rawValue ?? "");
-                              // if we have enough scans, it changes the value if and
-                              // only if all scans are the same.
-                              if (scannedCodes.length ==
-                                  widget.redundantBarcodeScans) {
-                                for (int i = 1;
-                                    i < widget.redundantBarcodeScans;
-                                    i++) {
-                                  if (scannedCodes[i] != scannedCodes[0]) {
-                                    return;
-                                  }
-                                }
-                                // Ensuring that everything is only popped once.
-                                if (canPop) {
-                                  code = scannedCodes[0];
-                                  Navigator.of(context).pop();
-                                  canPop = false;
-                                }
-                              }
-                            },
-                          ),
-                          Center(
-                              child: Divider(
-                            color: Colors.red.withAlpha(150),
-                            thickness: 3,
-                          )),
-                        ],
-                      ),
-                    ),
-                  ),
-                ).then((value) {
-                  setState(() {
-                    blueCardId = true;
-                    searchfieldController.text = code ?? "";
-                    widget.onChanged(code);
-                  });
-                });
-              },
-              child: const Icon(
-                FontAwesomeIcons.barcode,
-              ))
+        if (widget.barcodeEnabled) getScanTextButton(context)
       ],
     );
+  }
+
+  TextButton getScanTextButton(BuildContext context) {
+    return TextButton(
+        style: TextButtonTheme.of(context).style!.copyWith(
+            backgroundColor: MaterialStateProperty.all(Colors.blue[400])),
+        onPressed: () async {
+          FocusScope.of(context).unfocus();
+          scannedCodes = [];
+          canPop = true;
+          showDialog(
+            context: context,
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: Stack(
+                  children: [
+                    MobileScanner(
+                      allowDuplicates: true,
+                      controller: MobileScannerController(),
+                      onDetect: (barcode, args) {
+                        // Removes the earliest scan if the list would get too long
+                        if (scannedCodes.length >=
+                            widget.redundantBarcodeScans) {
+                          scannedCodes.removeAt(0);
+                        }
+                        // adds the newest scan
+                        scannedCodes.add(barcode.rawValue ?? "");
+                        // if we have enough scans, it changes the value if and
+                        // only if all scans are the same.
+                        if (scannedCodes.length ==
+                            widget.redundantBarcodeScans) {
+                          for (int i = 1;
+                              i < widget.redundantBarcodeScans;
+                              i++) {
+                            if (scannedCodes[i] != scannedCodes[0]) {
+                              return;
+                            }
+                          }
+                          // Ensuring that everything is only popped once.
+                          if (canPop) {
+                            code = scannedCodes[0];
+                            Navigator.of(context).pop();
+                            canPop = false;
+                          }
+                        }
+                      },
+                    ),
+                    Center(
+                        child: Divider(
+                      color: Colors.red.withAlpha(150),
+                      thickness: 3,
+                    )),
+                  ],
+                ),
+              ),
+            ),
+          ).then((value) {
+            setState(() {
+              blueCardId = true;
+              searchfieldController.text = code ?? "";
+              widget.onChanged(code);
+            });
+          });
+        },
+        child: const Icon(
+          FontAwesomeIcons.barcode,
+        ));
   }
 }
 

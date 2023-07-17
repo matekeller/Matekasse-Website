@@ -68,115 +68,109 @@ class _OfferingGridState extends State<OfferingGrid> {
                     },
                   );
                 },
-                child: GridView(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3),
-                  children: [
-                    for (Offering offering in offerings)
-                      Container(
-                          decoration: BoxDecoration(
-                              border: getBorder(offerings.indexOf(offering))),
-                          child: MaterialButton(
-                            elevation: 0,
-                            child: offering.name != "dummy"
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Align(
-                                        alignment: const Alignment(1.6, -1.2),
-                                        heightFactor: 0.0,
-                                        child: CircleAvatar(
-                                            maxRadius: 10.0,
-                                            backgroundColor: Colors.white,
-                                            foregroundColor: Colors.black,
-                                            child: Text(
-                                              selectedOfferingsName!
-                                                      .where((element) =>
-                                                          element ==
-                                                          offering.name)
-                                                      .isEmpty
-                                                  ? ""
-                                                  : selectedOfferingsName!
-                                                      .where((element) =>
-                                                          element ==
-                                                          offering.name)
-                                                      .length
-                                                      .toString(),
-                                            )),
-                                      ),
-                                      Expanded(
-                                        child: CachedNetworkImage(
-                                          imageUrl: offering.imageUrl,
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator(),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              offering.name != "dummy"
-                                                  ? NumberFormat.currency(
-                                                          locale: "de_DE",
-                                                          symbol: "€",
-                                                          customPattern:
-                                                              '#,##0.00\u00A4')
-                                                      .format(offering
-                                                              .priceCents
-                                                              .toDouble() /
-                                                          100)
-                                                  : "",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium!
-                                                  .copyWith(
-                                                      color:
-                                                          selectedOfferingsName!
-                                                                  .contains(
-                                                                      offering
-                                                                          .name)
-                                                              ? Colors.white
-                                                              : Colors.black),
-                                            )),
-                                      )
-                                    ],
-                                  )
-                                : const Text(""),
-                            enableFeedback:
-                                offering.name != "dummy" ? true : false,
-                            splashColor: offering.name == "dummy"
-                                ? Colors.transparent
-                                : Theme.of(context).splashColor,
-                            color:
-                                selectedOfferingsName!.contains(offering.name)
-                                    ? Theme.of(context).primaryColor
-                                    : Colors.white,
-                            onPressed: () {
-                              if (offering.name != "dummy") {
-                                setState(
-                                  () {
-                                    selectedOfferingsName!.add(offering.name);
-                                    widget.onChanged(selectedOfferingsName);
-                                  },
-                                );
-                              }
-                            },
-                            onLongPress: () {
-                              if (selectedOfferingsName!
-                                  .contains(offering.name)) {
-                                setState(() {
-                                  selectedOfferingsName!.remove(offering.name);
-                                  widget.onChanged(selectedOfferingsName);
-                                });
-                              }
-                            },
-                          ))
-                  ],
-                ),
+                child: getGrid(context),
               ),
             ));
+  }
+
+  GridView getGrid(BuildContext context) {
+    return GridView(
+      shrinkWrap: true,
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      children: [
+        for (Offering offering in offerings)
+          Container(
+              decoration:
+                  BoxDecoration(border: getBorder(offerings.indexOf(offering))),
+              child: MaterialButton(
+                elevation: 0,
+                child: offering.name != "dummy"
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Align(
+                            alignment: const Alignment(1.6, -1.2),
+                            heightFactor: 0.0,
+                            child: CircleAvatar(
+                                maxRadius: 10.0,
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                child: Text(
+                                  selectedOfferingsName!
+                                          .where((element) =>
+                                              element == offering.name)
+                                          .isEmpty
+                                      ? ""
+                                      : selectedOfferingsName!
+                                          .where((element) =>
+                                              element == offering.name)
+                                          .length
+                                          .toString(),
+                                )),
+                          ),
+                          Expanded(
+                            child: CachedNetworkImage(
+                              imageUrl: offering.imageUrl,
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  offering.name != "dummy"
+                                      ? NumberFormat.currency(
+                                              locale: "de_DE",
+                                              symbol: "€",
+                                              customPattern: '#,##0.00\u00A4')
+                                          .format(
+                                              offering.priceCents.toDouble() /
+                                                  100)
+                                      : "",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                          color: selectedOfferingsName!
+                                                  .contains(offering.name)
+                                              ? Colors.white
+                                              : Colors.black),
+                                )),
+                          )
+                        ],
+                      )
+                    : const Text(""),
+                enableFeedback: offering.name != "dummy" ? true : false,
+                splashColor: offering.name == "dummy"
+                    ? Colors.transparent
+                    : Theme.of(context).splashColor,
+                color: selectedOfferingsName!.contains(offering.name)
+                    ? Theme.of(context).primaryColor
+                    : Colors.white,
+                onPressed: () {
+                  if (offering.name != "dummy") {
+                    setState(
+                      () {
+                        selectedOfferingsName!.add(offering.name);
+                        widget.onChanged(selectedOfferingsName);
+                      },
+                    );
+                  }
+                },
+                onLongPress: () {
+                  if (selectedOfferingsName!.contains(offering.name)) {
+                    setState(() {
+                      selectedOfferingsName!.remove(offering.name);
+                      widget.onChanged(selectedOfferingsName);
+                    });
+                  }
+                },
+              ))
+      ],
+    );
   }
 
   Border getBorder(int offeringIndex) {
@@ -184,7 +178,7 @@ class _OfferingGridState extends State<OfferingGrid> {
 
     if (offeringIndex % 3 == 0 || offeringIndex % 3 == 1) {
       border = Border(
-          right: BorderSide(color: Colors.grey, width: 0.5),
+          right: const BorderSide(color: Colors.grey, width: 0.5),
           bottom: border.bottom,
           top: border.top,
           left: border.left);
@@ -193,7 +187,7 @@ class _OfferingGridState extends State<OfferingGrid> {
     if (offeringIndex > 2) {
       border = Border(
           bottom: border.bottom,
-          top: BorderSide(color: Colors.grey, width: 0.5),
+          top: const BorderSide(color: Colors.grey, width: 0.5),
           left: border.left,
           right: border.right);
     }
