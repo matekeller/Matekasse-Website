@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:matemate/graphql_helper.dart';
@@ -53,12 +52,6 @@ class _UserStatsState extends State<UserStats> {
     }(), builder: (context, snapshot) {
       return Scaffold(
           appBar: AppBar(
-            systemOverlayStyle: const SystemUiOverlayStyle(
-              statusBarColor: Colors.amber,
-              statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.light,
-            ),
-            foregroundColor: Colors.white,
             title: Text("Statistics of ${widget.username}"),
             iconTheme: IconTheme.of(context),
           ),
@@ -70,6 +63,7 @@ class _UserStatsState extends State<UserStats> {
                     height: 300,
                     child: snapshot.hasData
                         ? RefreshIndicator(
+                            color: Theme.of(context).primaryColor,
                             onRefresh: () async {
                               transactions =
                                   await GraphQlHelper.getTransactionListByUser(
@@ -220,6 +214,7 @@ class UserChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return SfCartesianChart(
         tooltipBehavior: TooltipBehavior(
+            color: Theme.of(context).colorScheme.surface,
             duration: 3000,
             enable: true,
             activationMode: ActivationMode.singleTap,
@@ -236,11 +231,10 @@ class UserChart extends StatelessWidget {
                           "E, dd.MM.yy",
                         ).format(DateFormat("yyy-MM-dd HH:mm:ss")
                             .parse(time.toString(), true)),
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onBackground),
                       )),
-                      const Divider(
-                        color: Colors.white,
-                      ),
+                      const Divider(),
                       GridView(
                           shrinkWrap: true,
                           gridDelegate:

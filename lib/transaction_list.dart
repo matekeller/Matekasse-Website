@@ -63,6 +63,7 @@ class _TransactionListState extends State<TransactionList> {
         if (snapshot.hasData) {
           _transactions = snapshot.data ?? [];
           return RefreshIndicator(
+            color: Theme.of(context).primaryColor,
             onRefresh: _refreshTransactionList,
             child: ListView(
               shrinkWrap: true,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/transaction.dart';
 import 'package:matemate/user_stats.dart';
@@ -42,12 +41,6 @@ class _UserPageState extends State<UserPage> {
         if (snapshot.hasData) {
           return Scaffold(
             appBar: AppBar(
-              systemOverlayStyle: const SystemUiOverlayStyle(
-                statusBarColor: Colors.amber,
-                statusBarIconBrightness: Brightness.light,
-                statusBarBrightness: Brightness.light,
-              ),
-              foregroundColor: Colors.white,
               title: Text("User Page of ${widget.username}"),
               iconTheme: IconTheme.of(context),
             ),

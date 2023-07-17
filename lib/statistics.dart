@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:matemate/graphql_helper.dart';
@@ -91,38 +90,32 @@ class _StatisticsState extends State<Statistics>
 
       return transactionsToHandle;
     }(), builder: ((context, snapshot) {
-      return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: const SystemUiOverlayStyle(
-            statusBarColor: Colors.amber,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.light,
-          ),
-          child: SafeArea(
-              child: Scaffold(
-            appBar: AppBar(
-                bottom: TabBar(
-                  indicatorColor: Colors.white,
-                  labelColor: Colors.white,
-                  controller: _tabController,
-                  tabs: const [
-                    Text("Today"),
-                    Text("Last Month"),
-                    Text("Last 6 Months"),
-                    Text("Last Year"),
-                    Text("All")
-                  ],
-                ),
-                foregroundColor: Colors.white,
-                iconTheme: Theme.of(context).iconTheme,
-                title: const Text("Statistics"),
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                )),
-            body: TabBarView(
-                controller: _tabController,
-                children: List.filled(5, getTab(snapshot))),
-          )));
+      return SafeArea(
+          child: Scaffold(
+        appBar: AppBar(
+            bottom: TabBar(
+              indicatorColor: Colors.white,
+              labelColor: Colors.white,
+              controller: _tabController,
+              tabs: const [
+                Text("Today"),
+                Text("Last Month"),
+                Text("Last 6 Months"),
+                Text("Last Year"),
+                Text("All")
+              ],
+            ),
+            foregroundColor: Colors.white,
+            iconTheme: Theme.of(context).iconTheme,
+            title: const Text("Statistics"),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            )),
+        body: TabBarView(
+            controller: _tabController,
+            children: List.filled(5, getTab(snapshot))),
+      ));
     }));
   }
 

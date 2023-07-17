@@ -46,6 +46,7 @@ class _OfferingGridState extends State<OfferingGrid> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: RefreshIndicator(
+                color: Theme.of(context).primaryColor,
                 onRefresh: () async {
                   await GraphQlHelper.updateOfferings();
                   setState(
@@ -94,7 +95,10 @@ class _OfferingGridState extends State<OfferingGrid> {
                             heightFactor: 0.0,
                             child: CircleAvatar(
                                 maxRadius: 10.0,
-                                backgroundColor: Colors.white,
+                                backgroundColor: !selectedOfferingsName!
+                                        .contains(offering.name)
+                                    ? Colors.transparent
+                                    : Colors.white,
                                 foregroundColor: Colors.black,
                                 child: Text(
                                   selectedOfferingsName!
@@ -136,8 +140,12 @@ class _OfferingGridState extends State<OfferingGrid> {
                                       .copyWith(
                                           color: selectedOfferingsName!
                                                   .contains(offering.name)
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface),
                                 )),
                           )
                         ],
@@ -149,7 +157,7 @@ class _OfferingGridState extends State<OfferingGrid> {
                     : Theme.of(context).splashColor,
                 color: selectedOfferingsName!.contains(offering.name)
                     ? Theme.of(context).primaryColor
-                    : Colors.white,
+                    : Colors.transparent,
                 onPressed: () {
                   if (offering.name != "dummy") {
                     setState(

@@ -26,11 +26,17 @@ class TransactionWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           //border: Border.all(width: 2, color: Colors.blueGrey),
           borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(offset: Offset(0, 5), blurRadius: 5, color: Colors.grey)
+          boxShadow: [
+            BoxShadow(
+                offset: const Offset(0, 5),
+                blurRadius: 5,
+                color:
+                    Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? Colors.black
+                        : Colors.grey)
           ]),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(7),
@@ -41,29 +47,49 @@ class TransactionWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                          bottomRight: Radius.circular(7)),
+                      color: !transaction.deleted
+                          ? (transaction.offeringName == "topup"
+                              ? (pricePaidCents < 0
+                                  ? Theme.of(context).colorScheme.tertiary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .error) // if cents < 0 its an actual topup, else its a topdown via database
+                              : Theme.of(context).colorScheme.error)
+                          : Colors.grey,
+                      boxShadow: Theme.of(context).brightness == Brightness.dark
+                          ? [
+                              BoxShadow(
+                                  blurRadius: 8,
+                                  color: !transaction.deleted
+                                      ? (transaction.offeringName == "topup"
+                                          ? (pricePaidCents < 0
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .error) // if cents < 0 its an actual topup, else its a topdown via database
+                                          : Theme.of(context).colorScheme.error)
+                                      : Colors.grey)
+                            ]
+                          : []),
                   padding: const EdgeInsets.all(8),
-                  color: !transaction.deleted
-                      ? (transaction.offeringName == "topup"
-                          ? (pricePaidCents < 0
-                              ? Colors.green
-                              : Colors
-                                  .red) // if cents < 0 its an actual topup, else its a topdown via database
-                          : Colors.red)
-                      : Colors.grey,
                   child: Text(
-                    transaction.offeringName == "topup"
-                        ? NumberFormat.currency(
-                                locale: "de_DE",
-                                symbol: "€",
-                                customPattern: '#,##0.00\u00A4')
-                            .format(pricePaidEuros * -1)
-                        : NumberFormat.currency(
-                                locale: "de_DE",
-                                symbol: "€",
-                                customPattern: '#,##0.00\u00A4')
-                            .format(pricePaidEuros),
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                      transaction.offeringName == "topup"
+                          ? NumberFormat.currency(
+                                  locale: "de_DE",
+                                  symbol: "€",
+                                  customPattern: '#,##0.00\u00A4')
+                              .format(pricePaidEuros * -1)
+                          : NumberFormat.currency(
+                                  locale: "de_DE",
+                                  symbol: "€",
+                                  customPattern: '#,##0.00\u00A4')
+                              .format(pricePaidEuros),
+                      style: const TextStyle(color: Colors.white)),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

@@ -80,9 +80,9 @@ class ScaffoldedDialog extends StatelessWidget {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(
+                      icon: Icon(
                         FontAwesomeIcons.xmark,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onBackground,
                       ))
               ],
             ),

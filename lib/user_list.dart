@@ -26,11 +26,16 @@ class UserWidget extends StatelessWidget {
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-            color: Colors.white,
-            //border: Border.all(width: 2, color: Colors.blueGrey),
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: const [
-              BoxShadow(offset: Offset(0, 5), blurRadius: 5, color: Colors.grey)
+            boxShadow: [
+              BoxShadow(
+                  offset: const Offset(0, 5),
+                  blurRadius: 5,
+                  color: Theme.of(context).colorScheme.brightness ==
+                          Brightness.dark
+                      ? Colors.black
+                      : Colors.grey)
             ]),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7),
@@ -143,66 +148,60 @@ class _UserListState extends State<UserList> {
       _users = await GraphQlHelper.updateAllUsers();
       return _users;
     }(), builder: (context, snapshot) {
-      return AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: Colors.amber,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.light,
-        ),
-        child: SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              foregroundColor: Colors.white,
-              iconTheme: Theme.of(context).iconTheme,
-              title: const Text("Users"),
-              actions: [
-                IconButton(
-                    onPressed: !snapshot.hasData
-                        ? null
-                        : () {
-                            showSearch(
-                                context: context,
-                                delegate: UserSearchDelegate(
-                                    userList: snapshot.data ?? []));
-                          },
-                    icon: const Icon(Icons.search))
-              ],
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-              ),
+      return SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            foregroundColor: Colors.white,
+            iconTheme: Theme.of(context).iconTheme,
+            title: const Text("Users"),
+            actions: [
+              IconButton(
+                  onPressed: !snapshot.hasData
+                      ? null
+                      : () {
+                          showSearch(
+                              context: context,
+                              delegate: UserSearchDelegate(
+                                  userList: snapshot.data ?? []));
+                        },
+                  icon: const Icon(Icons.search))
+            ],
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
             ),
-            body: Container(
-              child: ((snapshot.hasData
-                  ? RefreshIndicator(
-                      onRefresh: () async {
-                        _users = await GraphQlHelper.updateAllUsers();
-                        setState(
-                          () {},
-                        );
-                      },
-                      child: ListView(
-                        children: [
-                          for (User user in _users) UserWidget(user: user),
-                          const SizedBox(
-                            height: 700,
-                            child: Icon(
-                              FontAwesomeIcons.cat,
-                              color: Colors.grey,
-                              size: 50,
-                            ),
+          ),
+          body: Container(
+            child: ((snapshot.hasData
+                ? RefreshIndicator(
+                    color: Theme.of(context).primaryColor,
+                    onRefresh: () async {
+                      _users = await GraphQlHelper.updateAllUsers();
+                      setState(
+                        () {},
+                      );
+                    },
+                    child: ListView(
+                      children: [
+                        for (User user in _users) UserWidget(user: user),
+                        const SizedBox(
+                          height: 700,
+                          child: Icon(
+                            FontAwesomeIcons.cat,
+                            color: Colors.grey,
+                            size: 50,
                           ),
-                        ],
-                      ),
-                    )
-                  : (snapshot.hasError
-                      ? Center(
-                          child: Text("There was an error.\n" +
-                              snapshot.error.toString()))
-                      : const Center(
-                          child: CircularProgressIndicator(),
-                        )))),
-            ),
+                        ),
+                      ],
+                    ),
+                  )
+                : (snapshot.hasError
+                    ? Center(
+                        child: Text("There was an error.\n" +
+                            snapshot.error.toString()))
+                    : const Center(
+                        child: CircularProgressIndicator(),
+                      )))),
           ),
         ),
       );
@@ -232,22 +231,6 @@ class UserSearchDelegate extends SearchDelegate {
     required this.userList,
   });
   final List<User> userList;
-
-// Prevent SearchDelegate from applying dark AppBarTheme
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return Theme.of(context).copyWith(
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle:
-              SystemUiOverlayStyle(statusBarBrightness: Brightness.light),
-          foregroundColor: Colors.white,
-        ),
-        textTheme: Theme.of(context)
-            .textTheme
-            .copyWith(titleLarge: const TextStyle(color: Colors.white)),
-        inputDecorationTheme: const InputDecorationTheme(
-            hintStyle: TextStyle(color: Colors.white)));
-  }
 
   @override
   Widget? buildLeading(BuildContext context) => IconButton(

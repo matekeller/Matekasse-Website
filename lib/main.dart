@@ -13,9 +13,11 @@ import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/statistics.dart';
+import 'package:matemate/theme_provider.dart';
 import 'package:matemate/user_list.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:matemate/util/widgets/user_scan_row.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'offering_grid.dart';
 import 'transaction_list.dart';
@@ -34,36 +36,88 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MateMate',
-      theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primarySwatch: Colors.amber,
-          textButtonTheme: TextButtonThemeData(
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.amber),
-            ),
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
-          textTheme:
-              const TextTheme(displaySmall: TextStyle(color: Colors.white))),
-      home: const AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle(
-            statusBarColor: Colors.amber,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.light,
-          ),
-          child: MyHomePage(title: 'Transactions')),
-    );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ],
+        child: Builder(builder: (BuildContext context) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+
+          return MaterialApp(
+              title: 'MateMate',
+              themeMode: themeProvider.themeMode,
+              theme: ThemeData(
+                  colorScheme: const ColorScheme(
+                      brightness: Brightness.light,
+                      primary: Colors.amber,
+                      onPrimary: Colors.white,
+                      secondary: Colors.amberAccent,
+                      onSecondary: Colors.black,
+                      error: Colors.red,
+                      onError: Colors.white,
+                      background: Colors.white,
+                      onBackground: Colors.black,
+                      surface: Colors.white,
+                      onSurface: Colors.black,
+                      tertiary: Color(0xFF609B62),
+                      onTertiary: Colors.white),
+                  primaryColor: Colors.amber,
+                  textButtonTheme: TextButtonThemeData(
+                    style: ButtonStyle(
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.amber),
+                    ),
+                  ),
+                  iconTheme: const IconThemeData(color: Colors.white),
+                  textTheme: const TextTheme(
+                      displaySmall: TextStyle(color: Colors.white)),
+                  appBarTheme: const AppBarTheme(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.amber,
+                      systemOverlayStyle: SystemUiOverlayStyle(
+                          statusBarColor: Colors.amber,
+                          statusBarBrightness: Brightness.light,
+                          statusBarIconBrightness: Brightness.light))),
+              darkTheme: ThemeData(
+                  colorScheme: const ColorScheme(
+                      brightness: Brightness.dark,
+                      primary: Color(0xFFCDA839),
+                      onPrimary: Colors.white,
+                      secondary: Color(0xFFD9C166),
+                      onSecondary: Colors.black,
+                      error: Color(0xFFCC7633),
+                      onError: Colors.black,
+                      background: Color(0xff15131D),
+                      onBackground: Colors.white,
+                      surface: Color(0xff1C1A26),
+                      onSurface: Colors.white,
+                      tertiary: Color(0xFF609B62),
+                      onTertiary: Colors.white),
+                  primaryColor: const Color(0xFFCDA839),
+                  dividerColor: const Color.fromARGB(115, 207, 207, 207),
+                  indicatorColor: const Color(0xFFCDA839),
+                  snackBarTheme: const SnackBarThemeData(
+                      contentTextStyle: TextStyle(color: Colors.white),
+                      backgroundColor: Color(0xff1C1A26)),
+                  progressIndicatorTheme: const ProgressIndicatorThemeData(
+                      color: Color(0xFFCDA839)),
+                  textButtonTheme: TextButtonThemeData(
+                      style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              const Color(0xFFCDA839)))),
+                  appBarTheme: const AppBarTheme(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xFFCDA839),
+                      systemOverlayStyle: SystemUiOverlayStyle(
+                          statusBarColor: Color(0xFFCDA839),
+                          statusBarBrightness: Brightness.dark,
+                          statusBarIconBrightness: Brightness.light))),
+              home: const MyHomePage(title: 'Transactions'));
+        }));
   }
 }
 
@@ -159,14 +213,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          systemOverlayStyle: const SystemUiOverlayStyle(
-            statusBarColor: Colors.amber,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.light,
-          ),
-          foregroundColor: Colors.white,
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
           iconTheme: IconTheme.of(context),
         ),
@@ -256,30 +302,30 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           animationDuration: const Duration(milliseconds: 500),
           curve: Curves.bounceOut,
           reverseCurve: Curves.easeInOutQuint,
-          toggleButtonColor: Colors.amber,
+          toggleButtonColor: Theme.of(context).primaryColor,
           toggleButtonIconColor: Colors.white,
           items: [
             CircularMenuItem(
                 icon: FontAwesomeIcons.user,
-                color: Colors.amber,
+                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showNewUserDialog();
                 }),
             CircularMenuItem(
                 icon: FontAwesomeIcons.euroSign,
-                color: Colors.amber,
+                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showTopUpDialog();
                 }),
             CircularMenuItem(
                 icon: FontAwesomeIcons.wineBottle,
-                color: Colors.amber,
+                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showPurchaseDialog();
                 }),
             CircularMenuItem(
                 icon: FontAwesomeIcons.creditCard,
-                color: Colors.amber,
+                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showAddSmartCardDialog();
                 })
