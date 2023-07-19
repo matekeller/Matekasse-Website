@@ -61,7 +61,7 @@ class _UserPageState extends State<UserPage> {
                       "Transactions:",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    trailing: TextButton(
+                    trailing: FilledButton.tonal(
                       onPressed: () => Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return UserStats(
