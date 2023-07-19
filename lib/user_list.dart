@@ -26,17 +26,11 @@ class UserWidget extends StatelessWidget {
         margin: const EdgeInsets.all(12.0),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                  offset: const Offset(0, 5),
-                  blurRadius: 5,
-                  color: Theme.of(context).colorScheme.brightness ==
-                          Brightness.dark
-                      ? Colors.black
-                      : Colors.grey)
-            ]),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1)
+              : Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7),
           child: Column(
@@ -73,9 +67,9 @@ class UserWidget extends StatelessWidget {
                               },
                             )
                           ],
-                      icon: const Icon(
+                      icon: Icon(
                         FontAwesomeIcons.ellipsis,
-                        color: Colors.grey,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ))
                 ],
               ),
@@ -103,7 +97,7 @@ class UserWidget extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => ScaffoldedDialog(
-        contentPadding: const EdgeInsets.all(8),
+        contentPadding: const EdgeInsets.only(left: 8, right: 8),
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("New BluecardID"),
         children: [
@@ -112,7 +106,7 @@ class UserWidget extends StatelessWidget {
               newBlueCardId = bluecardId ?? oldBluecardId;
             },
           ),
-          TextButton(
+          FilledButton(
               onPressed: () async {
                 bool success = await GraphQlHelper.updateBluecardId(
                     oldBluecardId, newBlueCardId);
@@ -151,7 +145,6 @@ class _UserListState extends State<UserList> {
       return SafeArea(
         child: Scaffold(
           appBar: AppBar(
-            foregroundColor: Colors.white,
             iconTheme: Theme.of(context).iconTheme,
             title: const Text("Users"),
             actions: [
@@ -174,7 +167,7 @@ class _UserListState extends State<UserList> {
           body: Container(
             child: ((snapshot.hasData
                 ? RefreshIndicator(
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     onRefresh: () async {
                       _users = await GraphQlHelper.updateAllUsers();
                       setState(
@@ -184,11 +177,11 @@ class _UserListState extends State<UserList> {
                     child: ListView(
                       children: [
                         for (User user in _users) UserWidget(user: user),
-                        const SizedBox(
+                        SizedBox(
                           height: 700,
                           child: Icon(
                             FontAwesomeIcons.cat,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.onBackground,
                             size: 50,
                           ),
                         ),

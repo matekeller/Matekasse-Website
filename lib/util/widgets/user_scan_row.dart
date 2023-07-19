@@ -12,6 +12,7 @@ class UserScanRow extends StatefulWidget {
   final void Function(String?) onChanged;
   final bool barcodeEnabled;
   final bool searchable;
+  final bool qr;
 
   /// How many scans have to be the same at the same time, improves accuracy
   final int redundantBarcodeScans;
@@ -20,6 +21,7 @@ class UserScanRow extends StatefulWidget {
       this.redundantBarcodeScans = 3,
       this.barcodeEnabled = true,
       this.searchable = true,
+      this.qr = false,
       Key? key})
       : super(key: key);
 
@@ -112,15 +114,13 @@ class _UserScanRowState extends State<UserScanRow> {
           const SizedBox(
             width: 5,
           ),
-        if (widget.barcodeEnabled) getScanTextButton(context)
+        if (widget.barcodeEnabled) getScanTextButton(context, qr: widget.qr)
       ],
     );
   }
 
-  TextButton getScanTextButton(BuildContext context) {
-    return TextButton(
-        style: TextButtonTheme.of(context).style!.copyWith(
-            backgroundColor: MaterialStateProperty.all(Colors.blue[400])),
+  FilledButton getScanTextButton(BuildContext context, {bool qr = false}) {
+    return FilledButton.tonal(
         onPressed: () async {
           FocusScope.of(context).unfocus();
           scannedCodes = [];
@@ -165,10 +165,16 @@ class _UserScanRowState extends State<UserScanRow> {
                       },
                     ),
                     Center(
-                        child: Divider(
-                      color: Colors.red.withAlpha(150),
-                      thickness: 3,
-                    )),
+                        child: widget.qr
+                            ? Icon(
+                                Icons.qr_code_2_sharp,
+                                color: Colors.red.withAlpha(150),
+                                size: 200,
+                              )
+                            : Divider(
+                                color: Colors.red.withAlpha(150),
+                                thickness: 3,
+                              )),
                   ],
                 ),
               ),
@@ -181,8 +187,8 @@ class _UserScanRowState extends State<UserScanRow> {
             });
           });
         },
-        child: const Icon(
-          FontAwesomeIcons.barcode,
+        child: Icon(
+          qr ? Icons.qr_code_2_rounded : FontAwesomeIcons.barcode,
         ));
   }
 }

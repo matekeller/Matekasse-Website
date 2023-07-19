@@ -42,11 +42,12 @@ class _OfferingGridState extends State<OfferingGrid> {
         builder: (context, snapshot) => Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.outline),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: RefreshIndicator(
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.primary,
                 onRefresh: () async {
                   await GraphQlHelper.updateOfferings();
                   setState(
@@ -82,8 +83,8 @@ class _OfferingGridState extends State<OfferingGrid> {
       children: [
         for (Offering offering in offerings)
           Container(
-              decoration:
-                  BoxDecoration(border: getBorder(offerings.indexOf(offering))),
+              decoration: BoxDecoration(
+                  border: getBorder(offerings.indexOf(offering), context)),
               child: MaterialButton(
                 elevation: 0,
                 child: offering.name != "dummy"
@@ -156,7 +157,7 @@ class _OfferingGridState extends State<OfferingGrid> {
                     ? Colors.transparent
                     : Theme.of(context).splashColor,
                 color: selectedOfferingsName!.contains(offering.name)
-                    ? Theme.of(context).primaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : Colors.transparent,
                 onPressed: () {
                   if (offering.name != "dummy") {
@@ -181,12 +182,13 @@ class _OfferingGridState extends State<OfferingGrid> {
     );
   }
 
-  Border getBorder(int offeringIndex) {
+  Border getBorder(int offeringIndex, BuildContext context) {
     Border border = Border.all(color: Colors.transparent);
 
     if (offeringIndex % 3 == 0 || offeringIndex % 3 == 1) {
       border = Border(
-          right: const BorderSide(color: Colors.grey, width: 0.5),
+          right: BorderSide(
+              color: Theme.of(context).colorScheme.outline, width: 0.5),
           bottom: border.bottom,
           top: border.top,
           left: border.left);
@@ -195,7 +197,8 @@ class _OfferingGridState extends State<OfferingGrid> {
     if (offeringIndex > 2) {
       border = Border(
           bottom: border.bottom,
-          top: const BorderSide(color: Colors.grey, width: 0.5),
+          top: BorderSide(
+              color: Theme.of(context).colorScheme.outline, width: 0.5),
           left: border.left,
           right: border.right);
     }

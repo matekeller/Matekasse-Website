@@ -63,7 +63,7 @@ class _TransactionListState extends State<TransactionList> {
         if (snapshot.hasData) {
           _transactions = snapshot.data ?? [];
           return RefreshIndicator(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             onRefresh: _refreshTransactionList,
             child: ListView(
               shrinkWrap: true,
@@ -79,11 +79,11 @@ class _TransactionListState extends State<TransactionList> {
                   ),
                   visible: _loading,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: 700,
                   child: Icon(
                     FontAwesomeIcons.cat,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onBackground,
                     size: 50,
                   ),
                 )
@@ -142,11 +142,11 @@ class _TransactionListState extends State<TransactionList> {
             return AlertDialog(
               title: const Text('Are you sure you want to delete?'),
               actions: [
-                TextButton(
+                FilledButton.tonal(
                   onPressed: () => Navigator.pop(context, true),
                   child: const Text('Yes'),
                 ),
-                TextButton(
+                FilledButton.tonal(
                   onPressed: () => Navigator.pop(context, false),
                   child: const Text('No'),
                 )

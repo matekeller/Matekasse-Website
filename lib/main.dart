@@ -46,76 +46,34 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
               title: 'MateMate',
               themeMode: themeProvider.themeMode,
+              color: Colors.amber,
               theme: ThemeData(
-                  colorScheme: const ColorScheme(
-                      brightness: Brightness.light,
-                      primary: Colors.amber,
-                      onPrimary: Colors.white,
-                      secondary: Colors.amberAccent,
-                      onSecondary: Colors.black,
-                      error: Colors.red,
-                      onError: Colors.white,
-                      background: Colors.white,
-                      onBackground: Colors.black,
-                      surface: Colors.white,
-                      onSurface: Colors.black,
-                      tertiary: Color(0xFF609B62),
-                      onTertiary: Colors.white),
-                  primaryColor: Colors.amber,
-                  textButtonTheme: TextButtonThemeData(
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.amber),
-                    ),
-                  ),
-                  iconTheme: const IconThemeData(color: Colors.white),
-                  textTheme: const TextTheme(
-                      displaySmall: TextStyle(color: Colors.white)),
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.fromSeed(
+                      seedColor: Colors.amber, primary: Colors.amber),
+                  brightness: Brightness.light,
                   appBarTheme: const AppBarTheme(
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.amber,
                       systemOverlayStyle: SystemUiOverlayStyle(
                           statusBarColor: Colors.amber,
-                          statusBarBrightness: Brightness.light,
+                          statusBarBrightness: Brightness.dark,
                           statusBarIconBrightness: Brightness.light))),
               darkTheme: ThemeData(
-                  colorScheme: const ColorScheme(
-                      brightness: Brightness.dark,
-                      primary: Color(0xFFCDA839),
-                      onPrimary: Colors.white,
-                      secondary: Color(0xFFD9C166),
-                      onSecondary: Colors.black,
-                      error: Color(0xFFCC7633),
-                      onError: Colors.black,
-                      background: Color(0xff15131D),
-                      onBackground: Colors.white,
-                      surface: Color(0xff1C1A26),
-                      onSurface: Colors.white,
-                      tertiary: Color(0xFF609B62),
-                      onTertiary: Colors.white),
-                  primaryColor: const Color(0xFFCDA839),
-                  dividerColor: const Color.fromARGB(115, 207, 207, 207),
-                  indicatorColor: const Color(0xFFCDA839),
-                  snackBarTheme: const SnackBarThemeData(
-                      contentTextStyle: TextStyle(color: Colors.white),
-                      backgroundColor: Color(0xff1C1A26)),
-                  progressIndicatorTheme: const ProgressIndicatorThemeData(
-                      color: Color(0xFFCDA839)),
-                  textButtonTheme: TextButtonThemeData(
-                      style: ButtonStyle(
-                          foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color(0xFFCDA839)))),
-                  appBarTheme: const AppBarTheme(
+                brightness: Brightness.dark,
+                useMaterial3: true,
+                colorSchemeSeed: Colors.amber,
+                progressIndicatorTheme:
+                    const ProgressIndicatorThemeData(color: Color(0xFFCDA839)),
+
+                /*appBarTheme: const AppBarTheme(
                       foregroundColor: Colors.white,
                       backgroundColor: Color(0xFFCDA839),
                       systemOverlayStyle: SystemUiOverlayStyle(
                           statusBarColor: Color(0xFFCDA839),
                           statusBarBrightness: Brightness.dark,
-                          statusBarIconBrightness: Brightness.light))),
+                          statusBarIconBrightness: Brightness.light))*/
+              ),
               home: const MyHomePage(title: 'Transactions'));
         }));
   }
@@ -214,7 +172,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          iconTheme: IconTheme.of(context),
         ),
         drawer: Drawer(
           child: Column(
@@ -258,7 +215,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       title: const Text("Log Out"),
                       content: const Text("Are you sure you want to log out?"),
                       actions: [
-                        TextButton(
+                        FilledButton.tonal(
                             onPressed: () {
                               Navigator.pop(context, true);
                               LocalStore.authToken = "";
@@ -268,7 +225,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                               _signIn(context);
                             },
                             child: const Text("Yes")),
-                        TextButton(
+                        FilledButton.tonal(
                             onPressed: () {
                               Navigator.pop(context, false);
                             },
@@ -298,34 +255,38 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           },
         ),
         floatingActionButton: CircularMenu(
+          toggleButtonColor: Theme.of(context).colorScheme.primary,
+          toggleButtonIconColor: Theme.of(context).colorScheme.onPrimary,
           radius: 120,
           animationDuration: const Duration(milliseconds: 500),
           curve: Curves.bounceOut,
           reverseCurve: Curves.easeInOutQuint,
-          toggleButtonColor: Theme.of(context).primaryColor,
-          toggleButtonIconColor: Colors.white,
           items: [
             CircularMenuItem(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.user,
-                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showNewUserDialog();
                 }),
             CircularMenuItem(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.euroSign,
-                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showTopUpDialog();
                 }),
             CircularMenuItem(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.wineBottle,
-                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showPurchaseDialog();
                 }),
             CircularMenuItem(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.creditCard,
-                color: Theme.of(context).primaryColor,
                 onTap: () {
                   _showAddSmartCardDialog();
                 })
@@ -372,7 +333,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       context: context,
       builder: (context) => ScaffoldedDialog(
         barrierDismissable: false,
-        contentPadding: const EdgeInsets.all(8),
+        contentPadding: const EdgeInsets.only(left: 8, right: 8),
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("Log-In"),
         children: [
@@ -395,15 +356,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           const SizedBox(
             height: 10,
           ),
-          TextButton(
-            //color: Colors.blueAccent,
-            child: Text(
-              "Log-In",
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge!
-                  .copyWith(color: Colors.white),
-            ),
+          FilledButton(
+            child: const Text("Log-In"),
             onPressed: () {
               if (newUserName == "") {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -418,7 +372,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               LocalStore.userName = newUserName;
               LocalStore.password = newPassword;
               showingSignInDialog = false;
-              Navigator.pop(context, false);
+              Navigator.pop(context);
             },
           )
         ],
@@ -448,7 +402,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return ScaffoldedDialog(
-              contentPadding: const EdgeInsets.all(8),
+              contentPadding: const EdgeInsets.only(left: 8, right: 8),
               titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
               title: const Text("New User"),
               children: [
@@ -456,8 +410,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 const SizedBox(
                   height: 10,
                 ),
-                Text(username ?? '',
-                    style: const TextStyle(color: Colors.black38)),
+                Text(username ?? ''),
                 const SizedBox(
                   height: 20,
                 ),
@@ -510,15 +463,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   obscureText: true,
                   onChanged: ((value) => password = value),
                 ),
-                TextButton(
+                FilledButton(
                   //color: Colors.blueAccent,
-                  child: Text(
-                    "Register",
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge!
-                        .copyWith(color: Colors.white),
-                  ),
+                  child: const Text("Register"),
                   onPressed: () {
                     // Gate clauses for username
                     if (username == null || username == "") {
@@ -598,7 +545,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     showDialog(
       context: context,
       builder: (context) => ScaffoldedDialog(
-        contentPadding: const EdgeInsets.all(8),
+        contentPadding: const EdgeInsets.only(left: 8, right: 8),
         titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         title: const Text("Top-Up"),
         children: [
@@ -611,15 +558,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           UserScanRow(
               onChanged: (bluecardId) => (username =
                   GraphQlHelper.getUsernameByBluecardId(bluecardId ?? ""))),
-          TextButton(
+          FilledButton(
             //color: Colors.blueAccent,
-            child: Text(
-              "Top-Up!",
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge!
-                  .copyWith(color: Colors.white),
-            ),
+            child: const Text("Top-Up!"),
             onPressed: () {
               if (username == null) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -665,7 +606,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       context: context,
       builder: (context) {
         return ScaffoldedDialog(
-          contentPadding: const EdgeInsets.all(8),
+          contentPadding: const EdgeInsets.only(left: 8, right: 8),
           titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
           title: const Text("Purchase"),
           children: [
@@ -694,14 +635,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               username =
                   GraphQlHelper.getUsernameByBluecardId(newBluecardId ?? "");
             }),
-            TextButton(
-                child: Text(
-                  "Buy",
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge!
-                      .copyWith(color: Colors.white),
-                ),
+            FilledButton(
+                child: const Text("Buy"),
                 onPressed: () {
                   if (selectedOfferingsName == null ||
                       selectedOfferingsName!.isEmpty) {
@@ -778,7 +713,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     await showDialog(
         context: context,
         builder: (context) => ScaffoldedDialog(
-                contentPadding: const EdgeInsets.all(8),
+                contentPadding: const EdgeInsets.only(left: 8, right: 8),
                 titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
                 title: const Text("Add SmartCard to user"),
                 children: [
@@ -796,10 +731,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   UserScanRow(
                       searchable: false,
                       barcodeEnabled: true,
+                      qr: true,
                       onChanged: (newSmartCard) {
                         smartcard = newSmartCard;
                       }),
-                  TextButton(
+                  FilledButton(
                       onPressed: () async {
                         try {
                           GraphQlHelper.addSmartCardToUser(

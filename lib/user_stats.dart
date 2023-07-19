@@ -63,7 +63,7 @@ class _UserStatsState extends State<UserStats> {
                     height: 300,
                     child: snapshot.hasData
                         ? RefreshIndicator(
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             onRefresh: () async {
                               transactions =
                                   await GraphQlHelper.getTransactionListByUser(

@@ -23,59 +23,34 @@ class TransactionWidget extends StatelessWidget {
         DateFormat("yy-MM-dd HH:mm:ss")
             .parse(transaction.date.toString(), true)
             .toLocal());
-    return Container(
-      margin: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          //border: Border.all(width: 2, color: Colors.blueGrey),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-                offset: const Offset(0, 5),
-                blurRadius: 5,
-                color:
-                    Theme.of(context).colorScheme.brightness == Brightness.dark
-                        ? Colors.black
-                        : Colors.grey)
-          ]),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
+    return Card(
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1)
+          : Theme.of(context).colorScheme.secondaryContainer,
+      elevation: 0,
+      margin: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                  margin: const EdgeInsets.all(0),
                   decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                          bottomRight: Radius.circular(7)),
-                      color: !transaction.deleted
-                          ? (transaction.offeringName == "topup"
-                              ? (pricePaidCents < 0
-                                  ? Theme.of(context).colorScheme.tertiary
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .error) // if cents < 0 its an actual topup, else its a topdown via database
-                              : Theme.of(context).colorScheme.error)
-                          : Colors.grey,
-                      boxShadow: Theme.of(context).brightness == Brightness.dark
-                          ? [
-                              BoxShadow(
-                                  blurRadius: 8,
-                                  color: !transaction.deleted
-                                      ? (transaction.offeringName == "topup"
-                                          ? (pricePaidCents < 0
-                                              ? Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .error) // if cents < 0 its an actual topup, else its a topdown via database
-                                          : Theme.of(context).colorScheme.error)
-                                      : Colors.grey)
-                            ]
-                          : []),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12)),
+                    color: !transaction.deleted
+                        ? (transaction.offeringName == "topup"
+                            ? (pricePaidCents < 0
+                                ? Theme.of(context).colorScheme.tertiary
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .error) // if cents < 0 its an actual topup, else its a topdown via database
+                            : Theme.of(context).colorScheme.error)
+                        : Colors.grey,
+                  ),
                   padding: const EdgeInsets.all(8),
                   child: Text(
                       transaction.offeringName == "topup"
@@ -89,61 +64,67 @@ class TransactionWidget extends StatelessWidget {
                                   symbol: "€",
                                   customPattern: '#,##0.00\u00A4')
                               .format(pricePaidEuros),
-                      style: const TextStyle(color: Colors.white)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                      transaction.offeringName == "topup"
-                          ? (transaction.pricePaidCents < 0
-                              ? "Aufladung"
-                              : "Ausbuchung")
-                          : LocalStore.offerings
-                              .firstWhere((element) =>
-                                  element.name == transaction.offeringName)
-                              .readableName,
                       style: !transaction.deleted
-                          ? Theme.of(context).textTheme.bodyLarge!
-                          : deletedStyle),
-                )
-              ],
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("Date: " + dateLocal.toString(),
-                  style: !transaction.deleted
-                      ? Theme.of(context).textTheme.bodyLarge!
-                      : deletedStyle),
-            ),
-            Padding(
+                          ? (transaction.offeringName == "topup"
+                              ? (pricePaidCents < 0
+                                  ? TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onTertiary)
+                                  : TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onError)) // if cents < 0 its an actual topup, else its a topdown via database
+                              : TextStyle(
+                                  color: Theme.of(context).colorScheme.onError))
+                          : const TextStyle(
+                              color: Colors.black,
+                            ))),
+              Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: RichText(
-                    text: TextSpan(children: [
-                  TextSpan(
-                      text: "Payer: ",
-                      style: !transaction.deleted
-                          ? Theme.of(context).textTheme.bodyMedium
-                          : deletedStyle),
-                  TextSpan(
-                      text: transaction.payerUsername,
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UserPage(
-                                    username: transaction.payerUsername))),
-                      style: !transaction.deleted
-                          ? Theme.of(context).textTheme.bodyMedium
-                          : deletedStyle)
-                ]))),
-            Padding(
+                child: Text(
+                    transaction.offeringName == "topup"
+                        ? (transaction.pricePaidCents < 0
+                            ? "Aufladung"
+                            : "Ausbuchung")
+                        : LocalStore.offerings
+                            .firstWhere((element) =>
+                                element.name == transaction.offeringName)
+                            .readableName,
+                    style: !transaction.deleted
+                        ? const TextStyle()
+                        : deletedStyle),
+              )
+            ],
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Date: " + dateLocal.toString(),
+                style: !transaction.deleted ? const TextStyle() : deletedStyle),
+          ),
+          Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text("Admin: " + transaction.adminUsername.toString(),
-                  style: !transaction.deleted ? null : deletedStyle),
-            ),
-          ],
-        ),
+              child: Text.rich(TextSpan(
+                  style:
+                      !transaction.deleted ? const TextStyle() : deletedStyle,
+                  children: [
+                    const TextSpan(text: "Payer: "),
+                    TextSpan(
+                        text: transaction.payerUsername,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserPage(
+                                      username: transaction.payerUsername))))
+                  ]))),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Admin: " + transaction.adminUsername.toString(),
+                style: !transaction.deleted ? const TextStyle() : deletedStyle),
+          ),
+        ],
       ),
     );
   }

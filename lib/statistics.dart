@@ -119,21 +119,24 @@ class _StatisticsState extends State<Statistics>
     }));
   }
 
-  RenderObjectWidget getTab(AsyncSnapshot<List<Transaction>> snapshot) {
+  Widget getTab(AsyncSnapshot<List<Transaction>> snapshot) {
     return (snapshot.hasData &&
             transactions.isNotEmpty &&
             userBalances != 0 &&
             inventoryValue != 0
-        ? Column(
-            children: [
-              Expanded(
-                  child: StatisticsList(
-                itemCount: LocalStore.offerings.length + 6,
-                userBalances: userBalances,
-                transactionsToLookAt: transactionsToHandle,
-                inventoryValue: inventoryValue,
-              ))
-            ],
+        ? Container(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: Column(
+              children: [
+                Expanded(
+                    child: StatisticsList(
+                  itemCount: LocalStore.offerings.length + 6,
+                  userBalances: userBalances,
+                  transactionsToLookAt: transactionsToHandle,
+                  inventoryValue: inventoryValue,
+                ))
+              ],
+            ),
           )
         : (snapshot.hasError
             ? Center(
