@@ -394,6 +394,50 @@ class TopupsListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var total = transactionsToLookAt
+        .where((element) =>
+            element.offeringName == "topup" &&
+            element.payerUsername != "matekasse" &&
+            element.payerUsername != "matekiosk")
+        .length
+        .toString();
+
+    var subtotal = (transactionsToLookAt.where((element) =>
+            element.offeringName == "topup" &&
+            element.payerUsername != "matekasse" &&
+            element.payerUsername != "matekiosk"))
+        .fold<int>(0, (sum, transaction) => sum + transaction.pricePaidCents)
+        .toDouble();
+
+    var subtotalwithAusbuchungen = transactionsToLookAt
+        .where((element) =>
+            element.offeringName == "topup" && element.pricePaidCents > 0)
+        .fold<int>(0, (sum, transaction) => sum + transaction.pricePaidCents)
+        .toDouble();
+
+    var average = (transactionsToLookAt
+                .where((element) =>
+                    element.offeringName == "topup" &&
+                    element.payerUsername != "matekasse" &&
+                    element.payerUsername != "matekiosk")
+                .fold<int>(
+                    0, (sum, transaction) => sum + transaction.pricePaidCents)
+                .toDouble() /
+            100) /
+        (transactionsToLookAt
+                .where((element) =>
+                    element.offeringName == "topup" &&
+                    element.payerUsername != "matekasse" &&
+                    element.payerUsername != "matekiosk")
+                .isEmpty
+            ? 1
+            : transactionsToLookAt
+                .where((element) =>
+                    element.offeringName == "topup" &&
+                    element.payerUsername != "matekasse" &&
+                    element.payerUsername != "matekiosk")
+                .length);
+
     return ListTile(
       leading: Container(
           margin: const EdgeInsets.all(4),
@@ -407,14 +451,7 @@ class TopupsListTile extends StatelessWidget {
             const TextSpan(
                 text: "Amount: ",
                 style: TextStyle(fontWeight: FontWeight.bold)),
-            TextSpan(
-                text: transactionsToLookAt
-                    .where((element) =>
-                        element.offeringName == "topup" &&
-                        element.payerUsername != "matekasse" &&
-                        element.payerUsername != "matekiosk")
-                    .length
-                    .toString()),
+            TextSpan(text: total),
             const TextSpan(
                 text: "\nSubtotal: ",
                 style: TextStyle(fontWeight: FontWeight.bold)),
@@ -423,17 +460,7 @@ class TopupsListTile extends StatelessWidget {
                         locale: "de_DE",
                         symbol: "€",
                         customPattern: '#,##0.00\u00A4')
-                    .format(-1 *
-                        (transactionsToLookAt.where((element) =>
-                                element.offeringName == "topup" &&
-                                element.payerUsername != "matekasse" &&
-                                element.payerUsername != "matekiosk"))
-                            .fold<int>(
-                                0,
-                                (sum, transaction) =>
-                                    sum + transaction.pricePaidCents)
-                            .toDouble() /
-                        100)),
+                    .format(subtotal == 0 ? 0 : -1 * subtotal / 100)),
             const TextSpan(
                 text: "\n    Ausbuchungen: ",
                 style: TextStyle(
@@ -443,17 +470,9 @@ class TopupsListTile extends StatelessWidget {
                         locale: "de_DE",
                         symbol: "€",
                         customPattern: '#,##0.00\u00A4')
-                    .format(-1 *
-                        transactionsToLookAt
-                            .where((element) =>
-                                element.offeringName == "topup" &&
-                                element.pricePaidCents > 0)
-                            .fold<int>(
-                                0,
-                                (sum, transaction) =>
-                                    sum + transaction.pricePaidCents)
-                            .toDouble() /
-                        100)),
+                    .format(subtotalwithAusbuchungen == 0
+                        ? 0
+                        : -1 * subtotalwithAusbuchungen / 100)),
             const TextSpan(
                 text: "\nAverage: ",
                 style: TextStyle(fontWeight: FontWeight.bold)),
@@ -462,31 +481,7 @@ class TopupsListTile extends StatelessWidget {
                         locale: "de_DE",
                         symbol: "€",
                         customPattern: '#,##0.00\u00A4')
-                    .format(-1 *
-                        (transactionsToLookAt
-                                .where((element) =>
-                                    element.offeringName == "topup" &&
-                                    element.payerUsername != "matekasse" &&
-                                    element.payerUsername != "matekiosk")
-                                .fold<int>(
-                                    0,
-                                    (sum, transaction) =>
-                                        sum + transaction.pricePaidCents)
-                                .toDouble() /
-                            100) /
-                        (transactionsToLookAt
-                                .where((element) =>
-                                    element.offeringName == "topup" &&
-                                    element.payerUsername != "matekasse" &&
-                                    element.payerUsername != "matekiosk")
-                                .isEmpty
-                            ? 1
-                            : transactionsToLookAt
-                                .where((element) =>
-                                    element.offeringName == "topup" &&
-                                    element.payerUsername != "matekasse" &&
-                                    element.payerUsername != "matekiosk")
-                                .length))),
+                    .format(average == 0 ? 0 : -1 * average)),
             const TextSpan(
                 text: "\nTotal owed to users: ",
                 style: TextStyle(fontWeight: FontWeight.bold)),

@@ -82,7 +82,9 @@ class UserWidget extends StatelessWidget {
                           locale: "de_DE",
                           symbol: "€",
                           customPattern: '#,##0.00\u00A4')
-                      .format(user.balanceCents.toDouble() * (-1) / 100)),
+                      .format(user.balanceCents == 0
+                          ? 0
+                          : user.balanceCents.toDouble() * (-1) / 100)),
             ],
           ),
         ),
