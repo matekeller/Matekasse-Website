@@ -215,10 +215,33 @@ class _InventoryState extends State<Inventory> {
         Padding(
           padding: const EdgeInsets.only(left: 8, right: 8),
           child: FilledButton(
-              onPressed: () => {
-                    for (InventoryItem item in changes)
-                      {print(item.offeringID + ": " + item.amount.toString())}
-                  },
+              onPressed: () async {
+                if (changes.isEmpty ||
+                    changes.every((element) =>
+                        element.amount ==
+                        inventory
+                            .firstWhere(
+                                (el) => el.offeringID == element.offeringID)
+                            .amount)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please change something")));
+                  return;
+                }
+
+                if (await GraphQlHelper.updateInventory(changes
+                    .where((element) =>
+                        element.amount !=
+                        inventory
+                            .firstWhere(
+                                (el) => el.offeringID == element.offeringID)
+                            .amount)
+                    .toList())) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Inventory successfully updated")));
+                  Navigator.of(context).pop();
+                  return;
+                }
+              },
               child: const Text("Submit")),
         )
       ],
@@ -364,7 +387,12 @@ class InventoryChangeList extends ListView {
               index: index,
               onChanged: (value) => onChanged(changes
                 ..add(InventoryItem(
-                    offeringID: offering.name, amount: value ?? 0))));
+                    offeringID: offering.name,
+                    amount: inventory
+                            .firstWhere((element) =>
+                                element.offeringID == offering.name)
+                            .amount +
+                        value!))));
         });
   }
 }

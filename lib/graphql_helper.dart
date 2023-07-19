@@ -547,6 +547,45 @@ class GraphQlHelper {
 
     throw Exception(response.reasonPhrase);
   }
+
+  static Future<bool> updateInventory(List<InventoryItem> changes) async {
+    String authToken = LocalStore.authToken;
+    List parsedChanges = changes
+        .map((e) =>
+            {"offeringId": "\\\"" + e.offeringID + "\\\"", "amount": e.amount})
+        .toList();
+
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    request.body =
+        '''{"query": "mutation { updateInventory(updates: $parsedChanges) }"}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse streamedResponse = await request.send();
+
+    //print(streamedResponse.reasonPhrase);
+
+    if (streamedResponse.statusCode == 200) {
+      dynamic response =
+          jsonDecode(await (streamedResponse.stream.bytesToString()));
+
+      if (response["data"]["updateInventory"] == "updated") {
+        return true;
+      }
+
+      return false;
+    } else if (streamedResponse.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    } else {
+      throw Exception(streamedResponse.reasonPhrase);
+    }
+  }
 }
 
 class InvalidSignInCredentialsException implements Exception {}
