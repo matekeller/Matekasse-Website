@@ -507,6 +507,7 @@ class TotalOfferingsListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+        leading: const Icon(FontAwesomeIcons.wineBottle),
         title: const Text("Total Offerings"),
         subtitle: RichText(
           text: TextSpan(
