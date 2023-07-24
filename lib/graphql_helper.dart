@@ -466,7 +466,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n  offerings {\\n      name\\n      readableName\\n      priceCents\\n      imageUrl\\n  }\\n}","variables":{}}''';
+        '''{"query":"query {\\n  offerings {\\n      name\\n      readableName\\n      priceCents\\n      imageUrl\\n    color\\n}\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
@@ -476,15 +476,19 @@ class GraphQlHelper {
       List<dynamic> offerings =
           jsonDecode(await response.stream.bytesToString())['data']
               ['offerings'];
+
       List<Offering> newOfferings = [
         for (dynamic offering in offerings)
           Offering(
-            name: offering['name'],
-            readableName: offering['readableName'],
-            priceCents: offering['priceCents'],
-            imageUrl: offering['imageUrl'] ?? "",
-          )
+              name: offering['name'],
+              readableName: offering['readableName'],
+              priceCents: offering['priceCents'],
+              imageUrl: offering['imageUrl'] ?? "",
+              color: int.parse(
+                  "FF${offering['color'].toString().replaceFirst("#", "").toUpperCase()}",
+                  radix: 16))
       ];
+
       LocalStore.offerings = newOfferings;
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");

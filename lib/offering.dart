@@ -16,9 +16,13 @@ class Offering {
   @HiveField(3)
   String imageUrl;
 
+  @HiveField(5)
+  int color;
+
   Offering(
       {required this.name,
       required this.readableName,
       required this.priceCents,
-      required this.imageUrl});
+      required this.imageUrl,
+      required this.color});
 }

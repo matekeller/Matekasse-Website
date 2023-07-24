@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +37,8 @@ class _OfferingGridState extends State<OfferingGrid> {
                   imageUrl: "https://picsum.photos/50",
                   name: "dummy",
                   priceCents: 0,
-                  readableName: "Dummy"));
+                  readableName: "Dummy",
+                  color: 0));
             }
           }
         }(),
@@ -64,7 +67,8 @@ class _OfferingGridState extends State<OfferingGrid> {
                               imageUrl: "https://picsum.photos/50",
                               name: "dummy",
                               priceCents: 0,
-                              readableName: "Dummy"));
+                              readableName: "Dummy",
+                              color: 0));
                         }
                       }
                     },
@@ -115,10 +119,29 @@ class _OfferingGridState extends State<OfferingGrid> {
                                 )),
                           ),
                           Expanded(
-                            child: CachedNetworkImage(
-                              imageUrl: offering.imageUrl,
-                              placeholder: (context, url) =>
-                                  const CircularProgressIndicator(),
+                            child: Stack(
+                              children: [
+                                Opacity(
+                                  opacity: 0.5,
+                                  child: CachedNetworkImage(
+                                    imageUrl: offering.imageUrl,
+                                    color: Color(offering.color),
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                  ),
+                                ),
+                                ClipRect(
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 4.0, sigmaY: 0.5),
+                                    child: CachedNetworkImage(
+                                      imageUrl: offering.imageUrl,
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(),
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                           Padding(

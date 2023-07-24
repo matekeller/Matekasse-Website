@@ -21,13 +21,14 @@ class OfferingAdapter extends TypeAdapter<Offering> {
       readableName: fields[1] as String,
       priceCents: fields[2] as int,
       imageUrl: fields[3] as String,
+      color: fields[5] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Offering obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class OfferingAdapter extends TypeAdapter<Offering> {
       ..writeByte(2)
       ..write(obj.priceCents)
       ..writeByte(3)
-      ..write(obj.imageUrl);
+      ..write(obj.imageUrl)
+      ..writeByte(5)
+      ..write(obj.color);
   }
 
   @override
