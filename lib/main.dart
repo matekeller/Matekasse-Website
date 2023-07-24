@@ -60,9 +60,13 @@ class MyApp extends StatelessWidget {
                           statusBarBrightness: Brightness.dark,
                           statusBarIconBrightness: Brightness.light))),
               darkTheme: ThemeData(
-                brightness: Brightness.dark,
                 useMaterial3: true,
-                colorSchemeSeed: Colors.amber,
+                colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.amber,
+                    primary: Colors.amber,
+                    background: Colors.black,
+                    brightness: Brightness.dark),
+                brightness: Brightness.dark,
                 progressIndicatorTheme:
                     const ProgressIndicatorThemeData(color: Color(0xFFCDA839)),
 

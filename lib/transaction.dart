@@ -25,7 +25,7 @@ class TransactionWidget extends StatelessWidget {
             .toLocal());
     return Card(
       color: Theme.of(context).brightness == Brightness.dark
-          ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1)
+          ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4)
           : Theme.of(context).colorScheme.secondaryContainer,
       elevation: 0,
       margin: const EdgeInsets.all(12),
