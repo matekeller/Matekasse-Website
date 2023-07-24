@@ -92,66 +92,68 @@ class _OfferingGridState extends State<OfferingGrid> {
       children: [
         for (Offering offering in offerings)
           Container(
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                  border: getBorder(offerings.indexOf(offering), context)),
+                border: getBorder(offerings.indexOf(offering), context),
+              ),
               child: MaterialButton(
                 elevation: 0,
                 child: offering.name != "dummy"
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Stack(
-                              children: [
-                                Opacity(
-                                  opacity: 0.5,
-                                  child: CachedNetworkImage(
-                                    imageUrl: offering.imageUrl,
-                                    color: Color(offering.color),
-                                    placeholder: (context, url) =>
-                                        const CircularProgressIndicator(),
-                                  ),
-                                ),
-                                ClipRect(
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                        sigmaX: 4.0, sigmaY: 0.5),
+                    ? Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              flex: 0,
+                              child: Stack(
+                                children: [
+                                  Opacity(
+                                    opacity: 0.5,
                                     child: CachedNetworkImage(
                                       imageUrl: offering.imageUrl,
+                                      color: Color(offering.color),
                                       placeholder: (context, url) =>
                                           const CircularProgressIndicator(),
                                     ),
                                   ),
-                                ),
-                                Align(
-                                  alignment: const Alignment(1.6, -1.2),
-                                  heightFactor: 0.0,
-                                  child: CircleAvatar(
-                                      maxRadius: 10.0,
-                                      backgroundColor: !selectedOfferingsName!
-                                              .contains(offering.name)
-                                          ? Colors.transparent
-                                          : Colors.white,
-                                      foregroundColor: Colors.black,
-                                      child: Text(
-                                        selectedOfferingsName!
-                                                .where((element) =>
-                                                    element == offering.name)
-                                                .isEmpty
-                                            ? ""
-                                            : selectedOfferingsName!
-                                                .where((element) =>
-                                                    element == offering.name)
-                                                .length
-                                                .toString(),
-                                      )),
-                                ),
-                              ],
+                                  ClipRect(
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                          sigmaX: 4.0, sigmaY: 0.5),
+                                      child: CachedNetworkImage(
+                                        imageUrl: offering.imageUrl,
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: const Alignment(1.6, -1.2),
+                                    heightFactor: 0.0,
+                                    child: CircleAvatar(
+                                        maxRadius: 10.0,
+                                        backgroundColor: !selectedOfferingsName!
+                                                .contains(offering.name)
+                                            ? Colors.transparent
+                                            : Colors.white,
+                                        foregroundColor: Colors.black,
+                                        child: Text(
+                                          selectedOfferingsName!
+                                                  .where((element) =>
+                                                      element == offering.name)
+                                                  .isEmpty
+                                              ? ""
+                                              : selectedOfferingsName!
+                                                  .where((element) =>
+                                                      element == offering.name)
+                                                  .length
+                                                  .toString(),
+                                        )),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FittedBox(
+                            FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
                                   offering.name != "dummy"
@@ -175,9 +177,9 @@ class _OfferingGridState extends State<OfferingGrid> {
                                               : Theme.of(context)
                                                   .colorScheme
                                                   .onSurface),
-                                )),
-                          )
-                        ],
+                                ))
+                          ],
+                        ),
                       )
                     : const Text(""),
                 enableFeedback: offering.name != "dummy" ? true : false,
