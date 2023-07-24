@@ -94,7 +94,7 @@ class ScaffoldedDialog extends StatelessWidget {
             elevation: elevation,
             semanticLabel: semanticLabel,
             insetPadding: insetPadding,
-            clipBehavior: clipBehavior,
+            clipBehavior: Clip.hardEdge,
             shape: shape,
             alignment: alignment,
           ),
