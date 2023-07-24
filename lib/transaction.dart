@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/local_store.dart';
 import 'package:intl/intl.dart';
 import 'package:matemate/user_page.dart';
@@ -29,101 +30,132 @@ class TransactionWidget extends StatelessWidget {
           : Theme.of(context).colorScheme.secondaryContainer,
       elevation: 0,
       margin: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Positioned(
+            right: 10,
+            bottom: -50,
+            child: Icon(
+              transaction.offeringName == "topup"
+                  ? Icons.euro
+                  : FontAwesomeIcons.wineBottle,
+              color: Theme.of(context).colorScheme.brightness == Brightness.dark
+                  ? Theme.of(context)
+                      .colorScheme
+                      .onPrimaryContainer
+                      .withAlpha(20)
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSecondaryContainer
+                      .withAlpha(20),
+              size: 150,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                  margin: const EdgeInsets.all(0),
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12)),
-                    color: !transaction.deleted
-                        ? (transaction.offeringName == "topup"
-                            ? (pricePaidCents < 0
-                                ? Theme.of(context).colorScheme.tertiary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .error) // if cents < 0 its an actual topup, else its a topdown via database
-                            : Theme.of(context).colorScheme.error)
-                        : Colors.grey,
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                      transaction.offeringName == "topup"
-                          ? NumberFormat.currency(
-                                  locale: "de_DE",
-                                  symbol: "€",
-                                  customPattern: '#,##0.00\u00A4')
-                              .format(pricePaidEuros * -1)
-                          : NumberFormat.currency(
-                                  locale: "de_DE",
-                                  symbol: "€",
-                                  customPattern: '#,##0.00\u00A4')
-                              .format(pricePaidEuros),
-                      style: !transaction.deleted
-                          ? (transaction.offeringName == "topup"
-                              ? (pricePaidCents < 0
-                                  ? TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onTertiary)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                      margin: const EdgeInsets.all(0),
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12)),
+                        color: !transaction.deleted
+                            ? (transaction.offeringName == "topup"
+                                ? (pricePaidCents < 0
+                                    ? Theme.of(context).colorScheme.tertiary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .error) // if cents < 0 its an actual topup, else its a topdown via database
+                                : Theme.of(context).colorScheme.error)
+                            : Colors.grey,
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                          transaction.offeringName == "topup"
+                              ? NumberFormat.currency(
+                                      locale: "de_DE",
+                                      symbol: "€",
+                                      customPattern: '#,##0.00\u00A4')
+                                  .format(pricePaidEuros * -1)
+                              : NumberFormat.currency(
+                                      locale: "de_DE",
+                                      symbol: "€",
+                                      customPattern: '#,##0.00\u00A4')
+                                  .format(pricePaidEuros),
+                          style: !transaction.deleted
+                              ? (transaction.offeringName == "topup"
+                                  ? (pricePaidCents < 0
+                                      ? TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onTertiary)
+                                      : TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onError)) // if cents < 0 its an actual topup, else its a topdown via database
                                   : TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onError)) // if cents < 0 its an actual topup, else its a topdown via database
-                              : TextStyle(
-                                  color: Theme.of(context).colorScheme.onError))
-                          : const TextStyle(
-                              color: Colors.black,
-                            ))),
+                                          .onError))
+                              : const TextStyle(
+                                  color: Colors.black,
+                                ))),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                        transaction.offeringName == "topup"
+                            ? (transaction.pricePaidCents < 0
+                                ? "Aufladung"
+                                : "Ausbuchung")
+                            : LocalStore.offerings
+                                .firstWhere((element) =>
+                                    element.name == transaction.offeringName)
+                                .readableName,
+                        style: !transaction.deleted
+                            ? const TextStyle()
+                            : deletedStyle),
+                  )
+                ],
+              ),
+              const Divider(),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(
-                    transaction.offeringName == "topup"
-                        ? (transaction.pricePaidCents < 0
-                            ? "Aufladung"
-                            : "Ausbuchung")
-                        : LocalStore.offerings
-                            .firstWhere((element) =>
-                                element.name == transaction.offeringName)
-                            .readableName,
+                child: Text("Date: " + dateLocal.toString(),
                     style: !transaction.deleted
                         ? const TextStyle()
                         : deletedStyle),
-              )
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text.rich(TextSpan(
+                      style: !transaction.deleted
+                          ? const TextStyle()
+                          : deletedStyle,
+                      children: [
+                        const TextSpan(text: "Payer: "),
+                        TextSpan(
+                            text: transaction.payerUsername,
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UserPage(
+                                          username:
+                                              transaction.payerUsername))))
+                      ]))),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("Admin: " + transaction.adminUsername.toString(),
+                    style: !transaction.deleted
+                        ? const TextStyle()
+                        : deletedStyle),
+              ),
             ],
-          ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text("Date: " + dateLocal.toString(),
-                style: !transaction.deleted ? const TextStyle() : deletedStyle),
-          ),
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text.rich(TextSpan(
-                  style:
-                      !transaction.deleted ? const TextStyle() : deletedStyle,
-                  children: [
-                    const TextSpan(text: "Payer: "),
-                    TextSpan(
-                        text: transaction.payerUsername,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => UserPage(
-                                      username: transaction.payerUsername))))
-                  ]))),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text("Admin: " + transaction.adminUsername.toString(),
-                style: !transaction.deleted ? const TextStyle() : deletedStyle),
-          ),
+          )
         ],
       ),
     );
