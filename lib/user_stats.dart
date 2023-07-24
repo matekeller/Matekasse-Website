@@ -144,7 +144,7 @@ class DoubleList extends StatelessWidget {
               ),
             const Divider(),
             ListTile(
-                leading: const Icon(FontAwesomeIcons.euroSign),
+                leading: const Icon(Icons.euro),
                 title: Text(NumberFormat.currency(
                         locale: "de_DE",
                         symbol: "€",

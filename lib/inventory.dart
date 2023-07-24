@@ -313,7 +313,7 @@ class InventoryList extends StatelessWidget {
               children: [
                 const Flexible(
                   child: ListTile(
-                      leading: Icon(FontAwesomeIcons.euroSign),
+                      leading: Icon(Icons.euro),
                       contentPadding: EdgeInsets.all(4),
                       title: Text("Inventory Value: ",
                           style: TextStyle(fontWeight: FontWeight.bold))),

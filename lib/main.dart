@@ -280,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                icon: FontAwesomeIcons.user,
+                icon: Icons.person_outlined,
                 onTap: () {
                   _showNewUserDialog();
                 }),
@@ -298,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                icon: FontAwesomeIcons.euroSign,
+                icon: Icons.euro,
                 onTap: () {
                   _showTopUpDialog();
                 }),
@@ -334,7 +334,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                         : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                icon: FontAwesomeIcons.creditCard,
+                icon: Icons.add_card,
                 onTap: () {
                   _showAddSmartCardDialog();
                 })

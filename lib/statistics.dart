@@ -440,8 +440,7 @@ class TopupsListTile extends StatelessWidget {
 
     return ListTile(
       leading: Container(
-          margin: const EdgeInsets.all(4),
-          child: const Icon(FontAwesomeIcons.euroSign)),
+          margin: const EdgeInsets.all(4), child: const Icon(Icons.euro)),
       contentPadding: const EdgeInsets.all(4),
       title: const Text("Top-Ups"),
       subtitle: RichText(
