@@ -100,29 +100,6 @@ class _OfferingGridState extends State<OfferingGrid> {
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Align(
-                            alignment: const Alignment(1.6, -1.2),
-                            heightFactor: 0.0,
-                            child: CircleAvatar(
-                                maxRadius: 10.0,
-                                backgroundColor: !selectedOfferingsName!
-                                        .contains(offering.name)
-                                    ? Colors.transparent
-                                    : Colors.white,
-                                foregroundColor: Colors.black,
-                                child: Text(
-                                  selectedOfferingsName!
-                                          .where((element) =>
-                                              element == offering.name)
-                                          .isEmpty
-                                      ? ""
-                                      : selectedOfferingsName!
-                                          .where((element) =>
-                                              element == offering.name)
-                                          .length
-                                          .toString(),
-                                )),
-                          ),
                           Expanded(
                             child: Stack(
                               children: [
@@ -145,7 +122,30 @@ class _OfferingGridState extends State<OfferingGrid> {
                                           const CircularProgressIndicator(),
                                     ),
                                   ),
-                                )
+                                ),
+                                Align(
+                                  alignment: const Alignment(1.6, -1.2),
+                                  heightFactor: 0.0,
+                                  child: CircleAvatar(
+                                      maxRadius: 10.0,
+                                      backgroundColor: !selectedOfferingsName!
+                                              .contains(offering.name)
+                                          ? Colors.transparent
+                                          : Colors.white,
+                                      foregroundColor: Colors.black,
+                                      child: Text(
+                                        selectedOfferingsName!
+                                                .where((element) =>
+                                                    element == offering.name)
+                                                .isEmpty
+                                            ? ""
+                                            : selectedOfferingsName!
+                                                .where((element) =>
+                                                    element == offering.name)
+                                                .length
+                                                .toString(),
+                                      )),
+                                ),
                               ],
                             ),
                           ),
