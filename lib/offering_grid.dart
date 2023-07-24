@@ -45,8 +45,13 @@ class _OfferingGridState extends State<OfferingGrid> {
         builder: (context, snapshot) => Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                border:
-                    Border.all(color: Theme.of(context).colorScheme.outline),
+                color:
+                    Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? Theme.of(context)
+                            .colorScheme
+                            .primaryContainer
+                            .withOpacity(0.4)
+                        : Theme.of(context).colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: RefreshIndicator(
