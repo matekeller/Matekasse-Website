@@ -94,9 +94,10 @@ class _OfferingGridState extends State<OfferingGrid> {
           Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                border: getBorder(offerings.indexOf(offering), context),
-              ),
+                  border: getBorder(offerings.indexOf(offering), context)),
               child: MaterialButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
                 child: offering.name != "dummy"
                     ? Expanded(
