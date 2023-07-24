@@ -267,6 +267,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           reverseCurve: Curves.easeInOutQuint,
           items: [
             CircularMenuItem(
+                boxShadow:
+                    Theme.of(context).colorScheme.brightness == Brightness.light
+                        ? [
+                            BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                                blurRadius: 2.0,
+                                spreadRadius: 2.0)
+                          ]
+                        : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.user,
@@ -274,6 +285,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   _showNewUserDialog();
                 }),
             CircularMenuItem(
+                boxShadow:
+                    Theme.of(context).colorScheme.brightness == Brightness.light
+                        ? [
+                            BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                                blurRadius: 2.0,
+                                spreadRadius: 2.0)
+                          ]
+                        : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.euroSign,
@@ -281,6 +303,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   _showTopUpDialog();
                 }),
             CircularMenuItem(
+                boxShadow:
+                    Theme.of(context).colorScheme.brightness == Brightness.light
+                        ? [
+                            BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                                blurRadius: 2.0,
+                                spreadRadius: 2.0)
+                          ]
+                        : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.wineBottle,
@@ -288,6 +321,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   _showPurchaseDialog();
                 }),
             CircularMenuItem(
+                boxShadow:
+                    Theme.of(context).colorScheme.brightness == Brightness.light
+                        ? [
+                            BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                                blurRadius: 2.0,
+                                spreadRadius: 2.0)
+                          ]
+                        : [],
                 color: Theme.of(context).colorScheme.primaryContainer,
                 iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 icon: FontAwesomeIcons.creditCard,
