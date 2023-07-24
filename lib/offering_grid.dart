@@ -100,87 +100,84 @@ class _OfferingGridState extends State<OfferingGrid> {
                     borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
                 child: offering.name != "dummy"
-                    ? Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              flex: 0,
-                              child: Stack(
-                                children: [
-                                  Opacity(
-                                    opacity: 0.5,
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            flex: 0,
+                            child: Stack(
+                              children: [
+                                Opacity(
+                                  opacity: 0.5,
+                                  child: CachedNetworkImage(
+                                    imageUrl: offering.imageUrl,
+                                    color: Color(offering.color),
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                  ),
+                                ),
+                                ClipRect(
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 4.0, sigmaY: 0.5),
                                     child: CachedNetworkImage(
                                       imageUrl: offering.imageUrl,
-                                      color: Color(offering.color),
                                       placeholder: (context, url) =>
                                           const CircularProgressIndicator(),
                                     ),
                                   ),
-                                  ClipRect(
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 4.0, sigmaY: 0.5),
-                                      child: CachedNetworkImage(
-                                        imageUrl: offering.imageUrl,
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(),
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: const Alignment(1.6, -1.2),
-                                    heightFactor: 0.0,
-                                    child: CircleAvatar(
-                                        maxRadius: 10.0,
-                                        backgroundColor: !selectedOfferingsName!
-                                                .contains(offering.name)
-                                            ? Colors.transparent
-                                            : Colors.white,
-                                        foregroundColor: Colors.black,
-                                        child: Text(
-                                          selectedOfferingsName!
-                                                  .where((element) =>
-                                                      element == offering.name)
-                                                  .isEmpty
-                                              ? ""
-                                              : selectedOfferingsName!
-                                                  .where((element) =>
-                                                      element == offering.name)
-                                                  .length
-                                                  .toString(),
-                                        )),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                Align(
+                                  alignment: const Alignment(1.6, -1.2),
+                                  heightFactor: 0.0,
+                                  child: CircleAvatar(
+                                      maxRadius: 10.0,
+                                      backgroundColor: !selectedOfferingsName!
+                                              .contains(offering.name)
+                                          ? Colors.transparent
+                                          : Colors.white,
+                                      foregroundColor: Colors.black,
+                                      child: Text(
+                                        selectedOfferingsName!
+                                                .where((element) =>
+                                                    element == offering.name)
+                                                .isEmpty
+                                            ? ""
+                                            : selectedOfferingsName!
+                                                .where((element) =>
+                                                    element == offering.name)
+                                                .length
+                                                .toString(),
+                                      )),
+                                ),
+                              ],
                             ),
-                            FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  offering.name != "dummy"
-                                      ? NumberFormat.currency(
-                                              locale: "de_DE",
-                                              symbol: "€",
-                                              customPattern: '#,##0.00\u00A4')
-                                          .format(
-                                              offering.priceCents.toDouble() /
-                                                  100)
-                                      : "",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                          color: selectedOfferingsName!
-                                                  .contains(offering.name)
-                                              ? Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface),
-                                ))
-                          ],
-                        ),
+                          ),
+                          FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                offering.name != "dummy"
+                                    ? NumberFormat.currency(
+                                            locale: "de_DE",
+                                            symbol: "€",
+                                            customPattern: '#,##0.00\u00A4')
+                                        .format(offering.priceCents.toDouble() /
+                                            100)
+                                    : "",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                        color: selectedOfferingsName!
+                                                .contains(offering.name)
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface),
+                              ))
+                        ],
                       )
                     : const Text(""),
                 enableFeedback: offering.name != "dummy" ? true : false,
