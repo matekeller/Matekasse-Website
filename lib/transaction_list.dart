@@ -1,7 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 import 'graphql_helper.dart';
 import 'transaction.dart';
@@ -35,6 +36,7 @@ class _TransactionListState extends State<TransactionList> {
 
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting("de_DE");
     return FutureBuilder(
       future: (() async {
         try {
@@ -53,6 +55,8 @@ class _TransactionListState extends State<TransactionList> {
 
           await GraphQlHelper.updateOfferings();
 
+          transactions = _insertDates(transactions);
+
           return transactions;
         } on SocketException {
           widget.onSocketException(context);
@@ -70,9 +74,35 @@ class _TransactionListState extends State<TransactionList> {
               controller: scrollController,
               children: [
                 for (Transaction transaction in _transactions)
-                  !transaction.deleted
-                      ? getDismissible(transaction, context)
-                      : TransactionWidget(transaction: transaction),
+                  transaction.offeringName != "Date"
+                      ? !transaction.deleted
+                          ? getDismissible(transaction, context)
+                          : TransactionWidget(transaction: transaction)
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 5, bottom: 5),
+                          child: Row(children: [
+                            const Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5, right: 5),
+                                child: Divider(),
+                              ),
+                            ),
+                            Text(
+                                DateFormat("EEEE, dd.MM.yyyy", "de_DE").format(
+                                    DateFormat("yy-MM-dd HH:mm:ss")
+                                        .parse(
+                                            transaction.date.toString(), true)
+                                        .toLocal()),
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.outline)),
+                            const Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5, right: 5),
+                                child: Divider(),
+                              ),
+                            ),
+                          ])),
                 Visibility(
                   child: const Center(
                     child: CircularProgressIndicator(),
@@ -160,6 +190,69 @@ class _TransactionListState extends State<TransactionList> {
     );
   }
 
+  List<Transaction> _insertDates(List<Transaction> transactions) {
+    var insertions = [];
+
+    for (Transaction element in transactions) {
+      var transactionsDate = DateFormat("yy-MM-dd HH:mm:ss")
+          .parse(element.date.toString(), true)
+          .toLocal();
+      var transactionsDay = DateTime(
+          transactionsDate.year, transactionsDate.month, transactionsDate.day);
+
+      if (element.offeringName != "Date" &&
+          transactions.indexOf(element) != 0) {
+        var prev = transactions[transactions.indexOf(element) - 1];
+
+        var previousTransactionsDate = DateFormat("yy-MM-dd HH:mm:ss")
+            .parse(prev.date.toString(), true)
+            .toLocal();
+        var previousTransactionsDay = DateTime(previousTransactionsDate.year,
+            previousTransactionsDate.month, previousTransactionsDate.day);
+
+        if (prev.offeringName != "Date" &&
+            previousTransactionsDay.isAfter(transactionsDay)) {
+          insertions.add({
+            "tr": Transaction(
+                payerUsername: "",
+                adminUsername: "",
+                offeringName: "Date",
+                pricePaidCents: 0,
+                date: transactionsDay,
+                id: 0,
+                deleted: false),
+            "idx": transactions.indexOf(element)
+          });
+        } else {
+          continue;
+        }
+      } else {
+        element.offeringName != "Date"
+            ? insertions.add({
+                "tr": Transaction(
+                    payerUsername: "",
+                    adminUsername: "",
+                    offeringName: "Date",
+                    pricePaidCents: 0,
+                    date: transactionsDay,
+                    id: 0,
+                    deleted: false),
+                "idx": 0
+              })
+            : {};
+        continue;
+      }
+    }
+
+    var timesInserted = 0;
+    for (Map element in insertions) {
+      transactions.insert(element["idx"] + timesInserted, element["tr"]);
+      timesInserted += 1;
+    }
+
+    return transactions;
+  }
+
   Future<void> _refreshTransactionList() async {
     try {
       if (widget.username != "asdf") {
@@ -169,6 +262,8 @@ class _TransactionListState extends State<TransactionList> {
         _transactions =
             await GraphQlHelper.getTransactionList(fromBeginning: true);
       }
+
+      _transactions = _insertDates(_transactions);
 
       await GraphQlHelper.updateOfferings();
       GraphQlHelper.getEndCursor().then((value) {
@@ -195,6 +290,7 @@ class _TransactionListState extends State<TransactionList> {
         GraphQlHelper.getTransactionListByUser(username: widget.username)
             .then((value) => setState(() {
                   _transactions.addAll(value);
+                  _transactions = _insertDates(_transactions);
                   _loading = false;
                 }));
       } else {
@@ -202,6 +298,7 @@ class _TransactionListState extends State<TransactionList> {
                 after: endCursor - timesScrolledToBottom * 10 + 1)
             .then((value) => setState(() {
                   _transactions.addAll(value);
+                  _transactions = _insertDates(_transactions);
                   _loading = false;
                 }));
       }
