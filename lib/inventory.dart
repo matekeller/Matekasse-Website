@@ -189,23 +189,23 @@ class _InventoryState extends State<Inventory> {
               inventory: inventory,
               itemCount: inventory.length,
               onChanged: (list) {
-                for (InventoryItem change in list ?? []) {
+                for (Map<String, dynamic> change in list ?? []) {
                   if (changes.firstWhereOrNull((element) =>
-                          element.offeringID == change.offeringID) !=
+                          element.offeringID == change["item"].offeringID) !=
                       null) {
                     for (InventoryItem item in changes) {
-                      if (item.offeringID == change.offeringID) {
+                      if (item.offeringID == change["item"].offeringID) {
                         setState(() {
-                          item.amount = change.amount;
+                          item.amount = change["item"].amount;
                         });
                       }
                     }
                   } else {
-                    if (change.amount != 0) {
+                    if (change["item"].amount != 0) {
                       setState(() {
                         changes.add(InventoryItem(
-                            offeringID: change.offeringID,
-                            amount: change.amount));
+                            offeringID: change["item"].offeringID,
+                            amount: change["item"].amount));
                       });
                     }
                   }
@@ -357,9 +357,9 @@ class InventoryChangeList extends ListView {
   final bool addRepaintBoundaries;
   final bool addSemanticIndexes;
   final List<InventoryItem> inventory;
-  List<InventoryItem> changes = [];
+  List<Map<String, dynamic>> changes = [];
 
-  final void Function(List<InventoryItem>?) onChanged;
+  final void Function(List<Map<String, dynamic>>?) onChanged;
 
   InventoryChangeList(
       {required this.inventory,
@@ -386,14 +386,42 @@ class InventoryChangeList extends ListView {
               inventory: inventory,
               offering: offering,
               index: index,
-              onChanged: (value) => onChanged(changes
-                ..add(InventoryItem(
-                    offeringID: offering.name,
-                    amount: inventory
-                            .firstWhere((element) =>
-                                element.offeringID == offering.name)
-                            .amount +
-                        value!))));
+              amount: changes.firstWhereOrNull((element) =>
+                      element["item"].offeringID == offering.name)?["change"] ??
+                  0,
+              onChanged: (value) {
+                onChanged(changes
+                  ..add({
+                    "item": InventoryItem(
+                        offeringID: offering.name,
+                        amount: inventory
+                                .firstWhere((element) =>
+                                    element.offeringID == offering.name)
+                                .amount +
+                            value!),
+                    "change": value
+                  })
+                  ..removeWhere((element) {
+                    if (changes.indexOf(element) == changes.length - 1) {
+                      return false;
+                    } else {
+                      for (Map<String, dynamic> change in changes) {
+                        if (changes.indexOf(change) <=
+                            changes.indexOf(element)) {
+                          continue;
+                        } else {
+                          if (change["item"].offeringID ==
+                              element["item"].offeringID) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        }
+                      }
+                      return false;
+                    }
+                  }));
+              });
         });
   }
 }
@@ -402,15 +430,17 @@ class InventoryChangeListItem extends StatefulWidget {
   final List<InventoryItem> inventory;
   final Offering offering;
   final int index;
+  int amount;
 
   final void Function(int?) onChanged;
 
-  const InventoryChangeListItem(
+  InventoryChangeListItem(
       {Key? key,
       required this.inventory,
       required this.offering,
       required this.index,
-      required this.onChanged})
+      required this.onChanged,
+      required this.amount})
       : super(key: key);
 
   @override
@@ -423,6 +453,7 @@ class _InventoryChangeListItemState extends State<InventoryChangeListItem> {
 
   @override
   Widget build(BuildContext context) {
+    itemCountController.text = widget.amount.toString();
     final Size size = (TextPainter(
             text: TextSpan(
                 text: "-99", style: Theme.of(context).textTheme.titleMedium),
@@ -447,9 +478,13 @@ class _InventoryChangeListItemState extends State<InventoryChangeListItem> {
           IconButton(
             icon: const Icon(Icons.remove),
             onPressed: () => setState(() {
-              itemCountController.text =
-                  (int.parse(itemCountController.text.toString()) - 1)
-                      .toString();
+              widget.amount -= 1;
+              itemCountController.text = (int.parse(
+                          itemCountController.text == ""
+                              ? "0"
+                              : itemCountController.text.toString()) -
+                      1)
+                  .toString();
               widget.onChanged(int.parse(itemCountController.text.toString()));
             }),
           ),
@@ -460,19 +495,11 @@ class _InventoryChangeListItemState extends State<InventoryChangeListItem> {
                 maxLength: 3,
                 maxLengthEnforcement: MaxLengthEnforcement.enforced,
                 keyboardType: TextInputType.number,
-                onTap: () => setState(() => itemCountController.text = ""),
+                onTap: () => itemCountController.text = "",
                 textAlign: TextAlign.center,
                 decoration: const InputDecoration(counterText: ""),
-                onTapOutside: (event) => setState(() {
-                  if (itemCountController.text == "") {
-                    itemCountController.text = "0";
-                    widget.onChanged(0);
-                  } else {
-                    widget.onChanged(int.parse(itemCountController.text));
-                  }
-                  FocusManager.instance.primaryFocus?.unfocus();
-                }),
                 onFieldSubmitted: (value) => setState(() {
+                  widget.amount = value.isEmpty ? 0 : int.parse(value);
                   itemCountController.text = value.isEmpty ? "0" : value;
                   widget.onChanged(value.isEmpty ? 0 : int.parse(value));
                 }),
@@ -480,9 +507,13 @@ class _InventoryChangeListItemState extends State<InventoryChangeListItem> {
           IconButton(
               icon: const Icon(Icons.add),
               onPressed: () => setState(() {
-                    itemCountController.text =
-                        (int.parse(itemCountController.text.toString()) + 1)
-                            .toString();
+                    widget.amount += 1;
+                    itemCountController.text = (int.parse(
+                                itemCountController.text == ""
+                                    ? "0"
+                                    : itemCountController.text.toString()) +
+                            1)
+                        .toString();
                     widget.onChanged(
                         int.parse(itemCountController.text.toString()));
                   }))
