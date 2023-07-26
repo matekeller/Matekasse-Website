@@ -239,6 +239,7 @@ class _InventoryState extends State<Inventory> {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text("Inventory successfully updated")));
                   Navigator.of(context).pop();
+                  setState(() {});
                   return;
                 }
               },
