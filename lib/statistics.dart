@@ -6,6 +6,7 @@ import 'package:matemate/graphql_helper.dart';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:matemate/transaction.dart';
+import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({
@@ -134,6 +135,8 @@ class _StatisticsState extends State<Statistics>
                   userBalances: userBalances,
                   transactionsToLookAt: transactionsToHandle,
                   inventoryValue: inventoryValue,
+                  onOfferingTap: (offering) =>
+                      showOfferingInfoDialog(offering, transactions),
                 ))
               ],
             ),
@@ -204,6 +207,164 @@ class _StatisticsState extends State<Statistics>
     }
     return transactionsToHandle;
   }
+
+  Future<void> showOfferingInfoDialog(
+      Offering offering, List<Transaction> allTransactions) {
+    var totalWeek = allTransactions
+        .where((element) =>
+            element.offeringName == offering.name &&
+            !element.deleted &&
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(element.date.toString(), true)
+                .toLocal()
+                .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
+                        DateTime.now().day)
+                    .subtract(const Duration(days: 7))))
+        .length;
+
+    var avgWeek = double.parse((allTransactions
+                .where((element) =>
+                    element.offeringName == offering.name &&
+                    DateFormat("yy-MM-dd HH:mm:ss")
+                        .parse(element.date.toString(), true)
+                        .toLocal()
+                        .isAfter(DateTime(DateTime.now().year,
+                                DateTime.now().month, DateTime.now().day)
+                            .subtract(const Duration(days: 7))))
+                .length /
+            7)
+        .toStringAsFixed(2));
+
+    var totalMonth = allTransactions
+        .where((element) =>
+            element.offeringName == offering.name &&
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(element.date.toString(), true)
+                .toLocal()
+                .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
+                        DateTime.now().day)
+                    .subtract(const Duration(days: 30))))
+        .length;
+
+    var avgMonth = double.parse((allTransactions
+                .where((element) =>
+                    element.offeringName == offering.name &&
+                    DateFormat("yy-MM-dd HH:mm:ss")
+                        .parse(element.date.toString(), true)
+                        .toLocal()
+                        .isAfter(DateTime(DateTime.now().year,
+                                DateTime.now().month, DateTime.now().day)
+                            .subtract(const Duration(days: 30))))
+                .length /
+            30)
+        .toStringAsFixed(2));
+
+    var weeklyAvgMonth = (avgMonth * 7).toStringAsFixed(2);
+
+    var totalYear = allTransactions
+        .where((element) =>
+            element.offeringName == offering.name &&
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(element.date.toString(), true)
+                .toLocal()
+                .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
+                        DateTime.now().day)
+                    .subtract(const Duration(days: 365))))
+        .length;
+
+    var avgYear = double.parse((allTransactions
+                .where((element) =>
+                    element.offeringName == offering.name &&
+                    DateFormat("yy-MM-dd HH:mm:ss")
+                        .parse(element.date.toString(), true)
+                        .toLocal()
+                        .isAfter(DateTime(DateTime.now().year,
+                                DateTime.now().month, DateTime.now().day)
+                            .subtract(const Duration(days: 365))))
+                .length /
+            365)
+        .toStringAsFixed(2));
+
+    var weeklyAvgYear = (avgYear * 7).toStringAsFixed(2);
+
+    var totalAll = allTransactions
+        .where((element) => element.offeringName == offering.name)
+        .length;
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return ScaffoldedDialog(
+            contentPadding: const EdgeInsets.all(12),
+            title: Flexible(
+              child: Text(
+                "Details for ${offering.readableName}:",
+                maxLines: 3,
+                softWrap: true,
+              ),
+            ),
+            children: [
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Total Last Week: "),
+                TextSpan(
+                    text: totalWeek.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Daily Average Last Week: "),
+                TextSpan(
+                    text: avgWeek.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              const Padding(padding: EdgeInsets.only(top: 8, bottom: 8)),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Total Last Month: "),
+                TextSpan(
+                    text: totalMonth.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Daily Average Last Month: "),
+                TextSpan(
+                    text: avgMonth.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Weekly Average Last Month: "),
+                TextSpan(
+                    text: weeklyAvgMonth.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              const Padding(padding: EdgeInsets.only(top: 8, bottom: 8)),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Total Last Year: "),
+                TextSpan(
+                    text: totalYear.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Daily Average Last Year: "),
+                TextSpan(
+                    text: avgYear.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Weekly Average Last Year: "),
+                TextSpan(
+                    text: weeklyAvgYear.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              const Padding(padding: EdgeInsets.only(top: 8, bottom: 8)),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Total All: "),
+                TextSpan(
+                    text: totalAll.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ]))
+            ],
+          );
+        });
+  }
 }
 
 class StatisticsList extends ListView {
@@ -216,6 +377,8 @@ class StatisticsList extends ListView {
   final double userBalances;
   final double inventoryValue;
 
+  final void Function(Offering offering) onOfferingTap;
+
   StatisticsList(
       {required this.userBalances,
       required this.inventoryValue,
@@ -225,6 +388,7 @@ class StatisticsList extends ListView {
       this.addRepaintBoundaries = true,
       this.addSemanticIndexes = true,
       required this.transactionsToLookAt,
+      required this.onOfferingTap,
       Key? key})
       : super(key: key);
 
@@ -307,7 +471,10 @@ class StatisticsList extends ListView {
           }))[index - 1];
 
         return OfferingTile(
-            offering: offering, transactionsToLookAt: transactionsToLookAt);
+          offering: offering,
+          transactionsToLookAt: transactionsToLookAt,
+          onTap: (off) => onOfferingTap(off),
+        );
       },
       itemCount: itemCount,
       dragStartBehavior: dragStartBehavior,
@@ -331,14 +498,16 @@ class StatisticsList extends ListView {
 }
 
 class OfferingTile extends StatelessWidget {
-  const OfferingTile({
-    Key? key,
-    required this.offering,
-    required this.transactionsToLookAt,
-  }) : super(key: key);
+  const OfferingTile(
+      {Key? key,
+      required this.offering,
+      required this.transactionsToLookAt,
+      required this.onTap})
+      : super(key: key);
 
   final Offering offering;
   final List<Transaction> transactionsToLookAt;
+  final void Function(Offering) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -378,6 +547,7 @@ class OfferingTile extends StatelessWidget {
                             .toDouble() /
                         100))
           ])),
+      onTap: () => onTap(offering),
     );
   }
 }
