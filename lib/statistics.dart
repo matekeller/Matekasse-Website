@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -175,7 +177,7 @@ class _StatisticsState extends State<Statistics>
 
   Future<void> showOfferingInfoDialog(
       Offering offering, List<Transaction> allTransactions) {
-    var totalWeek = allTransactions
+    var weekTransactions = allTransactions
         .where((element) =>
             element.offeringName == offering.name &&
             !element.deleted &&
@@ -185,22 +187,15 @@ class _StatisticsState extends State<Statistics>
                 .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
                         DateTime.now().day)
                     .subtract(const Duration(days: 7))))
-        .length;
+        .toList();
 
-    var avgWeek = double.parse((allTransactions
-                .where((element) =>
-                    element.offeringName == offering.name &&
-                    DateFormat("yy-MM-dd HH:mm:ss")
-                        .parse(element.date.toString(), true)
-                        .toLocal()
-                        .isAfter(DateTime(DateTime.now().year,
-                                DateTime.now().month, DateTime.now().day)
-                            .subtract(const Duration(days: 7))))
-                .length /
-            7)
-        .toStringAsFixed(2));
+    var totalWeek = weekTransactions.length;
 
-    var totalMonth = allTransactions
+    var avgWeek = double.parse((totalWeek / 7).toStringAsFixed(2));
+
+    var dailyMaxWeek = getDailyMax(weekTransactions);
+
+    var monthTransactions = allTransactions
         .where((element) =>
             element.offeringName == offering.name &&
             DateFormat("yy-MM-dd HH:mm:ss")
@@ -209,24 +204,17 @@ class _StatisticsState extends State<Statistics>
                 .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
                         DateTime.now().day)
                     .subtract(const Duration(days: 30))))
-        .length;
+        .toList();
 
-    var avgMonth = double.parse((allTransactions
-                .where((element) =>
-                    element.offeringName == offering.name &&
-                    DateFormat("yy-MM-dd HH:mm:ss")
-                        .parse(element.date.toString(), true)
-                        .toLocal()
-                        .isAfter(DateTime(DateTime.now().year,
-                                DateTime.now().month, DateTime.now().day)
-                            .subtract(const Duration(days: 30))))
-                .length /
-            30)
-        .toStringAsFixed(2));
+    var totalMonth = monthTransactions.length;
+
+    var avgMonth = double.parse((totalMonth / 30).toStringAsFixed(2));
+
+    var dailyMaxMonth = getDailyMax(monthTransactions);
 
     var weeklyAvgMonth = (avgMonth * 7).toStringAsFixed(2);
 
-    var totalYear = allTransactions
+    var yearTransactions = allTransactions
         .where((element) =>
             element.offeringName == offering.name &&
             DateFormat("yy-MM-dd HH:mm:ss")
@@ -235,22 +223,15 @@ class _StatisticsState extends State<Statistics>
                 .isAfter(DateTime(DateTime.now().year, DateTime.now().month,
                         DateTime.now().day)
                     .subtract(const Duration(days: 365))))
-        .length;
+        .toList();
 
-    var avgYear = double.parse((allTransactions
-                .where((element) =>
-                    element.offeringName == offering.name &&
-                    DateFormat("yy-MM-dd HH:mm:ss")
-                        .parse(element.date.toString(), true)
-                        .toLocal()
-                        .isAfter(DateTime(DateTime.now().year,
-                                DateTime.now().month, DateTime.now().day)
-                            .subtract(const Duration(days: 365))))
-                .length /
-            365)
-        .toStringAsFixed(2));
+    var totalYear = yearTransactions.length;
+
+    var avgYear = double.parse((totalYear / 365).toStringAsFixed(2));
 
     var weeklyAvgYear = (avgYear * 7).toStringAsFixed(2);
+
+    var dailyMaxYear = getDailyMax(yearTransactions);
 
     var totalAll = allTransactions
         .where((element) => element.offeringName == offering.name)
@@ -281,6 +262,12 @@ class _StatisticsState extends State<Statistics>
                     text: avgWeek.toString(),
                     style: const TextStyle(fontWeight: FontWeight.bold)),
               ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Daily Max Last Week: "),
+                TextSpan(
+                    text: dailyMaxWeek.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
               const Padding(padding: EdgeInsets.only(top: 8, bottom: 8)),
               Text.rich(TextSpan(children: [
                 const TextSpan(text: "Total Last Month: "),
@@ -292,6 +279,12 @@ class _StatisticsState extends State<Statistics>
                 const TextSpan(text: "Daily Average Last Month: "),
                 TextSpan(
                     text: avgMonth.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
+                const TextSpan(text: "Daily Max Last Month: "),
+                TextSpan(
+                    text: dailyMaxMonth.toString(),
                     style: const TextStyle(fontWeight: FontWeight.bold)),
               ])),
               Text.rich(TextSpan(children: [
@@ -314,6 +307,12 @@ class _StatisticsState extends State<Statistics>
                     style: const TextStyle(fontWeight: FontWeight.bold)),
               ])),
               Text.rich(TextSpan(children: [
+                const TextSpan(text: "Daily Max Last Year: "),
+                TextSpan(
+                    text: dailyMaxYear.toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ])),
+              Text.rich(TextSpan(children: [
                 const TextSpan(text: "Weekly Average Last Year: "),
                 TextSpan(
                     text: weeklyAvgYear.toString(),
@@ -329,6 +328,48 @@ class _StatisticsState extends State<Statistics>
             ],
           );
         });
+  }
+
+  int getDailyMax(List<Transaction> transactions) {
+    var maxNum = 0;
+
+    for (Transaction transaction in transactions) {
+      var prev = DateTime.now();
+      var curr = DateFormat("yy-MM-dd HH:mm:ss")
+          .parse(transaction.date.toString(), true)
+          .toLocal();
+
+      var prevDay = DateTime.parse("2012-02-27");
+      var currDay = DateTime(curr.year, curr.month, curr.day);
+
+      if (transactions.indexOf(transaction) != 0) {
+        prev = DateFormat("yy-MM-dd HH:mm:ss")
+            .parse(
+                transactions[transactions.indexOf(transaction) - 1]
+                    .date
+                    .toString(),
+                true)
+            .toLocal();
+        prevDay = DateTime(prev.year, prev.month, prev.day);
+      }
+
+      if (prevDay.isAfter(currDay)) {
+        maxNum = max(
+            maxNum,
+            transactions
+                .where((element) =>
+                    DateFormat("yy-MM-dd HH:mm:ss")
+                        .parse(element.date.toString(), true)
+                        .toLocal()
+                        .isAfter(prevDay) &&
+                    DateFormat("yy-MM-dd HH:mm:ss")
+                        .parse(element.date.toString(), true)
+                        .toLocal()
+                        .isBefore(prevDay.add(const Duration(hours: 24))))
+                .length);
+      }
+    }
+    return maxNum;
   }
 }
 
