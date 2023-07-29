@@ -71,7 +71,7 @@ class UserWidget extends StatelessWidget {
                             )
                           ],
                       icon: Icon(
-                        FontAwesomeIcons.ellipsis,
+                        Icons.more_vert,
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ))
                 ],
