@@ -1,7 +1,7 @@
 
 .dart_tool/
 
-build/
+build/app/**
 
 .idea/
 
