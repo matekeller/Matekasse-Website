@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -129,6 +132,10 @@ class UserWidget extends StatelessWidget {
   }
 }
 
+enum SortMode { nameDesc, nameAsc, balanceDesc, balanceAsc }
+
+enum AscOrDesc { asc, desc }
+
 class UserList extends StatefulWidget {
   const UserList({Key? key}) : super(key: key);
 
@@ -138,11 +145,14 @@ class UserList extends StatefulWidget {
 
 class _UserListState extends State<UserList> {
   List<User> _users = [];
+  SortMode compare = SortMode.nameAsc;
+  AscOrDesc ascordesc = AscOrDesc.asc;
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<User>>(future: () async {
       _users = await GraphQlHelper.updateAllUsers();
-      return _users;
+      return _users..sort(getCompare(compare));
     }(), builder: (context, snapshot) {
       return SafeArea(
         child: Scaffold(
@@ -159,7 +169,65 @@ class _UserListState extends State<UserList> {
                               delegate: UserSearchDelegate(
                                   userList: snapshot.data ?? []));
                         },
-                  icon: const Icon(Icons.search))
+                  icon: const Icon(Icons.search)),
+              PopupMenuButton(
+                child: const Icon(Icons.more_vert),
+                itemBuilder: (context) => <PopupMenuEntry>[
+                  CheckedTappablePopupMenuItem(
+                    child: const Text("Sort by name"),
+                    checked: compare == SortMode.nameAsc ||
+                        compare == SortMode.nameDesc,
+                    onTap: () {
+                      if (!(compare == SortMode.nameAsc ||
+                          compare == SortMode.nameDesc)) {
+                        // not checked?
+                        setState(() => compare = ascordesc == AscOrDesc.asc
+                            ? SortMode.nameAsc
+                            : SortMode.nameDesc);
+                      }
+                    },
+                  ),
+                  CheckedTappablePopupMenuItem(
+                    child: const Text("Sort by balance"),
+                    onTap: () {
+                      if (!(compare == SortMode.balanceAsc ||
+                          compare == SortMode.balanceDesc)) {
+                        // not checked?
+                        setState(() => compare = ascordesc == AscOrDesc.asc
+                            ? SortMode.balanceAsc
+                            : SortMode.balanceDesc);
+                      }
+                    },
+                    checked: compare == SortMode.balanceAsc ||
+                        compare == SortMode.balanceDesc,
+                  ),
+                  const PopupMenuDivider(),
+                  CheckedTappablePopupMenuItem(
+                    child: const Text("Sort ascending"),
+                    checked: ascordesc == AscOrDesc.asc,
+                    onTap: () {
+                      if (ascordesc != AscOrDesc.asc) {
+                        // not checked?
+                        setState(() => compare = compare == SortMode.nameDesc
+                            ? SortMode.nameAsc
+                            : SortMode.balanceAsc);
+                      }
+                    },
+                  ),
+                  CheckedTappablePopupMenuItem(
+                    child: const Text("Sort descending"),
+                    checked: ascordesc == AscOrDesc.desc,
+                    onTap: () {
+                      if (ascordesc != AscOrDesc.desc) {
+                        // not checked?
+                        setState(() => compare = compare == SortMode.nameAsc
+                            ? SortMode.nameDesc
+                            : SortMode.balanceDesc);
+                      }
+                    },
+                  )
+                ],
+              ),
             ],
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
@@ -202,6 +270,82 @@ class _UserListState extends State<UserList> {
       );
     });
   }
+
+  int Function(User, User)? getCompare(SortMode mode) {
+    switch (mode) {
+      case SortMode.nameAsc:
+        return (a, b) => a.username.compareTo(b.username);
+      case SortMode.nameDesc:
+        return (a, b) => b.username.compareTo(a.username);
+      case SortMode.balanceAsc:
+        return (a, b) => b.balanceCents.compareTo(a.balanceCents);
+      case SortMode.balanceDesc:
+        return (a, b) => a.balanceCents.compareTo(b.balanceCents);
+      default:
+        return (a, b) => a.username.compareTo(b.username);
+    }
+  }
+}
+
+class CheckedTappablePopupMenuItem<T> extends PopupMenuItem<T> {
+  final bool checked;
+
+  const CheckedTappablePopupMenuItem(
+      {super.key,
+      super.value,
+      this.checked = false,
+      super.enabled,
+      super.padding,
+      super.height,
+      super.mouseCursor,
+      super.child,
+      super.onTap});
+
+  @override
+  PopupMenuItemState<T, CheckedTappablePopupMenuItem<T>> createState() =>
+      _CheckedTappablePopupMenuItemState<T>();
+}
+
+class _CheckedTappablePopupMenuItemState<T>
+    extends PopupMenuItemState<T, CheckedTappablePopupMenuItem<T>>
+    with SingleTickerProviderStateMixin {
+  static const Duration _fadeDuration = Duration(milliseconds: 150);
+  late AnimationController _controller;
+  Animation<double> get _opacity => _controller.view;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(duration: _fadeDuration, vsync: this)
+      ..value = widget.checked ? 1.0 : 0.0
+      ..addListener(() => setState(() {/* animation changed */}));
+  }
+
+  @override
+  void handleTap() {
+    // This fades the checkmark in or out when tapped.
+    if (widget.checked) {
+      _controller.reverse();
+    } else {
+      _controller.forward();
+    }
+    super.handleTap();
+  }
+
+  @override
+  Widget buildChild() {
+    return IgnorePointer(
+      child: ListTile(
+        enabled: widget.enabled,
+        onTap: widget.onTap,
+        leading: FadeTransition(
+          opacity: _opacity,
+          child: Icon(_controller.isDismissed ? null : Icons.done),
+        ),
+        title: widget.child,
+      ),
+    );
+  }
 }
 
 class User {
@@ -231,6 +375,7 @@ class UserSearchDelegate extends SearchDelegate {
   Widget? buildLeading(BuildContext context) => IconButton(
       icon: const Icon(Icons.arrow_back),
       onPressed: () => close(context, null));
+
   @override
   List<Widget>? buildActions(BuildContext context) => [
         IconButton(
@@ -245,16 +390,9 @@ class UserSearchDelegate extends SearchDelegate {
         ),
       ];
 
-  @override // unused
-  Widget buildResults(BuildContext context) => ListView(children: [
-        UserWidget(
-            user: userList.firstWhere(
-                (user) => user.username == query || user.username.contains("")))
-      ]);
-
   @override
-  Widget buildSuggestions(BuildContext context) {
-    List<User> suggestions = userList.where((user) {
+  Widget buildResults(BuildContext context) {
+    List<User> results = userList.where((user) {
       final result = user.username.toLowerCase();
       final input = query.toLowerCase();
 
@@ -262,11 +400,37 @@ class UserSearchDelegate extends SearchDelegate {
     }).toList();
 
     return ListView.builder(
+        itemCount: results.length,
+        itemBuilder: (context, index) {
+          final suggestion = results[index];
+
+          return UserWidget(user: suggestion);
+        });
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<User> suggestions = userList.where((user) {
+      final result = user.username.toLowerCase();
+      final input = query.toLowerCase();
+
+      return input == "" ? false : result.contains(input);
+    }).toList();
+    suggestions = suggestions.sublist(0, min(5, suggestions.length));
+
+    return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
         final suggestion = suggestions[index];
 
-        return UserWidget(user: suggestion);
+        return ListTile(
+            title: Text(suggestion.username),
+            subtitle: Text(suggestion.fullName),
+            onTap: () {
+              query = suggestion.username;
+              buildResults(context);
+              showResults(context);
+            });
       },
     );
   }
