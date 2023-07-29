@@ -22,8 +22,6 @@ class _StatisticsState extends State<Statistics>
   List<Transaction> transactions = [];
   List<Transaction> transactionsToHandle = [];
   int offeringsNumber = LocalStore.offerings.length;
-  double userBalances = 0;
-  double inventoryValue = 0;
   late TabController _tabController;
   var tabIndex = 0;
 
@@ -38,35 +36,7 @@ class _StatisticsState extends State<Statistics>
         });
       },
     );
-    GraphQlHelper.updateAllUsers().then((value) {
-      setState(() {
-        userBalances = -1 *
-            (value
-                    .where((element) =>
-                        element.username != "matekasse" &&
-                        element.username != "matekiosk")
-                    .fold<int>(0, (sum, user) => sum + user.balanceCents)
-                    .toDouble() /
-                100);
-      });
 
-      GraphQlHelper.getInventory().then((value) {
-        setState(() {
-          inventoryValue = value
-                  .fold<int>(
-                      0,
-                      (sum, offering) =>
-                          sum +
-                          LocalStore.offerings
-                                  .firstWhere((element) =>
-                                      element.name == offering.offeringID)
-                                  .priceCents *
-                              offering.amount)
-                  .toDouble() /
-              100;
-        });
-      });
-    });
     _tabController = TabController(length: 5, vsync: this);
 
     _tabController.addListener(() {
@@ -121,20 +91,15 @@ class _StatisticsState extends State<Statistics>
   }
 
   Widget getTab(AsyncSnapshot<List<Transaction>> snapshot) {
-    return (snapshot.hasData &&
-            transactions.isNotEmpty &&
-            userBalances != 0 &&
-            inventoryValue != 0
+    return (snapshot.hasData && transactions.isNotEmpty
         ? Container(
             padding: const EdgeInsets.only(left: 8, right: 8),
             child: Column(
               children: [
                 Expanded(
                     child: StatisticsList(
-                  itemCount: LocalStore.offerings.length + 6,
-                  userBalances: userBalances,
+                  itemCount: LocalStore.offerings.length + 5,
                   transactionsToLookAt: transactionsToHandle,
-                  inventoryValue: inventoryValue,
                   onOfferingTap: (offering) =>
                       showOfferingInfoDialog(offering, transactions),
                 ))
@@ -374,15 +339,11 @@ class StatisticsList extends ListView {
   final bool addRepaintBoundaries;
   final bool addSemanticIndexes;
   final List<Transaction> transactionsToLookAt;
-  final double userBalances;
-  final double inventoryValue;
 
   final void Function(Offering offering) onOfferingTap;
 
   StatisticsList(
-      {required this.userBalances,
-      required this.inventoryValue,
-      required this.itemCount,
+      {required this.itemCount,
       this.findChildIndexCallback,
       this.addAutomaticKeepAlives = true,
       this.addRepaintBoundaries = true,
@@ -414,9 +375,7 @@ class StatisticsList extends ListView {
               child: Text("Top-Ups",
                   style: TextStyle(fontWeight: FontWeight.bold)));
         } else if (index == LocalStore.offerings.length + 3) {
-          return TopupsListTile(
-              transactionsToLookAt: transactionsToLookAt,
-              userBalances: userBalances);
+          return TopupsListTile(transactionsToLookAt: transactionsToLookAt);
         } else if (index == LocalStore.offerings.length + 4) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -436,23 +395,6 @@ class StatisticsList extends ListView {
                                   sum + transaction.pricePaidCents)
                           .toDouble() /
                       100)))
-            ],
-          );
-        } else if (index == LocalStore.offerings.length + 5) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: const Text("Inventory Value:",
-                      style: TextStyle(fontWeight: FontWeight.bold))),
-              Container(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Text(NumberFormat.currency(
-                          locale: "de_DE",
-                          symbol: "€",
-                          customPattern: '#,##0.00\u00A4')
-                      .format(inventoryValue)))
             ],
           );
         }
@@ -553,14 +495,10 @@ class OfferingTile extends StatelessWidget {
 }
 
 class TopupsListTile extends StatelessWidget {
-  const TopupsListTile({
-    Key? key,
-    required this.transactionsToLookAt,
-    required this.userBalances,
-  }) : super(key: key);
+  const TopupsListTile({Key? key, required this.transactionsToLookAt})
+      : super(key: key);
 
   final List<Transaction> transactionsToLookAt;
-  final double userBalances;
 
   @override
   Widget build(BuildContext context) {
@@ -651,15 +589,6 @@ class TopupsListTile extends StatelessWidget {
                         symbol: "€",
                         customPattern: '#,##0.00\u00A4')
                     .format(average == 0 ? 0 : -1 * average)),
-            const TextSpan(
-                text: "\nTotal owed to users: ",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            TextSpan(
-                text: NumberFormat.currency(
-                        locale: "de_DE",
-                        symbol: "€",
-                        customPattern: '#,##0.00\u00A4')
-                    .format(userBalances))
           ])),
     );
   }
