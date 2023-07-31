@@ -14,6 +14,7 @@ import 'package:matemate/theme_provider.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:side_navigation/side_navigation.dart';
 import 'transaction_list.dart';
 import 'settings.dart';
 
@@ -72,7 +73,7 @@ class MyApp extends StatelessWidget {
                           statusBarBrightness: Brightness.dark,
                           statusBarIconBrightness: Brightness.light))*/
               ),
-              home: const MyHomePage(title: 'Transactions'));
+              home: const MyHomePage(title: 'My Transactions'));
         }));
   }
 }
@@ -111,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   TransactionList tList = TransactionList(
     onSocketException: (context) {},
+    username: LocalStore.userName,
   );
 
   getPrefs() async {
@@ -132,79 +134,175 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    int selectedIndex = 100;
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        drawer: Drawer(
-          child: Column(
-            children: [
-              ListTile(
-                  leading: const Icon(FontAwesomeIcons.chartLine),
-                  title: const Text("Statistics"),
-                  onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Statistics();
-                      }))),
-              ListTile(
-                  leading: const Icon(FontAwesomeIcons.gear),
-                  title: const Text("Settings"),
-                  onTap: () => Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const Settings();
-                      }))),
-              const Divider(),
-              ListTile(
-                leading: const Icon(FontAwesomeIcons.arrowRightFromBracket),
-                title: const Text("Log out"),
-                onTap: () {
-                  AlertDialog alert = AlertDialog(
-                      title: const Text("Log Out"),
-                      content: const Text("Are you sure you want to log out?"),
-                      actions: [
-                        FilledButton.tonal(
-                            onPressed: () {
-                              Navigator.pop(context, true);
-                              LocalStore.authToken = "";
-                              LocalStore.userName = "";
-                              LocalStore.password = "";
-                              Navigator.pop(context);
-                              _signIn(context);
-                            },
-                            child: const Text("Yes")),
-                        FilledButton.tonal(
-                            onPressed: () {
-                              Navigator.pop(context, false);
-                            },
-                            child: const Text("No"))
-                      ]);
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return alert;
-                      });
+        drawer: MediaQuery.of(context).size.width < 860
+            ? Drawer(
+                child: Column(
+                  children: [
+                    for (dynamic child in getDrawerChildren())
+                      child["icon"] == null
+                          ? const Divider()
+                          : ListTile(
+                              leading: Icon(child["icon"]),
+                              title: Text(child["title"]),
+                              onTap: child["to"],
+                            )
+                  ],
+                ),
+              )
+            : null,
+        body: MediaQuery.of(context).size.width < 860
+            ? FutureBuilder(
+                future: _signIn(context),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    tList = TransactionList(
+                      onSocketException: _showNoConnectionDialog,
+                      username: LocalStore.userName,
+                    );
+                    return tList;
+                  } else {
+                    return Container();
+                  }
                 },
-              ),
-            ],
-          ),
-        ),
-        body: FutureBuilder(
-          future: _signIn(context),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              tList = TransactionList(
-                onSocketException: _showNoConnectionDialog,
-              );
-              return tList;
-            } else {
-              return Container();
-            }
-          },
-        ),
+              )
+            : Row(children: [
+                SideNavigationBar(
+                  selectedIndex: selectedIndex,
+                  items: [
+                    for (dynamic child in getDrawerChildren())
+                      if (child["icon"] != null)
+                        SideNavigationBarItem(
+                            icon: child["icon"], label: child["title"])
+                  ],
+                  onTap: (index) async {
+                    setState(() {
+                      selectedIndex = index;
+                    });
+                    switch (index) {
+                      case 0:
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return const Statistics();
+                        }));
+                        break;
+                      case 1:
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return const Settings();
+                        }));
+                        break;
+                      case 3:
+                        AlertDialog alert = AlertDialog(
+                            title: const Text("Log Out"),
+                            content:
+                                const Text("Are you sure you want to log out?"),
+                            actions: [
+                              FilledButton.tonal(
+                                  onPressed: () {
+                                    Navigator.pop(context, true);
+                                    LocalStore.authToken = "";
+                                    LocalStore.userName = "";
+                                    LocalStore.password = "";
+                                    Navigator.pop(context);
+                                    _signIn(context);
+                                  },
+                                  child: const Text("Yes")),
+                              FilledButton.tonal(
+                                  onPressed: () {
+                                    Navigator.pop(context, false);
+                                  },
+                                  child: const Text("No"))
+                            ]);
+                        await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return alert;
+                            });
+
+                        break;
+                      default:
+                    }
+                  },
+                ),
+                Expanded(
+                  child: FutureBuilder(
+                    future: _signIn(context),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        tList = TransactionList(
+                          onSocketException: _showNoConnectionDialog,
+                          username: LocalStore.userName,
+                        );
+                        return tList;
+                      } else {
+                        return Container();
+                      }
+                    },
+                  ),
+                )
+              ]),
       ),
-      //makes auto-formatting nicer for build methods.
     );
+  }
+
+  List<Map<String, dynamic>> getDrawerChildren() {
+    return [
+      {
+        "icon": FontAwesomeIcons.chartLine,
+        "title": "Statistics",
+        "to": () =>
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return const Statistics();
+            }))
+      },
+      {
+        "icon": FontAwesomeIcons.gear,
+        "title": "Settings",
+        "to": () =>
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return const Settings();
+            }))
+      },
+      {"icon": null, "title": "Divider", "to": const Divider()},
+      {
+        "icon": FontAwesomeIcons.arrowRightFromBracket,
+        "title": "Log out",
+        "to": () {
+          AlertDialog alert = AlertDialog(
+              title: const Text("Log Out"),
+              content: const Text("Are you sure you want to log out?"),
+              actions: [
+                FilledButton.tonal(
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                      LocalStore.authToken = "";
+                      LocalStore.userName = "";
+                      LocalStore.password = "";
+                      Navigator.pop(context);
+                      _signIn(context);
+                    },
+                    child: const Text("Yes")),
+                FilledButton.tonal(
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                    child: const Text("No"))
+              ]);
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              });
+        }
+      }
+    ];
   }
 
   Future<bool> _signIn(BuildContext context) async {

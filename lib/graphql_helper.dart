@@ -60,16 +60,18 @@ class GraphQlHelper {
     };
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    // NOTE: Backend does weird things when quering with "first: 0", I suppose it replies with the total number of a users transactions
     request.body =
-        '''{"query":"query {\\n    transactionsPaginated(first: 0, after: 0) {\\n        pageInfo {\\n            endCursor\\n        }\\n    }\\n}","variables":{}}''';
+        '''{"query":"query {\\n    me { transactionsPaginated(first: 1, after: 100000) {\\n        pageInfo {\\n            endCursor\\n        }\\n    }\\n }\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      return jsonDecode(await response.stream.bytesToString())["data"]
-          ["transactionsPaginated"]["pageInfo"]["endCursor"];
+      return jsonDecode(await response.stream.bytesToString())["data"]["me"]
+              ["transactionsPaginated"]["pageInfo"]["endCursor"] +
+          1;
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");
     } else {
@@ -87,8 +89,6 @@ class GraphQlHelper {
     if (fromBeginning) {
       _currentCursor = await getEndCursor();
       hasNextPage = true;
-    } else {
-      _currentCursor = after;
     }
     // Check if it is 0 here, and if yes append the empty list
     if (_currentCursor == 0) {
@@ -107,7 +107,7 @@ class GraphQlHelper {
     var request =
         http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
     request.body =
-        '''{"query":"query {\\n    transactionsPaginated(first: $first, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n}","variables":{}}''';
+        '''{"query":"query {\\n    me{\\n    transactionsPaginated(first: $first, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n    }\\n}","variables":{}}''';
 
     request.headers.addAll(headers);
 
@@ -115,8 +115,11 @@ class GraphQlHelper {
 
     String responseString = await response.stream.bytesToString();
     if (response.statusCode == 200) {
-      List<dynamic> transactionMaps =
-          jsonDecode(responseString)['data']['transactionsPaginated']['edges'];
+      List<dynamic> transactionMaps = jsonDecode(responseString)['data']['me']
+          ['transactionsPaginated']['edges'];
+
+      _currentCursor = jsonDecode(responseString)['data']['me']
+          ['transactionsPaginated']['pageInfo']['endCursor'];
       List<Transaction> transactionsPage = [];
 
       for (dynamic transactionMap in transactionMaps) {
@@ -151,74 +154,11 @@ class GraphQlHelper {
             date: date,
             id: transactionID,
             deleted: deleted));
-        _currentCursor = transactionMap['cursor'];
       }
-      hasNextPage = jsonDecode(responseString)['data']['transactionsPaginated']
-          ['pageInfo']['hasNextPage'];
+
+      hasNextPage = jsonDecode(responseString)['data']['me']
+          ['transactionsPaginated']['pageInfo']['hasNextPage'];
       return transactionsPage;
-    } else if (response.statusCode == 404) {
-      throw const SocketException("The Server is not online");
-    }
-
-    throw Exception(response.reasonPhrase);
-  }
-
-  static Future<List<Transaction>> getTransactionListByUser(
-      {required String username}) async {
-    hasNextPage = false;
-
-    String authToken = LocalStore.authToken;
-    var headers = {
-      'Authorization': 'Bearer $authToken',
-      'Content-Type': 'application/json'
-    };
-    var request =
-        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
-    request.body =
-        '''{"query":"query {\\n    transactionsByUser(username: \\"$username\\") {\\n        admin{username}\\n      offeringId\\n      timestamp\\n      pricePaidCents\\n            id\\n            deleted\\n}\\n}","variables":{}}''';
-
-    request.headers.addAll(headers);
-
-    http.StreamedResponse response = await request.send();
-
-    String responseString = await response.stream.bytesToString();
-
-    if (response.statusCode == 200) {
-      List<dynamic> transactionMaps =
-          jsonDecode(responseString)['data']['transactionsByUser'];
-      List<Transaction> transaction = [];
-
-      for (dynamic transactionMap in transactionMaps) {
-        String offeringId = transactionMap['offeringId'];
-        String adminUsername = transactionMap['admin']['username'];
-        String payerUsername = username;
-        int pricePaidCents = transactionMap['pricePaidCents'];
-        DateTime parsedDate = DateTime.parse(transactionMap['timestamp']);
-
-        DateTime date = DateTime.utc(
-            parsedDate.year,
-            parsedDate.month,
-            parsedDate.day,
-            parsedDate.hour,
-            parsedDate.minute,
-            parsedDate.second,
-            parsedDate.millisecond,
-            parsedDate.microsecond); // server is in UTC
-
-        int transactionID = transactionMap['id'];
-        bool deleted = transactionMap['deleted'];
-
-        transaction.add(Transaction(
-            payerUsername: payerUsername,
-            adminUsername: adminUsername,
-            offeringName: offeringId,
-            pricePaidCents: pricePaidCents,
-            date: date,
-            id: transactionID,
-            deleted: deleted));
-      }
-
-      return transaction;
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");
     }

@@ -11,7 +11,7 @@ class TransactionList extends StatefulWidget {
   final void Function(BuildContext context) onSocketException;
   final String username;
   const TransactionList(
-      {Key? key, required this.onSocketException, this.username = "asdf"})
+      {Key? key, required this.onSocketException, required this.username})
       : super(key: key);
 
   @override
@@ -45,13 +45,8 @@ class _TransactionListState extends State<TransactionList> {
           }
           List<Transaction> transactions = [];
 
-          if (widget.username != "asdf") {
-            transactions = await GraphQlHelper.getTransactionListByUser(
-                username: widget.username);
-          } else {
-            transactions =
-                await GraphQlHelper.getTransactionList(fromBeginning: true);
-          }
+          transactions =
+              await GraphQlHelper.getTransactionList(fromBeginning: true);
 
           await GraphQlHelper.updateOfferings();
 
@@ -192,14 +187,8 @@ class _TransactionListState extends State<TransactionList> {
 
   Future<void> _refreshTransactionList() async {
     try {
-      if (widget.username != "asdf") {
-        _transactions = await GraphQlHelper.getTransactionListByUser(
-            username: widget.username);
-      } else {
-        _transactions =
-            await GraphQlHelper.getTransactionList(fromBeginning: true);
-      }
-
+      _transactions =
+          await GraphQlHelper.getTransactionList(fromBeginning: true);
       _transactions = _insertDates(_transactions);
 
       await GraphQlHelper.updateOfferings();
@@ -223,22 +212,12 @@ class _TransactionListState extends State<TransactionList> {
         timesScrolledToBottom += 1;
         _loading = true;
       });
-      if (widget.username != "asdf") {
-        GraphQlHelper.getTransactionListByUser(username: widget.username)
-            .then((value) => setState(() {
-                  _transactions.addAll(value);
-                  _transactions = _insertDates(_transactions);
-                  _loading = false;
-                }));
-      } else {
-        GraphQlHelper.getTransactionList(
-                after: endCursor - timesScrolledToBottom * 10 + 1)
-            .then((value) => setState(() {
-                  _transactions.addAll(value);
-                  _transactions = _insertDates(_transactions);
-                  _loading = false;
-                }));
-      }
+
+      GraphQlHelper.getTransactionList().then((value) => setState(() {
+            _transactions.addAll(value);
+            _transactions = _insertDates(_transactions);
+            _loading = false;
+          }));
     }
   }
 }
