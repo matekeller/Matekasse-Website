@@ -1,6 +1,6 @@
 {
-    "name": "matemate",
-    "short_name": "matemate",
+    "name": "MateMate",
+    "short_name": "MateMate",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
