@@ -80,7 +80,7 @@ class _StatisticsState extends State<Statistics>
             ),
             foregroundColor: Colors.white,
             iconTheme: Theme.of(context).iconTheme,
-            title: const Text("Statistics"),
+            title: const Text("My Statistics"),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context),
@@ -421,21 +421,35 @@ class StatisticsList extends ListView {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Total: ",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text.rich(TextSpan(children: [
+                TextSpan(
+                    text: "Balance ",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: "(\u{201E}Saldo\u{201C})",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic)),
+                TextSpan(
+                    text: ":", style: TextStyle(fontWeight: FontWeight.bold))
+              ])),
               Text(NumberFormat.currency(
                       locale: "de_DE",
                       symbol: "€",
                       customPattern: '#,##0.00\u00A4')
-                  .format((transactionsToLookAt
-                          .where((element) =>
-                              (element.payerUsername != "matekasse"))
-                          .fold<int>(
-                              0,
-                              (sum, transaction) =>
-                                  sum + transaction.pricePaidCents)
-                          .toDouble() /
-                      100)))
+                  .format(-1 *
+                      ((transactionsToLookAt.fold<int>(
+                                  0,
+                                  (sum, transaction) =>
+                                      sum + transaction.pricePaidCents)) ==
+                              0
+                          ? 0
+                          : (transactionsToLookAt.fold<int>(
+                                      0,
+                                      (sum, transaction) =>
+                                          sum + transaction.pricePaidCents))
+                                  .toDouble() /
+                              100)))
             ],
           );
         }
@@ -506,7 +520,8 @@ class OfferingTile extends StatelessWidget {
               style: DefaultTextStyle.of(context).style,
               children: <TextSpan>[
             const TextSpan(
-                text: "Sold: ", style: TextStyle(fontWeight: FontWeight.bold)),
+                text: "Bought: ",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             TextSpan(
                 text: transactionsToLookAt
                     .where((element) => element.offeringName == offering.name)
@@ -544,17 +559,12 @@ class TopupsListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var total = transactionsToLookAt
-        .where((element) =>
-            element.offeringName == "topup" &&
-            element.payerUsername != "matekasse" &&
-            element.payerUsername != "matekiosk")
+        .where((element) => element.offeringName == "topup")
         .length
         .toString();
 
-    var subtotal = (transactionsToLookAt.where((element) =>
-            element.offeringName == "topup" &&
-            element.payerUsername != "matekasse" &&
-            element.payerUsername != "matekiosk"))
+    var subtotal = (transactionsToLookAt
+            .where((element) => element.offeringName == "topup"))
         .fold<int>(0, (sum, transaction) => sum + transaction.pricePaidCents)
         .toDouble();
 
@@ -565,26 +575,17 @@ class TopupsListTile extends StatelessWidget {
         .toDouble();
 
     var average = (transactionsToLookAt
-                .where((element) =>
-                    element.offeringName == "topup" &&
-                    element.payerUsername != "matekasse" &&
-                    element.payerUsername != "matekiosk")
+                .where((element) => element.offeringName == "topup")
                 .fold<int>(
                     0, (sum, transaction) => sum + transaction.pricePaidCents)
                 .toDouble() /
             100) /
         (transactionsToLookAt
-                .where((element) =>
-                    element.offeringName == "topup" &&
-                    element.payerUsername != "matekasse" &&
-                    element.payerUsername != "matekiosk")
+                .where((element) => element.offeringName == "topup")
                 .isEmpty
             ? 1
             : transactionsToLookAt
-                .where((element) =>
-                    element.offeringName == "topup" &&
-                    element.payerUsername != "matekasse" &&
-                    element.payerUsername != "matekiosk")
+                .where((element) => element.offeringName == "topup")
                 .length);
 
     return ListTile(
@@ -653,7 +654,7 @@ class TotalOfferingsListTile extends StatelessWidget {
               style: DefaultTextStyle.of(context).style,
               children: <TextSpan>[
                 const TextSpan(
-                    text: "Sold: ",
+                    text: "Bought: ",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 TextSpan(
                     text: transactionsToLookAt
@@ -676,38 +677,6 @@ class TotalOfferingsListTile extends StatelessWidget {
                                         sum + transaction.pricePaidCents)
                                 .toDouble() /
                             100)),
-                const TextSpan(
-                    text: "\n    Sold via Matekasse: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic)),
-                TextSpan(
-                    text: transactionsToLookAt
-                        .where((element) =>
-                            element.offeringName != "topup" &&
-                            element.payerUsername == "matekasse")
-                        .length
-                        .toString()),
-                const TextSpan(
-                    text: "\n    Total via Matekasse: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic)),
-                TextSpan(
-                    text: NumberFormat.currency(
-                            locale: "de_DE",
-                            symbol: "€",
-                            customPattern: '#,##0.00\u00A4')
-                        .format(transactionsToLookAt
-                                .where((element) =>
-                                    element.offeringName != "topup" &&
-                                    element.payerUsername == "matekasse")
-                                .fold<int>(
-                                    0,
-                                    (sum, transaction) =>
-                                        sum + transaction.pricePaidCents)
-                                .toDouble() /
-                            100))
               ]),
         ));
   }
