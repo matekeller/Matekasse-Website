@@ -161,7 +161,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             ? FutureBuilder(
                 future: _signIn(context),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.hasData &&
+                      LocalStore.userName != "" &&
+                      LocalStore.authToken != "") {
                     tList = TransactionList(
                       onSocketException: _showNoConnectionDialog,
                       username: LocalStore.userName,
@@ -235,7 +237,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   child: FutureBuilder(
                     future: _signIn(context),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
+                      if (snapshot.hasData &&
+                          LocalStore.userName != "" &&
+                          LocalStore.authToken != "") {
                         tList = TransactionList(
                           onSocketException: _showNoConnectionDialog,
                           username: LocalStore.userName,
@@ -311,7 +315,24 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       authTokenExpired = JwtDecoder.isExpired(LocalStore.authToken);
     } catch (e) {
       // There is no auth token, therefore it cant be valid.
+      authTokenExpired = true;
     }
+    if (authTokenExpired &&
+        (LocalStore.userName == "" ||
+            LocalStore.password == "" ||
+            LocalStore.authToken == "")) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showSignInDialog());
+    } else if (authTokenExpired) {
+      try {
+        await GraphQlHelper.signIn(LocalStore.userName, LocalStore.password);
+      } on InvalidSignInCredentialsException {
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => _showSignInDialog());
+      } on SocketException {
+        await _showNoConnectionDialog(context);
+      }
+    }
+/*
     while (authTokenExpired) {
       try {
         await GraphQlHelper.signIn(LocalStore.userName, LocalStore.password);
@@ -325,66 +346,84 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       } catch (e) {
         // There is no auth token, therefore it cant be valid.
       }
-    }
+    }*/
     return true;
   }
 
   Future<void> _showSignInDialog() async {
-    String newUserName = "";
-    String newPassword = "";
+    bool gotError = true;
     if (showingSignInDialog) {
       return;
     }
     showingSignInDialog = true;
-    await showDialog(
-      context: context,
-      builder: (context) => ScaffoldedDialog(
-        barrierDismissable: false,
-        contentPadding: const EdgeInsets.only(left: 8, right: 8),
-        titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-        title: const Text("Log-In"),
-        children: [
-          const Text("Username"),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(onChanged: (value) => newUserName = value),
-          const SizedBox(
-            height: 20,
-          ),
-          const Text("Password"),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            obscureText: true,
-            onChanged: (value) => newPassword = value,
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          FilledButton(
-            child: const Text("Log-In"),
-            onPressed: () {
-              if (newUserName == "") {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Enter a Username")));
-                return;
-              }
-              if (newPassword == "") {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Enter a Password")));
-                return;
-              }
-              LocalStore.userName = newUserName;
-              LocalStore.password = newPassword;
-              showingSignInDialog = false;
-              Navigator.pop(context);
-            },
-          )
-        ],
-      ),
-    );
+    while (gotError == true ||
+        LocalStore.authToken == "" ||
+        JwtDecoder.isExpired(LocalStore.authToken)) {
+      String newUserName = "";
+      String newPassword = "";
+
+      await showDialog(
+        context: context,
+        builder: (context) => ScaffoldedDialog(
+          barrierDismissable: false,
+          contentPadding: const EdgeInsets.only(left: 8, right: 8),
+          titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+          title: const Text("Log-In"),
+          children: [
+            const Text("Username"),
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(onChanged: (value) => newUserName = value),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text("Password"),
+            const SizedBox(
+              height: 10,
+            ),
+            TextField(
+              obscureText: true,
+              onChanged: (value) => newPassword = value,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            FilledButton(
+              child: const Text("Log-In"),
+              onPressed: () async {
+                if (newUserName == "") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Enter a Username")));
+                  return;
+                }
+                if (newPassword == "") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Enter a Password")));
+                  return;
+                }
+                LocalStore.userName = newUserName;
+                LocalStore.password = newPassword;
+
+                try {
+                  await GraphQlHelper.signIn(newUserName, newPassword);
+                } on InvalidSignInCredentialsException {
+                  gotError = true;
+                  Navigator.pop(context);
+                  return;
+                }
+
+                noUser = false;
+
+                showingSignInDialog = false;
+                gotError = false;
+                Navigator.pop(context);
+              },
+            )
+          ],
+        ),
+      );
+    }
     showingSignInDialog = false;
   }
 
