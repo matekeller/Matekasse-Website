@@ -5,6 +5,7 @@ import 'package:matemate/transaction.dart';
 import 'package:http/http.dart' as http;
 
 import 'offering.dart';
+import 'user.dart';
 
 class GraphQlHelper {
   /// Uses the given username and password to sign the user in
@@ -75,6 +76,58 @@ class GraphQlHelper {
     } else if (response.statusCode == 404) {
       throw const SocketException("The Server is not online");
     } else {
+      throw Exception(response.reasonPhrase);
+    }
+  }
+
+  static Future<User> getMyself() async {
+    String authToken = LocalStore.authToken;
+    var headers = {
+      'Authorization': 'Bearer $authToken',
+      'Content-Type': 'application/json'
+    };
+
+    var request =
+        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+    // NOTE: Backend does weird things when quering with "first: 0", I suppose it replies with the total number of a users transactions
+    request.body =
+        '''{"query":"query {\\n  me {\\n    fullName\\n    username\\n    bluecardId\\n    isAdmin\\n    smartcards {\\n      smartcardId\\n    }\\n    balance\\n    \\n  }\\n}","variables":{}}''';
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var userJson =
+          jsonDecode(await response.stream.bytesToString())["data"]["me"];
+
+      List<String> smartcardList = [];
+
+      for (dynamic smartcard in userJson['smartcards']) {
+        smartcardList.add(smartcard['smartcardId']);
+      }
+
+      LocalStore.myUser = User(
+          balanceCents: userJson['balance'] ?? 0,
+          fullName: userJson['fullName'],
+          username: userJson['username'],
+          bluecardId: userJson['bluecardId'],
+          smartcards: smartcardList,
+          isAdmin: userJson['isAdmin']);
+
+      return User(
+          balanceCents: userJson['balance'] ?? 0,
+          fullName: userJson['fullName'],
+          username: userJson['username'],
+          bluecardId: userJson['bluecardId'],
+          smartcards: smartcardList,
+          isAdmin: userJson['isAdmin']);
+    } else if (response.statusCode == 404) {
+      throw const SocketException("The Server is not online");
+    } else {
+      var userJson =
+          jsonDecode(await response.stream.bytesToString())["errors"];
+      print(userJson);
       throw Exception(response.reasonPhrase);
     }
   }

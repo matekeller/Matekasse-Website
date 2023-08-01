@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:matemate/offering.dart';
+import 'package:matemate/user.dart';
 
 class LocalStore {
   static Box? _box;
@@ -38,4 +39,17 @@ class LocalStore {
   static List<Offering> get offerings => _box!.get("offerings") ?? <Offering>[];
   static set offerings(List<Offering> newOfferings) =>
       _box!.put("offerings", newOfferings);
+
+  static User get myUser =>
+      _box!.get("myUser") ??
+      const User(
+          username: "",
+          fullName: "",
+          balanceCents: 0,
+          bluecardId: "",
+          smartcards: [],
+          isAdmin: false);
+  static set myUser(User newUser) {
+    _box!.put("myUser", newUser);
+  }
 }

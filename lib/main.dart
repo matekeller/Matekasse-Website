@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:matemate/graphql_helper.dart';
@@ -11,6 +12,7 @@ import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/statistics.dart';
 import 'package:matemate/theme_provider.dart';
+import 'package:matemate/user.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +23,7 @@ import 'settings.dart';
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(OfferingAdapter());
+  Hive.registerAdapter(UserAdapter());
   await LocalStore.init();
   runApp(const MyApp());
 }
@@ -106,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   bool showingAuthDialog = false;
   bool didJustCloseAuthDialog = false;
   bool showingAddSmartCardDialog = false;
+  bool noUser = LocalStore.myUser.username == "";
 
   Map prefsMap = <String, dynamic>{};
   final LocalAuthentication auth = LocalAuthentication();
@@ -138,9 +142,49 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     int selectedIndex = 100;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
+        appBar: noUser
+            ? AppBar(
+                title: Text(widget.title),
+              )
+            : AppBar(
+                title: Text(widget.title),
+                actions: [
+                  Container(
+                      decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text.rich(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.merge(TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondaryContainer)),
+                            TextSpan(children: [
+                              const TextSpan(
+                                text: "My balance: ",
+                              ),
+                              TextSpan(
+                                  text: NumberFormat.currency(
+                                          locale: "de_DE",
+                                          symbol: "€",
+                                          customPattern: '#,##0.00\u00A4')
+                                      .format(
+                                          (LocalStore.myUser.balanceCents == 0
+                                                      ? 0
+                                                      : -1 *
+                                                          LocalStore.myUser
+                                                              .balanceCents)
+                                                  .toDouble() /
+                                              100))
+                            ])),
+                      ))
+                ],
+              ),
         drawer: MediaQuery.of(context).size.width < 860
             ? Drawer(
                 child: Column(
@@ -212,6 +256,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                     LocalStore.authToken = "";
                                     LocalStore.userName = "";
                                     LocalStore.password = "";
+                                    LocalStore.myUser = const User(
+                                        username: "",
+                                        fullName: "",
+                                        balanceCents: 0,
+                                        bluecardId: "",
+                                        smartcards: [],
+                                        isAdmin: false);
                                     Navigator.pop(context);
                                     _signIn(context);
                                   },
@@ -289,6 +340,15 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       LocalStore.authToken = "";
                       LocalStore.userName = "";
                       LocalStore.password = "";
+                      LocalStore.myUser = const User(
+                          username: "",
+                          fullName: "",
+                          balanceCents: 0,
+                          bluecardId: "",
+                          smartcards: [],
+                          isAdmin: false);
+
+                      noUser = true;
                       Navigator.pop(context);
                       _signIn(context);
                     },
@@ -331,22 +391,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       } on SocketException {
         await _showNoConnectionDialog(context);
       }
+    } else {
+      await GraphQlHelper.getMyself();
     }
-/*
-    while (authTokenExpired) {
-      try {
-        await GraphQlHelper.signIn(LocalStore.userName, LocalStore.password);
-      } on InvalidSignInCredentialsException {
-        await _showSignInDialog();
-      } on SocketException {
-        await _showNoConnectionDialog(context);
-      }
-      try {
-        authTokenExpired = JwtDecoder.isExpired(LocalStore.authToken);
-      } catch (e) {
-        // There is no auth token, therefore it cant be valid.
-      }
-    }*/
     return true;
   }
 
@@ -413,6 +460,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   return;
                 }
 
+                await GraphQlHelper.getMyself();
+
                 noUser = false;
 
                 showingSignInDialog = false;
@@ -424,6 +473,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         ),
       );
     }
+    setState(() {});
     showingSignInDialog = false;
   }
 
