@@ -150,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 title: Text(widget.title),
                 actions: [
                   Container(
+                      margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
                           color:
                               Theme.of(context).colorScheme.secondaryContainer,
