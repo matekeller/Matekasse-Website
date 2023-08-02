@@ -331,15 +331,20 @@ class _StatisticsState extends State<Statistics>
   }
 
   int getDailyMax(List<Transaction> transactions) {
+    if (transactions.isEmpty) {
+      return 0;
+    }
     var maxNum = 0;
 
     for (Transaction transaction in transactions) {
-      var prev = DateTime.now();
+      var prev = DateFormat("yy-MM-dd HH:mm:ss")
+          .parse(transactions[0].date.toString(), true)
+          .toLocal();
       var curr = DateFormat("yy-MM-dd HH:mm:ss")
           .parse(transaction.date.toString(), true)
           .toLocal();
 
-      var prevDay = DateTime.parse("2012-02-27");
+      var prevDay = DateTime(prev.year, prev.month, prev.day);
       var currDay = DateTime(curr.year, curr.month, curr.day);
 
       if (transactions.indexOf(transaction) != 0) {
@@ -353,7 +358,7 @@ class _StatisticsState extends State<Statistics>
         prevDay = DateTime(prev.year, prev.month, prev.day);
       }
 
-      if (prevDay.isAfter(currDay)) {
+      if (prevDay.isAfter(currDay) && transactions.indexOf(transaction) != 0) {
         maxNum = max(
             maxNum,
             transactions
@@ -367,6 +372,8 @@ class _StatisticsState extends State<Statistics>
                         .toLocal()
                         .isBefore(prevDay.add(const Duration(hours: 24))))
                 .length);
+      } else if (transactions.indexOf(transaction) == 0) {
+        maxNum = 1;
       }
     }
     return maxNum;
