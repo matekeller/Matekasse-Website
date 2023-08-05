@@ -430,7 +430,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             const SizedBox(
               height: 10,
             ),
-            TextField(onChanged: (value) => newUserName = value),
+            TextField(
+              onChanged: (value) => newUserName = value,
+              autofillHints: const [AutofillHints.username],
+            ),
             const SizedBox(
               height: 20,
             ),
@@ -441,6 +444,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             TextField(
               obscureText: true,
               onChanged: (value) => newPassword = value,
+              autofillHints: const [AutofillHints.password],
             ),
             const SizedBox(
               height: 10,
