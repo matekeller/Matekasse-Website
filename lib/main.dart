@@ -417,8 +417,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         builder: (context) => ScaffoldedDialog(
           barrierDismissable: false,
           closable: false,
-          contentPadding: const EdgeInsets.only(left: 8, right: 8),
-          titlePadding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+          contentPadding: const EdgeInsets.all(20),
+          titlePadding: const EdgeInsets.all(20),
           title: const Text("Log-In"),
           children: [
             const Text("Username"),
