@@ -142,6 +142,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // than having to individually change instances of widgets.
 
     int selectedIndex = 100;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!noUser) {
+        await GraphQlHelper.getMyself();
+      }
+    });
     return SafeArea(
       child: Scaffold(
         appBar: noUser
