@@ -9,8 +9,8 @@ import 'transaction.dart';
 
 class TransactionList extends StatefulWidget {
   final void Function(BuildContext context) onSocketException;
-  final String username;
-  const TransactionList(
+  String username;
+  TransactionList(
       {Key? key, required this.onSocketException, required this.username})
       : super(key: key);
 

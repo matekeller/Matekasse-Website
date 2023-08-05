@@ -12,6 +12,7 @@ import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/statistics.dart';
 import 'package:matemate/theme_provider.dart';
+import 'package:matemate/transaction.dart';
 import 'package:matemate/user.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:side_navigation/side_navigation.dart';
 import 'transaction_list.dart';
 import 'settings.dart';
+import 'dart:html' as html;
 
 void main() async {
   await Hive.initFlutter();
@@ -229,9 +231,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             icon: child["icon"], label: child["title"])
                   ],
                   onTap: (index) async {
-                    setState(() {
-                      selectedIndex = index;
-                    });
+                    selectedIndex = index;
                     switch (index) {
                       case 0:
                         Navigator.push(context,
@@ -245,18 +245,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           return const Settings();
                         }));
                         break;
-                      case 3:
+                      case 2:
                         AlertDialog alert = AlertDialog(
                             title: const Text("Log Out"),
                             content:
                                 const Text("Are you sure you want to log out?"),
                             actions: [
                               FilledButton.tonal(
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    print("press");
                                     Navigator.pop(context, true);
-                                    LocalStore.authToken = "";
+                                    Navigator.pop(context);
                                     LocalStore.userName = "";
                                     LocalStore.password = "";
+                                    LocalStore.authToken = "";
                                     LocalStore.myUser = const User(
                                         username: "",
                                         fullName: "",
@@ -264,8 +266,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                         bluecardId: "",
                                         smartcards: [],
                                         isAdmin: false);
-                                    Navigator.pop(context);
-                                    _signIn(context);
+                                    noUser = true;
+                                    await Hive.deleteFromDisk();
                                   },
                                   child: const Text("Yes")),
                               FilledButton.tonal(
@@ -278,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             context: context,
                             builder: (BuildContext context) {
                               return alert;
-                            });
+                            }).then((value) => html.window.location.reload());
 
                         break;
                       default:
@@ -475,7 +477,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         ),
       );
     }
+
     setState(() {});
+
     showingSignInDialog = false;
   }
 
