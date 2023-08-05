@@ -12,7 +12,6 @@ import 'package:matemate/offering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:matemate/statistics.dart';
 import 'package:matemate/theme_provider.dart';
-import 'package:matemate/transaction.dart';
 import 'package:matemate/user.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
 import 'package:provider/provider.dart';
@@ -258,7 +257,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             actions: [
                               FilledButton.tonal(
                                   onPressed: () async {
-                                    print("press");
                                     Navigator.pop(context, true);
                                     Navigator.pop(context);
                                     LocalStore.userName = "";
@@ -445,43 +443,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               obscureText: true,
               onChanged: (value) => newPassword = value,
               autofillHints: const [AutofillHints.password],
+              onSubmitted: (value) async =>
+                  gotError = await signInPressed(newUserName, newPassword),
             ),
             const SizedBox(
               height: 10,
             ),
             FilledButton(
-              child: const Text("Log-In"),
-              onPressed: () async {
-                if (newUserName == "") {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Enter a Username")));
-                  return;
-                }
-                if (newPassword == "") {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Enter a Password")));
-                  return;
-                }
-                LocalStore.userName = newUserName;
-                LocalStore.password = newPassword;
-
-                try {
-                  await GraphQlHelper.signIn(newUserName, newPassword);
-                } on InvalidSignInCredentialsException {
-                  gotError = true;
-                  Navigator.pop(context);
-                  return;
-                }
-
-                await GraphQlHelper.getMyself();
-
-                noUser = false;
-
-                showingSignInDialog = false;
-                gotError = false;
-                Navigator.pop(context);
-              },
-            )
+                child: const Text("Log-In"),
+                onPressed: () async =>
+                    gotError = await signInPressed(newUserName, newPassword))
           ],
         ),
       );
@@ -490,6 +461,36 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     setState(() {});
 
     showingSignInDialog = false;
+  }
+
+  Future<bool> signInPressed(String newUserName, String newPassword) async {
+    if (newUserName == "") {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Enter a Username")));
+      return true;
+    }
+    if (newPassword == "") {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Enter a Password")));
+      return true;
+    }
+    LocalStore.userName = newUserName;
+    LocalStore.password = newPassword;
+
+    try {
+      await GraphQlHelper.signIn(newUserName, newPassword);
+    } on InvalidSignInCredentialsException {
+      Navigator.pop(context);
+      return true;
+    }
+
+    await GraphQlHelper.getMyself();
+
+    noUser = false;
+
+    showingSignInDialog = false;
+    Navigator.pop(context);
+    return false;
   }
 
   Future<void> _showNoConnectionDialog(BuildContext context) async {
