@@ -424,35 +424,44 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           titlePadding: const EdgeInsets.all(20),
           title: const Text("Log-In"),
           children: [
-            const Text("Username"),
-            const SizedBox(
-              height: 10,
-            ),
-            TextField(
-              onChanged: (value) => newUserName = value,
-              autofillHints: const [AutofillHints.username],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Text("Password"),
-            const SizedBox(
-              height: 10,
-            ),
-            TextField(
-              obscureText: true,
-              onChanged: (value) => newPassword = value,
-              autofillHints: const [AutofillHints.password],
-              onSubmitted: (value) async =>
-                  gotError = await signInPressed(newUserName, newPassword),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            FilledButton(
-                child: const Text("Log-In"),
-                onPressed: () async =>
-                    gotError = await signInPressed(newUserName, newPassword))
+            AutofillGroup(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  decoration: const InputDecoration(labelText: "Username"),
+                  onChanged: (value) => newUserName = value,
+                  autofillHints: const [
+                    AutofillHints.username,
+                    AutofillHints.email
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextField(
+                  decoration: const InputDecoration(labelText: "Password"),
+                  obscureText: true,
+                  onChanged: (value) => newPassword = value,
+                  autofillHints: const [AutofillHints.password],
+                  onSubmitted: (value) async {
+                    TextInput.finishAutofillContext();
+                    gotError = await signInPressed(newUserName, newPassword);
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                FilledButton(
+                    style: const ButtonStyle(
+                        alignment: AlignmentDirectional.center),
+                    child: const Text("Log-In"),
+                    onPressed: () async {
+                      TextInput.finishAutofillContext();
+                      gotError = await signInPressed(newUserName, newPassword);
+                    })
+              ],
+            )),
           ],
         ),
       );
