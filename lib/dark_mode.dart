@@ -38,21 +38,17 @@ class _DarkModeState extends State<DarkMode> {
       body: SafeArea(
         child: Column(
           children: [
-            FutureBuilder(builder: ((context, snapshot) {
-              final themeProvider = Provider.of<ThemeProvider>(context);
-
+            Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
               return SwitchListTile(
                   title: const Text("Activate Dark Mode"),
                   value: themeProvider.isDarkMode,
                   onChanged: (value) {
-                    final provider =
-                        Provider.of<ThemeProvider>(context, listen: false);
-                    provider.toggleTheme(value);
+                    themeProvider.toggleTheme(value);
                     setState(() {
                       themeSwitch = value;
                     });
                   });
-            })),
+            }),
           ],
         ),
       ),

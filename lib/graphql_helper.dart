@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:matemate/local_store.dart';
 import 'package:matemate/transaction.dart';
 import 'package:http/http.dart' as http;
+import 'package:collection/collection.dart';
 
 import 'offering.dart';
 import 'user.dart';
@@ -175,17 +176,8 @@ class GraphQlHelper {
           ['transactionsPaginated']['pageInfo']['endCursor'];
       List<Transaction> transactionsPage = [];
 
-      for (dynamic transactionMap in transactionMaps) {
-        String offeringId = transactionMap['node']['offeringId'];
-        String adminUsername = transactionMap['node']['admin']['username'];
-        String payerUsername = transactionMap['node']['payer']['username'];
-        // double timestampSecondsSinceEpochFloat =
-        //     transactionMap['node']['timestamp'];
-        // int timestampSecondsSinceEpoch =
-        //     timestampSecondsSinceEpochFloat.toInt();
-        int pricePaidCents = transactionMap['node']['pricePaidCents'];
-        DateTime parsedDate =
-            DateTime.parse(transactionMap['node']['timestamp']);
+      transactionsPage = transactionMaps.fold([], (prev, element) {
+        DateTime parsedDate = DateTime.parse(element['node']['timestamp']);
         DateTime date = DateTime.utc(
             parsedDate.year,
             parsedDate.month,
@@ -194,20 +186,19 @@ class GraphQlHelper {
             parsedDate.minute,
             parsedDate.second,
             parsedDate.millisecond,
-            parsedDate.microsecond); // server is in UTC
+            parsedDate.microsecond);
+        return prev
+          ..add(Transaction(
+              payerUsername: element['node']['payer']['username'],
+              adminUsername: element['node']['admin']['username'],
+              offeringName: element['node']['offeringId'],
+              pricePaidCents: element['node']['pricePaidCents'],
+              date: date,
+              id: element['node']['id'],
+              deleted: element['node']['deleted']));
+      });
 
-        int transactionID = transactionMap['node']['id'];
-        bool deleted = transactionMap['node']['deleted'];
-
-        transactionsPage.add(Transaction(
-            payerUsername: payerUsername,
-            adminUsername: adminUsername,
-            offeringName: offeringId,
-            pricePaidCents: pricePaidCents,
-            date: date,
-            id: transactionID,
-            deleted: deleted));
-      }
+      _currentCursor = transactionMaps.last['cursor'];
 
       hasNextPage = jsonDecode(responseString)['data']['me']
           ['transactionsPaginated']['pageInfo']['hasNextPage'];
@@ -240,17 +231,18 @@ class GraphQlHelper {
           jsonDecode(await response.stream.bytesToString())['data']
               ['offerings'];
 
-      List<Offering> newOfferings = [
-        for (dynamic offering in offerings)
-          Offering(
-              name: offering['name'],
-              readableName: offering['readableName'],
-              priceCents: offering['priceCents'],
-              imageUrl: offering['imageUrl'] ?? "",
+      List<Offering> newOfferings = offerings.fold(
+          [],
+          (prev, element) => prev
+            ..add(Offering(
+              name: element['name'],
+              readableName: element['readableName'],
+              priceCents: element['priceCents'],
+              imageUrl: element['imageUrl'] ?? "",
               color: int.parse(
-                  "FF${offering['color'].toString().replaceFirst("#", "").toUpperCase()}",
-                  radix: 16))
-      ];
+                  "FF${element['color'].toString().replaceFirst("#", "").toUpperCase()}",
+                  radix: 16),
+            )));
 
       LocalStore.offerings = newOfferings;
     } else if (response.statusCode == 404) {

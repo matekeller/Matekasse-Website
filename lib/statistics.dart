@@ -9,6 +9,7 @@ import 'package:matemate/local_store.dart';
 import 'package:matemate/offering.dart';
 import 'package:matemate/transaction.dart';
 import 'package:matemate/util/widgets/scaffolded_dialog.dart';
+import 'package:collection/collection.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({
@@ -334,9 +335,8 @@ class _StatisticsState extends State<Statistics>
     if (transactions.isEmpty) {
       return 0;
     }
-    var maxNum = 0;
 
-    for (Transaction transaction in transactions) {
+    var maxNum = transactions.foldIndexed(0, (index, prevNum, transaction) {
       var prev = DateFormat("yy-MM-dd HH:mm:ss")
           .parse(transactions[0].date.toString(), true)
           .toLocal();
@@ -347,20 +347,16 @@ class _StatisticsState extends State<Statistics>
       var prevDay = DateTime(prev.year, prev.month, prev.day);
       var currDay = DateTime(curr.year, curr.month, curr.day);
 
-      if (transactions.indexOf(transaction) != 0) {
+      if (index != 0) {
         prev = DateFormat("yy-MM-dd HH:mm:ss")
-            .parse(
-                transactions[transactions.indexOf(transaction) - 1]
-                    .date
-                    .toString(),
-                true)
+            .parse(transactions[index - 1].date.toString(), true)
             .toLocal();
         prevDay = DateTime(prev.year, prev.month, prev.day);
       }
 
-      if (prevDay.isAfter(currDay) && transactions.indexOf(transaction) != 0) {
-        maxNum = max(
-            maxNum,
+      if (prevDay.isAfter(currDay) && index != 0) {
+        return max(
+            prevNum,
             transactions
                 .where((element) =>
                     DateFormat("yy-MM-dd HH:mm:ss")
@@ -372,10 +368,12 @@ class _StatisticsState extends State<Statistics>
                         .toLocal()
                         .isBefore(prevDay.add(const Duration(hours: 24))))
                 .length);
-      } else if (transactions.indexOf(transaction) == 0) {
-        maxNum = 1;
+      } else if (index == 0) {
+        return 1;
       }
-    }
+      return prevNum;
+    });
+
     return maxNum;
   }
 }
@@ -494,7 +492,6 @@ class StatisticsList extends ListView {
       physics: physics,
       primary: primary,
       restorationId: restorationId,
-      reverse: reverse,
       scrollDirection: scrollDirection,
       shrinkWrap: shrinkWrap,
     );
