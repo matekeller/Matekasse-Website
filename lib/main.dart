@@ -529,6 +529,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           ),
           TextButton(
             onPressed: () {
+              setState(() {});
               Navigator.pop(context);
             },
             child: const Text("Close"),
