@@ -137,34 +137,28 @@ class _TransactionListState extends State<TransactionList> {
   }
 
   List<Transaction> _insertDates(List<Transaction> transactions) {
-    // Initialize with first transactions' date
-    List<Map> insertions = [
-      {
-        "tr": Transaction(
-            payerUsername: "",
-            adminUsername: "",
-            offeringName: "Date",
-            pricePaidCents: 0,
-            date: DateTime(
-                DateFormat("yy-MM-dd HH:mm:ss")
-                    .parse(transactions.first.date.toString(), true)
-                    .toLocal()
-                    .year,
-                DateFormat("yy-MM-dd HH:mm:ss")
-                    .parse(transactions.first.date.toString(), true)
-                    .toLocal()
-                    .month,
-                DateFormat("yy-MM-dd HH:mm:ss")
-                    .parse(transactions.first.date.toString(), true)
-                    .toLocal()
-                    .day),
-            id: 0,
-            deleted: false),
-        "idx": 0
-      }
-    ];
+    Transaction first = Transaction(
+        payerUsername: "",
+        adminUsername: "",
+        offeringName: "Date",
+        pricePaidCents: 0,
+        date: DateTime(
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(transactions.first.date.toString(), true)
+                .toLocal()
+                .year,
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(transactions.first.date.toString(), true)
+                .toLocal()
+                .month,
+            DateFormat("yy-MM-dd HH:mm:ss")
+                .parse(transactions.first.date.toString(), true)
+                .toLocal()
+                .day),
+        id: 0,
+        deleted: false);
 
-    insertions = transactions
+    List<Map> insertions = transactions
         .where((element) =>
             element.offeringName != "Date" &&
             transactions.indexOf(element) != 0)
@@ -187,7 +181,7 @@ class _TransactionListState extends State<TransactionList> {
       return element.$3.offeringName != "Date" &&
           element.$1.isAfter(element.$2);
     }).fold(
-            insertions,
+            [],
             (prev, element) => prev
               ..add({
                 "tr": Transaction(
@@ -205,6 +199,10 @@ class _TransactionListState extends State<TransactionList> {
     for (Map element in insertions) {
       transactions.insert(element["idx"] + timesInserted, element["tr"]);
       timesInserted += 1;
+    }
+
+    if (transactions[0].offeringName != "Date") {
+      transactions.insert(0, first);
     }
 
     return transactions;
