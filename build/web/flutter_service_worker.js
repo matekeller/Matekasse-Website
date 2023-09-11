@@ -53,11 +53,11 @@ const RESOURCES = {"icons/android-icon-36x36.png": "ee6b1a811e068f2dd6b11b8ae7c3
 "canvaskit/chromium/canvaskit.wasm": "393ec8fb05d94036734f8104fa550a67",
 "canvaskit/canvaskit.wasm": "d9f69e0f428f695dc3d66b3a83a4aa8e",
 "canvaskit/skwasm.wasm": "d1fde2560be92c0b07ad9cf9acb10d05",
-"main.dart.js": "3e406af2f9f921431f2f9ef2310568a0",
+"main.dart.js": "30292a1aa3eba60723c6d7093d82acaa",
 "manifest.json": "3275da3f67dc91fb70d21d3f92a9cca6",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"index.html": "5feb1c59466effec7f3710dc4500e9d4",
-"/": "5feb1c59466effec7f3710dc4500e9d4"};
+"index.html": "66877b14aa419792fd087fe8aeef54a4",
+"/": "66877b14aa419792fd087fe8aeef54a4"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",

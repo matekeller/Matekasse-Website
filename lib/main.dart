@@ -143,6 +143,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     int selectedIndex = 100;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await GraphQlHelper.getMyself();
+      setState(() {});
     });
     return SafeArea(
       child: Scaffold(
