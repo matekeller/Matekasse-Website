@@ -13,7 +13,7 @@ class GraphQlHelper {
   static Future<void> signIn(username, password) async {
     var headers = {'Content-Type': 'application/json'};
     var request =
-        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+        http.Request('POST', Uri.parse('https://api.matekasse.de/graphql'));
     request.body =
         '''{"query":"mutation {\\n  signIn(username: \\"$username\\", password: \\"$password\\")\\n}","variables":{}}''';
 
@@ -61,7 +61,7 @@ class GraphQlHelper {
       'Content-Type': 'application/json'
     };
     var request =
-        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+        http.Request('POST', Uri.parse('https://api.matekasse.de/graphql'));
     // NOTE: Backend does weird things when quering with "first: 0", I suppose it replies with the total number of a users transactions
     request.body =
         '''{"query":"query {\\n    me { transactionsPaginated(first: 1, after: 100000) {\\n        pageInfo {\\n            endCursor\\n        }\\n    }\\n }\\n}","variables":{}}''';
@@ -89,7 +89,7 @@ class GraphQlHelper {
     };
 
     var request =
-        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+        http.Request('POST', Uri.parse('https://api.matekasse.de/graphql'));
     // NOTE: Backend does weird things when quering with "first: 0", I suppose it replies with the total number of a users transactions
     request.body =
         '''{"query":"query {\\n  me {\\n    fullName\\n    username\\n    bluecardId\\n    isAdmin\\n    smartcards {\\n      smartcardId\\n    }\\n    balance\\n    \\n  }\\n}","variables":{}}''';
@@ -159,7 +159,7 @@ class GraphQlHelper {
       'Content-Type': 'application/json'
     };
     var request =
-        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+        http.Request('POST', Uri.parse('https://api.matekasse.de/graphql'));
     request.body =
         '''{"query":"query {\\n    me{\\n    transactionsPaginated(first: $first, after: $_currentCursor) {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n    }\\n}","variables":{}}''';
 
@@ -218,7 +218,7 @@ class GraphQlHelper {
       'Content-Type': 'application/json'
     };
     var request =
-        http.Request('POST', Uri.parse('https://matekasse.gero.dev/graphql'));
+        http.Request('POST', Uri.parse('https://api.matekasse.de/graphql'));
     request.body =
         '''{"query":"query {\\n  offerings {\\n      name\\n      readableName\\n      priceCents\\n      imageUrl\\n    color\\n}\\n}","variables":{}}''';
 

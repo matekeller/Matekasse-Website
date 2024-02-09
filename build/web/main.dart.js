@@ -25831,7 +25831,7 @@ yq(a,b){var s=0,r=A.Q(t.H),q,p,o,n,m,l,k,j
 var $async$yq=A.M(function(c,d){if(c===1)return A.N(d,r)
 while(true)switch(s){case 0:m=t.N
 l=A.ao(["Content-Type","application/json"],m,m)
-k=A.AI("POST",A.f3("https://matekasse.gero.dev/graphql"))
+k=A.AI("POST",A.f3("https://api.matekasse.de/graphql"))
 k.su8(0,'{"query":"mutation {\\n  signIn(username: \\"'+a+'\\", password: \\"'+b+'\\")\\n}","variables":{}}')
 k.r.P(0,l)
 s=3
@@ -25862,7 +25862,7 @@ t6(){var s=0,r=A.Q(t.S),q,p,o,n,m,l,k,j,i,h,g,f
 var $async$t6=A.M(function(a,b){if(a===1)return A.N(b,r)
 while(true)switch(s){case 0:o=t.N
 n=A.ao(["Authorization","Bearer "+A.ph(),"Content-Type","application/json"],o,o)
-m=A.AI("POST",A.f3("https://matekasse.gero.dev/graphql"))
+m=A.AI("POST",A.f3("https://api.matekasse.de/graphql"))
 m.su8(0,'{"query":"query {\\n    me { transactionsPaginated(first: 1, after: 100000) {\\n        pageInfo {\\n            endCursor\\n        }\\n    }\\n }\\n}","variables":{}}')
 m.r.P(0,n)
 s=3
@@ -25893,7 +25893,7 @@ p_(){var s=0,r=A.Q(t.Wy),q,p,o,n,m,l,k,j,i,h,g,f,e,d,c,b
 var $async$p_=A.M(function(a,a0){if(a===1)return A.N(a0,r)
 while(true)switch(s){case 0:g=t.N
 f=A.ao(["Authorization","Bearer "+A.ph(),"Content-Type","application/json"],g,g)
-e=A.AI("POST",A.f3("https://matekasse.gero.dev/graphql"))
+e=A.AI("POST",A.f3("https://api.matekasse.de/graphql"))
 e.su8(0,'{"query":"query {\\n  me {\\n    fullName\\n    username\\n    bluecardId\\n    isAdmin\\n    smartcards {\\n      smartcardId\\n    }\\n    balance\\n    \\n  }\\n}","variables":{}}')
 e.r.P(0,f)
 s=3
@@ -25958,7 +25958,7 @@ s=1
 break}if(b)$.yp=p+1
 p=t.N
 o=A.ao(["Authorization","Bearer "+A.ph(),"Content-Type","application/json"],p,p)
-n=A.AI("POST",A.f3("https://matekasse.gero.dev/graphql"))
+n=A.AI("POST",A.f3("https://api.matekasse.de/graphql"))
 n.su8(0,'{"query":"query {\\n    me{\\n    transactionsPaginated(first: '+a+", after: "+$.yp+') {\\n        edges {\\n            node {\\n                admin {\\n                    username\\n                }\\n                offeringId\\n                payer {\\n                    username\\n                #    bluecardId\\n                }\\n                pricePaidCents\\n                timestamp\\n            id\\n            deleted\\n}\\n            cursor\\n        }\\n        pageInfo {\\n            hasNextPage\\n            endCursor\\n        }\\n    }\\n    }\\n}","variables":{}}')
 n.r.P(0,o)
 s=6
@@ -25984,7 +25984,7 @@ t7(){var s=0,r=A.Q(t.H),q,p,o,n,m,l,k,j,i
 var $async$t7=A.M(function(a,b){if(a===1)return A.N(b,r)
 while(true)switch(s){case 0:o=t.N
 n=A.ao(["Authorization","Bearer "+A.ph(),"Content-Type","application/json"],o,o)
-m=A.AI("POST",A.f3("https://matekasse.gero.dev/graphql"))
+m=A.AI("POST",A.f3("https://api.matekasse.de/graphql"))
 m.su8(0,'{"query":"query {\\n  offerings {\\n      name\\n      readableName\\n      priceCents\\n      imageUrl\\n    color\\n}\\n}","variables":{}}')
 m.r.P(0,n)
 s=2
